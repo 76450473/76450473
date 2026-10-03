@@ -7,7 +7,11 @@ export_credentials.cfg
 # local tool output
 /screenshots/*.png
 !/screenshots/.gitkeep
+!/screenshots/.gdignore
 /reports/
+# packs / skill archives dropped into the project root are never committed
+/*.zip
 # raw user uploads (processed results live in art/ and ARE committed)
 /art_inbox/*
 !/art_inbox/README.txt
+!/art_inbox/.gdignore

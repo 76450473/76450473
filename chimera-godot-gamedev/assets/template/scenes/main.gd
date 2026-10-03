@@ -13,11 +13,13 @@ var rng := RandomNumberGenerator.new()
 var _views: Array[Node] = []
 var _title: Label
 var _info: Label
+var _has_backdrop := false
 
 
 func _ready() -> void:
 	db = Data.db
 	rng.seed = 20261003
+	_add_backdrop()
 	_title = _label(Vector2(40, 24), 30, Color("#efe6d2"))
 	_title.text = "奇美拉纪元 · 基因实验室（原型）"
 	var hint := _label(Vector2(40, 70), 16, Color("#a99f8f"))
@@ -29,9 +31,29 @@ func _ready() -> void:
 	_battle()
 
 
+## Imported key art / biome background behind the lab (darkened so creatures stay readable).
+func _add_backdrop() -> void:
+	var art := ArtLibrary.lookup("res://art/bg/title")
+	if art.is_empty():
+		art = ArtLibrary.background("swamp")
+	if art.is_empty():
+		return
+	var spr := Sprite2D.new()
+	spr.texture = art.texture
+	spr.centered = false
+	var tsz: Vector2 = (art.texture as Texture2D).get_size()
+	var k := maxf(1600.0 / tsz.x, 900.0 / tsz.y)
+	spr.scale = Vector2(k, k)
+	spr.modulate = Color(0.42, 0.40, 0.46)
+	spr.z_index = -10
+	add_child(spr)
+	_has_backdrop = true
+
+
 func _draw() -> void:
-	draw_rect(Rect2(0, 0, 1600, 900), Color("#14111a"))
-	draw_rect(Rect2(0, ROW_Y + 4, 1600, 230), Color("#1d1924"))
+	if not _has_backdrop:
+		draw_rect(Rect2(0, 0, 1600, 900), Color("#14111a"))
+	draw_rect(Rect2(0, ROW_Y + 4, 1600, 230), Color(0.11, 0.1, 0.14, 0.72 if _has_backdrop else 1.0))
 	draw_line(Vector2(0, ROW_Y + 4), Vector2(1600, ROW_Y + 4), Color("#3a3346"), 2.0)
 
 

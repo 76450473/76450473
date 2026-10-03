@@ -1,7 +1,7 @@
 # 美术协作管线：用户生成图片 → Claude 导入与适配
 
 Claude 自己不能生成图片。分工如下：
-- **用户**：按提示词用 AI 生图工具出图，放进 `art_inbox/`。
+- **用户**：按提示词用 AI 生图工具出图。通常是**开局就把全部图片打包成一个 zip 资产包**，放进项目文件夹；之后补图时，可以再给一个新的 zip，或者直接把图片放进 `art_inbox/`。
 - **Claude**：抠图、裁边、灰度化、缩放、计算挂点、对齐插槽、截图检查。告诉用户哪些图要重做、还缺什么，并给出提示词。
 
 缺失的资产永远回退到程序化占位美术，所以**任何时候游戏都能运行**，美术可以一张一张地补。
@@ -25,7 +25,9 @@ Claude 自己不能生成图片。分工如下：
 |---|---|
 | `data/art_manifest.json` | 唯一的真相源。定义风格锁定提示词、各族形状语言、每个部件、骨架、图标和背景的主体描述、挂点、锚点、显示高度 |
 | `src/art/art_manifest.gd` | 把 manifest 和游戏数据（基因部件、骨架、生态区、卡牌、Boss）**推导**成完整的资产列表，共 82 项；能输出 Markdown 格式的提示词书 |
-| `tools/art_audit.gd` | 列出缺失资产，写入 `docs/ART_TODO.md`。加 `-- full` 参数时写出全部资产的 `docs/ART_PROMPTS.md` |
+| `tools/art_audit.gd` | 列出缺失资产，写入 `docs/ART_TODO.md`。加 `-- full` 参数写出全部资产的 `docs/ART_PROMPTS.md`；加 `-- txt` 写出纯文本版 `docs/ART_PROMPTS.txt` |
+| `tools/unpack_assets.gd` | 用 Godot 的 ZIPReader 解压资产包（不依赖 unzip），也支持文件夹：把图片和 credits.txt 平铺放进 `art_inbox/`；会跳过 `__MACOSX` 目录、隐藏文件，以及内含 SKILL.md 的 zip |
+| `scripts/import_assets.sh`（skill 自带） | **一键导入**：自动发现资产包 → 解压 → 导入 → 注册 → 统计缺失 → 全量检查 → 截两张图 → 把资产包移到 `art_inbox/_packs/` |
 | `tools/import_art.gd` | 把 `art_inbox/` 里的图片处理后放进 `art/`，写 sidecar json，在 CREDITS.md 登记，原图移到 `art_inbox/_done/` |
 | `src/art/art_importer.gd` | 纯图像处理（有测试）：泛洪去背景、羽化、裁边、灰度化（保留饱和的发光色）、单色图标、fit / cover 缩放、计算锚点 |
 | `src/art/art_library.gd` | 运行时查找资产。查不到返回 `{}`，调用方据此回退到程序化美术 |
@@ -48,16 +50,23 @@ Claude 自己不能生成图片。分工如下：
 
 ## 3. 用户的流程（Claude 要用中文向用户解释成这样）
 
-1. 打开 `docs/ART_TODO.md`，从 P1 开始挑。每一项都有文件名、比例、背景要求、提示词和反向提示词。
-2. 用任意 AI 生图工具出图。按「保存为」里的文件名放进 `art_inbox/`。名字写错也没关系，Claude 会看图帮忙改名。
-3. 在 `art_inbox/credits.txt` 写一行：用的工具或模型，以及授权。
-4. 对 Claude 说"导入美术"。
+**开局一次性带齐（推荐）**
+1. 按《美术资产清单与提示词.txt》生成图片，每张按清单里的文件名保存（例如 `part_eye_compound.png`）。
+2. 把所有图片和一个 `credits.txt`（写一行：用的工具或模型，以及授权）放进一个文件夹，压缩成 zip，例如 `美术资产包.zip`。zip 里有子文件夹也没关系。
+3. 新建一个空文件夹，把 zip 放进去，在这个文件夹里启动 Claude Code，发送提示词。
+
+**之后补图**
+- 再给一个新的 zip，或者直接把图片放进 `art_inbox/`，然后说"导入美术"。
+- 名字写错也没关系，Claude 会看图帮忙改名。
 
 ## 4. Claude 的"导入美术"流程（必须按这个顺序做）
 
-1. **列出待处理的文件**：`ls art_inbox`。对每个文件名不在清单里的图片，**用 Read 打开看**，判断它是哪个资产，然后改名成正确的 id（`mv`）。实在判断不了就问用户。
-2. **预演**：`godot --headless --path . --script res://tools/import_art.gd -- --dry`，看有没有警告（见 §7）。
-3. **正式导入**：去掉 `--dry` 再跑一遍，然后 `godot --headless --path . --import`，让 Godot 注册新的 PNG。
+1. **一键导入**：`bash SKILL_DIR/scripts/import_assets.sh <项目>`。
+   - 资产包在项目外面时，把路径作为参数传进去：`import_assets.sh <项目> <资产包.zip>`。
+   - 新建项目时 `new_project.sh` 会自动调用它。
+   - 这一步会完成解压、处理、注册、统计缺失、全量检查和截图，并把每张图的警告打印出来（警告的含义见 §7）。
+2. **处理不认识的文件名**：脚本最后如果提示 art_inbox 里还剩图片，说明有文件名不在清单里。**用 Read 逐张打开看**，判断它是哪个资产，`mv` 改成正确的 id，然后重跑 `import_assets.sh`。实在判断不了就问用户。
+3. （可选）只想预演、不落盘时：`godot --headless --path . --script res://tools/import_art.gd -- --dry`。
 4. **逐张看处理结果**：用 Read 打开 `art/...png`，按 §5 的标准检查。
 5. **截图检查**：
    ```

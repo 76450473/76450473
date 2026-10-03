@@ -56,15 +56,8 @@ if [ "$BALANCE" = 1 ]; then
 fi
 
 if [ -n "$SHOT" ]; then
-  step "screenshot -> $SHOT"
-  CMD=("$GODOT" --path . --audio-driver Dummy --resolution 1600x900 --script res://tools/screenshot.gd -- "$SCENE" "$SHOT" 90 $KEY)
-  if [ "$(uname -s)" = "Linux" ] && [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
-    if command -v xvfb-run >/dev/null; then
-      xvfb-run -a -s "-screen 0 1600x900x24" "${CMD[@]}" --rendering-driver opengl3 2>&1 | grep -E "screenshot|SCRIPT ERROR" | head -5
-    else echo "no display and no xvfb-run: skipping screenshot"; fi
-  else
-    "${CMD[@]}" 2>&1 | grep -E "screenshot|SCRIPT ERROR" | head -5
-  fi
+  step "screenshot -> $SHOT ($SCENE)"
+  bash "$HERE/screenshot.sh" . "$SCENE" "$SHOT" $KEY
 fi
 
 echo

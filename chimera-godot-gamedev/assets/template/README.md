@@ -17,12 +17,13 @@ godot --headless --path . --script res://tests/run_tests.gd          # 单元测
 godot --headless --path . --script res://tools/balance_sim.gd -- n=400 tier=1   # 平衡报告
 godot --path . --audio-driver Dummy --script res://tools/screenshot.gd -- res://scenes/main.tscn screenshots/main.png 90
 godot --headless --path . --script res://tools/art_audit.gd          # 缺哪些美术 → docs/ART_TODO.md（含提示词）
+godot --headless --path . --script res://tools/unpack_assets.gd -- /绝对路径/美术资产包.zip   # 解压资产包 → art_inbox/
 godot --headless --path . --script res://tools/import_art.gd         # 导入 art_inbox/ 里的图片 → art/
 ```
 
 ## 美术协作
 美术由人用 AI 生图工具生成：提示词在 `docs/ART_PROMPTS.md`，缺失清单在 `docs/ART_TODO.md`。
-生成的图片放进 `art_inbox/`，运行导入工具即可。缺失的资产会自动用程序化占位美术代替。
+生成的图片放进 `art_inbox/`（或者打包成 zip，用 `tools/unpack_assets.gd` 解压），然后运行导入工具即可。缺失的资产会自动用程序化占位美术代替。
 美术检查台：`scenes/art_gallery.tscn`。
 
 ## 目录

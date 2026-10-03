@@ -3,6 +3,7 @@ extends SceneTree
 ##   godot --headless --path . --script res://tools/art_audit.gd           -> docs/ART_TODO.md (missing only)
 ##   godot --headless --path . --script res://tools/art_audit.gd -- full   -> docs/ART_PROMPTS.md (every asset)
 ##   ... -- p1                                                              -> TODO limited to priority 1
+##   ... -- txt                                                             -> docs/ART_PROMPTS.txt (every asset, plain text)
 ## The list is derived from game data, so new genes/biomes/cards show up here automatically.
 
 const INTRO := """怎么用：
@@ -21,6 +22,7 @@ const INTRO := """怎么用：
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	var full := args.has("full")
+	var as_txt := args.has("txt")
 	var only_p1 := args.has("p1")
 	var db := GameData.load_default()
 	var entries := ArtManifest.build(db)
@@ -41,9 +43,13 @@ func _initialize() -> void:
 	for p: int in keys:
 		summary.append("P%d %d/%d" % [p, counts[p][0], counts[p][1]])
 	var out_rel := "docs/ART_PROMPTS.md" if full else "docs/ART_TODO.md"
+	if as_txt:
+		out_rel = "docs/ART_PROMPTS.txt"
 	var title := "美术资产提示词（全部 %d 项）" % entries.size() if full else "缺失的美术资产（%d 项）" % missing.size()
 	var md := ArtManifest.to_markdown(entries if full else missing, title,
 		"进度：" + "　".join(summary) + "\n\n" + INTRO)
+	if as_txt:
+		md = ArtManifest.to_text(entries)
 	var path := ProjectSettings.globalize_path("res://" + out_rel)
 	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var f := FileAccess.open(path, FileAccess.WRITE)

@@ -23,11 +23,11 @@ M0 地基（模板自带，已验证）→ 下一步：M1 可玩的一场战斗
 
 ## 美术资产
 - 进度见 `tools/art_audit.gd` 输出（当前 P1 0/40 · P2 0/38 · P3 0/4），缺失清单与提示词在 docs/ART_TODO.md
-- 用户把图片放进 art_inbox/ 后执行"导入美术"流程（references/art-pipeline.md）
+- 用户的美术资产包（zip 或文件夹）放在项目根目录，或者图片放进 art_inbox/，执行 skill 的 scripts/import_assets.sh 后按 references/art-pipeline.md §4 质检
 
 ## 已知问题 / 技术债
 - 平衡（tools/balance_sim，n=600）：tier3 各族敌人非胜率差约 25–30 点（目标 ≤20；虫族偏弱、兽族偏强）；tier1 胜率 79% 接近上限 → M3 首个调参任务
 - 程序化占位美术：六足虫的近侧腿压在胸节上、人形像木偶 → M5 换正式部件美术时解决
 
 ## 最近一次验证
-- tests: 42/42 通过 · balance 玩家胜率 tier1≈79% / tier2≈70% / tier3≈60%，平均 5.5–6.8 回合 · 截图 screenshots/main.png
+- tests: 全部通过（见 godot_check 输出） · balance 玩家胜率 tier1≈79% / tier2≈70% / tier3≈60%，平均 5.5–6.8 回合 · 截图 screenshots/main.png

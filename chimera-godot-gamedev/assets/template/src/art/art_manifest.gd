@@ -167,6 +167,34 @@ static func to_markdown(entries: Array, title: String, intro: String) -> String:
 	return "\n".join(lines)
 
 
+## Plain-text prompt list (Notepad friendly) for the user's asset production run.
+static func to_text(entries: Array) -> String:
+	var lines := PackedStringArray()
+	var names := {1: "P1 · 必做（游戏前期就会用到，至少先做完这一批）", 2: "P2 · 推荐（中后期内容）", 3: "P3 · 可选（锦上添花）"}
+	var current := -1
+	var n := 0
+	var bar := "────────────────────────────────────────────────────────"
+	for e: Dictionary in entries:
+		if int(e.priority) != current:
+			current = int(e.priority)
+			lines.append("")
+			lines.append("════════════════════════════════════════════════════════")
+			lines.append("  " + str(names.get(current, "P%d" % current)))
+			lines.append("════════════════════════════════════════════════════════")
+		n += 1
+		lines.append("")
+		lines.append(bar)
+		lines.append("【%d】%s.png　　%s" % [n, e.id, e.cn])
+		lines.append("比例 %s（建议 %s）｜背景：%s｜%s" % [e.ratio, e.gen_size, e.bg, MODE_CN.get(e.mode, e.mode)])
+		if not (e.get("used_by", []) as Array).is_empty():
+			lines.append("用在：" + "、".join(PackedStringArray(e.used_by)))
+		lines.append("提示词：")
+		lines.append(str(e.prompt))
+		lines.append("反向提示词：")
+		lines.append(str(e.negative))
+	return "\n".join(lines)
+
+
 const MODE_CN := {"palette": "灰度（游戏内自动上色，只有发光处用鲜绿）", "mono": "白色剪影图标",
 	"color": "彩色原样", "cutout": "彩色，去背景"}
 

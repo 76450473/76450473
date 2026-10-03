@@ -1,107 +1,131 @@
-《奇美拉纪元 Chimera Epoch》Claude Skill：安装说明与提示词
-==========================================================
+《奇美拉纪元 Chimera Epoch》给 Claude 的提示词与使用步骤
+======================================================
 
-本包有三份东西：
-  1. chimera-godot-gamedev/       ← skill 文件夹（里面直接是 SKILL.md）
-     chimera-godot-gamedev.zip    ← 同一个 skill 的压缩包（用于上传到 claude.ai）
-  2. 提示词.txt                   ← 就是本文件
-  3. 美术资产提示词.md            ← 82 项美术资产的生图提示词和勾选清单，你拿去生成图片用
+你手上应该有三样东西：
+  1. chimera-godot-gamedev.zip       ← skill：做这款游戏所需的全部知识、工具和已验证的项目模板
+  2. 提示词.txt                      ← 本文件：安装步骤，以及发给 Claude 的话
+  3. 美术资产清单与提示词.txt        ← 你要生成的美术图片清单和生图提示词
 
-
-一、准备工作（只需做一次，大约 10 分钟）
-----------------------------------------
-1) 安装 Godot 4.7.2（选"标准版"，不要选 .NET 版）
-   下载地址：https://godotengine.org/download
-   - Windows：解压到 C:\Godot\。里面有两个 exe，命令行要用带 _console 的那个。
-     然后在 PowerShell 里执行一次（之后重开终端才会生效）：
-       setx GODOT_PATH "C:\Godot\Godot_v4.7.2-stable_win64_console.exe"
-   - macOS：brew install --cask godot（或者下载 dmg 拖进"应用程序"）
-   - Linux：解压后 chmod +x，再把 GODOT_PATH 设为它的路径
-
-2) 安装 Claude Code（Claude 必须在你自己的电脑上运行，才能直接驱动 Godot）
-   - 最简单：下载 Claude 桌面版 App，使用里面的 "Code"（代码）功能
-   - 或者用终端安装：
-       Windows PowerShell： irm https://claude.ai/install.ps1 | iex
-       macOS / Linux：      curl -fsSL https://claude.ai/install.sh | bash
-   - Windows 还需要装 Git for Windows（https://git-scm.com/downloads/win）。
-     skill 里的检查脚本要靠 Git Bash 才能运行。
-   - 需要 Pro、Max、Team 或 Enterprise 账号。
-
-3) 安装本 skill：把整个 chimera-godot-gamedev 文件夹复制到下面的位置
-     Windows：      C:\Users\你的用户名\.claude\skills\chimera-godot-gamedev\
-     macOS / Linux：~/.claude/skills/chimera-godot-gamedev/
-   复制后要确认：打开这个文件夹，SKILL.md 就在第一层，不要多套一层文件夹。
-
-   （可选）在 claude.ai 网页版或桌面版的聊天中使用：
-   到 claude.ai 设置里的 Skills 页面（桌面版在侧边栏的 Customize 里）上传 chimera-godot-gamedev.zip。
-   注意：网页聊天没法在你的电脑上运行 Godot，只能帮你写代码和设计，
-   做游戏请用 Claude Code。
-
-4) （可选）让 Claude 还能操作 Godot 编辑器。需要先装 Node.js（LTS 版即可）。
-     claude mcp add godot -e GODOT_PATH="你的Godot路径" -- npx @coding-solo/godot-mcp
-   不装也完全没关系，skill 默认通过命令行驱动 Godot，测试和截图都能照常做。
-
-5) 新建一个空文件夹（例如 D:\games\chimera），在这个文件夹里启动 Claude Code。
-   Claude 第一次运行检查脚本时会请求权限，选"允许，以后不再询问"会省事很多。
+总流程：
+  生成美术 → 打包成 美术资产包.zip → 安装 Godot 和 Claude Code → 安装 skill
+  → 新建游戏文件夹并放入资产包 → 发提示词 → Claude 自动建项目、导入美术、开始开发
 
 
-二、一句话提示词（第一次用）
-----------------------------
-复制下面这一整行发给 Claude：
+第一步：准备美术资产包
+----------------------
+按《美术资产清单与提示词.txt》生成图片，然后打包成 美术资产包.zip：
+  - zip 里放全部图片，外加一个 credits.txt。
+  - credits.txt 写一行：你用的工具或模型，以及授权。
+  - 文件名用清单里的英文名。
+可以先只做定调批或 P1，剩下的以后再补，缺的图游戏会用占位图代替。
 
-/chimera-godot-gamedev 在当前文件夹从零开始做《奇美拉纪元》：先完成 M0 并验证，然后按路线图一个里程碑一个里程碑做下去；每完成一个里程碑，用中文向我汇报并附上截图；需要我拍板的事再问我。
+
+第二步：安装 Godot 4.7.2（选"标准版"，不要选 .NET 版）
+---------------------------------------------------
+下载地址：https://godotengine.org/download
+
+- Windows：
+  解压到 C:\Godot\，里面有两个 exe，命令行要用带 _console 的那个。
+  然后在 PowerShell 里执行一次（执行后要重开终端才生效）：
+      setx GODOT_PATH "C:\Godot\Godot_v4.7.2-stable_win64_console.exe"
+  （文件名以你实际解压出来的为准）
+- macOS：
+  brew install --cask godot，或者下载 dmg 拖进"应用程序"。
+- Linux：
+  解压后 chmod +x，再把 GODOT_PATH 设为它的完整路径。
+
+
+第三步：安装 Claude Code（Claude 必须在你自己的电脑上运行，才能驱动 Godot）
+----------------------------------------------------------------------
+- 最简单的方式：下载 Claude 桌面版 App，使用里面的 "Code"（代码）功能。
+- 或者用终端安装：
+      Windows PowerShell： irm https://claude.ai/install.ps1 | iex
+      macOS / Linux：      curl -fsSL https://claude.ai/install.sh | bash
+- Windows 还要装 Git for Windows：https://git-scm.com/downloads/win
+  skill 里的脚本要靠它自带的 Git Bash 才能运行。
+- 需要 Pro、Max、Team 或 Enterprise 账号。
+
+
+第四步：安装 skill
+------------------
+1. 解压 chimera-godot-gamedev.zip，得到 chimera-godot-gamedev 文件夹。
+2. 把它放到下面的位置（没有 .claude 或 skills 文件夹就新建）：
+       Windows：      C:\Users\你的用户名\.claude\skills\chimera-godot-gamedev\
+       macOS / Linux：~/.claude/skills/chimera-godot-gamedev/
+   Windows 可以在 PowerShell 里先执行这句来建文件夹：
+       mkdir $env:USERPROFILE\.claude\skills
+3. 检查：最终路径必须是 ...\skills\chimera-godot-gamedev\SKILL.md。
+   Windows 的"全部解压缩"常会多套一层同名文件夹，如果出现，把里面那一层拿出来。
+
+（可选）在 claude.ai 网页版里也想用：到设置里的 Skills 页面上传 chimera-godot-gamedev.zip。
+不过网页聊天没法运行你电脑上的 Godot，做游戏一定要用 Claude Code。
+
+
+第五步：新建游戏文件夹，放入资产包
+----------------------------------
+新建一个空文件夹，例如 D:\games\chimera，把 美术资产包.zip 放进去。
+里面不要放别的东西（这两个 txt 放进去也没关系）。
+
+
+第六步：在这个文件夹里启动 Claude Code
+------------------------------------
+- 桌面版：打开 Code，选择这个文件夹。
+- 终端：先 cd 到这个文件夹，再输入 claude。
+Claude 运行脚本时会请求权限，选"允许，以后不再询问"会省事很多。
+
+
+第七步：发送一句话提示词（复制下面这一整行）
+------------------------------------------
+
+/chimera-godot-gamedev 我把美术资产包放在当前文件夹了。请在当前文件夹从零开始做《奇美拉纪元》：建项目并导入资产包，逐张检查美术并截图给我看，告诉我哪些图要重做（附改好的提示词）、还缺哪些；然后按路线图一个里程碑一个里程碑开发下去，每完成一个里程碑用中文汇报并附截图，需要我拍板的事再问我。
 
 （如果输入 / 之后没有弹出这个 skill，就把开头改成："使用 chimera-godot-gamedev 这个 skill，……"）
 
+Claude 接下来会自动做这些事：
+  找到 Godot → 在当前文件夹建项目 → 解压并导入资产包 → 抠图、上色、对齐
+  → 跑完整检查和测试 → 截图 → 汇报美术情况 → 开始开发第一个里程碑（可操作的战斗）。
 
-三、之后每次继续
-----------------
+
+之后每次继续（换新会话也一样）
+------------------------------
 /chimera-godot-gamedev 继续开发：先读 docs/PROGRESS.md，从"下一步"接着做，做完当前里程碑再向我汇报。
 
-（进度都记在项目的 docs/PROGRESS.md 里，换一个新会话也不会丢。会话中途被打断时，直接说"继续"就行。）
+进度都记在项目的 docs/PROGRESS.md 里，不会丢。会话中途被打断时，直接说"继续"就行。
 
 
-四、常用追加指令（按需复制）
-----------------------------
-· 跑一遍平衡模拟，把不达标的数值调回目标区间，然后告诉我改了什么、为什么改。
-· 截一张现在的战斗画面给我看，并按视觉验收清单自己检查一遍。
-· 我想加一个新种族「＿＿」，主题是＿＿。请按扩展清单把它加进去，并做平衡。
-· 我想加一个 Boss，它的核心机制是＿＿，要让玩家学会＿＿。
-· 准备开源发布：补齐 README、CONTRIBUTING、CHANGELOG，并检查素材授权。先不要推送，等我确认。
-· 我玩下来觉得＿＿不好玩，请分析原因，给出 2–3 个改法，等我选。
+补图或重做美术
+--------------
+把新的 zip 放进游戏文件夹，或者把图片直接放进项目的 art_inbox 文件夹，然后发：
 
+/chimera-godot-gamedev 导入美术：处理新的图片，截图检查效果，告诉我哪些要重做（附改好的提示词），还缺哪些资产。
 
-五、美术资产（你出图，Claude 负责导入和适配）
-----------------------------------------------
-Claude 不能生成图片，所以美术由你用 AI 生图工具来做，Claude 负责其余的事：
-抠背景、裁边、转灰度、按种族自动上色、缩放、对齐挂点、截图检查。
-缺图不影响开发，缺的部分会一直用程序画的占位图代替，可以边做游戏边慢慢补。
-
-步骤：
-1) 打开「美术资产提示词.md」。先做第三节的"定调批"6 张，把风格定下来，再按 P1 → P2 → P3 的顺序批量做。
-   项目里的 docs/ART_TODO.md 永远是最新的缺失清单，提示词和这份文件一致。
-2) 每张图按清单里的资产 id 命名（例如 part_eye_compound.png），放进项目的 art_inbox/ 文件夹。
-   部件和骨架用纯白平底背景、灰度、粗黑描边；图标用纯黑平底背景。
-3) 在 art_inbox/credits.txt 写一行：你用的工具或模型，以及授权。
-4) 对 Claude 说下面这句：
-
-/chimera-godot-gamedev 导入美术：处理 art_inbox 里的新图片，截图检查效果，告诉我哪些要重做（附改好的提示词），还缺哪些 P1 资产。
-
-其他美术相关的说法：
+其他说法：
 · /chimera-godot-gamedev 现在还缺哪些美术？按优先级列出前 10 项，并附提示词。
 · /chimera-godot-gamedev 这张 part_xxx 不满意，帮我分析原因，给我改好的完整提示词。
 · /chimera-godot-gamedev 我想换一种美术风格：＿＿。请改风格锁定，并重新生成全部提示词。
-（Claude 在新会话开始时，也会自己检查 art_inbox。发现有新图片，会先导入再继续开发。）
 
 
-六、常见问题
-------------
-· Claude 说找不到 Godot：检查 GODOT_PATH 是否设置正确（Windows 要指向 _console.exe），然后重启终端或 Claude。
-· 想自己玩玩看：用 Godot 打开项目文件夹里的 project.godot，按 F5。
+常用追加指令（按需复制）
+------------------------
+· 跑一遍平衡模拟，把不达标的数值调回目标区间，然后告诉我改了什么、为什么改。
+· 截一张现在的战斗画面给我看，并按视觉验收清单自己检查一遍。
+· 我想加一个新种族「＿＿」，主题是＿＿。请按扩展清单把它加进去，同步美术清单，并做平衡。
+· 我想加一个 Boss，它的核心机制是＿＿，要让玩家学会＿＿。
+· 我玩下来觉得＿＿不好玩，请分析原因，给出 2–3 个改法，等我选。
+· 准备开源发布：补齐 README、CONTRIBUTING、CHANGELOG，并检查素材授权。先不要推送，等我确认。
+
+
+常见问题
+--------
+· Claude 说找不到 Godot：
+  检查 GODOT_PATH 是否设置正确（Windows 要指向 _console.exe），然后重启终端或 Claude。
+· 想自己玩玩看：
+  用 Godot 打开游戏文件夹里的 project.godot，按 F5。
   演示场景的按键：D 演示组　R 随机敌族　F 随机融合　B 重跑战斗。
-· 图片放进去了但 Claude 说"不认识的文件名"：它会打开图片看是什么，再帮你改名；也可以对照清单自己改。
-· 导入后部件位置歪了：直接告诉 Claude"xxx 的位置不对"。它会调对齐参数（sidecar json）并重新截图，不用重画。
-· AI 图的版权：以你所用工具的服务条款为准。开源发布前，确认你的订阅允许商用或公开分发。
-· 开源吗？Godot 引擎本身是 MIT 协议，免费、不抽成。skill 生成的项目默认也是开源授权：
-  代码用 MIT，美术和音频用 CC BY-SA 4.0。不过 Claude 只会在本地提交，
-  推送到 GitHub、发布到 itch.io 之前都会先问你。
+· Claude 说某张图"不认识的文件名"：
+  它会打开图片看是什么，再帮你改名，你不用管。
+· 导入后部件位置歪了：
+  直接告诉 Claude"xxx 的位置不对"，它会调对齐参数并重新截图，不用重画。
+· 开源吗：
+  Godot 引擎是 MIT 协议，免费、不抽成。项目默认代码用 MIT，美术用 CC BY-SA 4.0。
+  Claude 只在本地提交，推送到 GitHub、发布到 itch.io 之前都会先问你。

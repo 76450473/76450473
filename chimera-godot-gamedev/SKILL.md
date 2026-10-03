@@ -1,6 +1,6 @@
 ---
 name: chimera-godot-gamedev
-description: Build, continue, test, balance and ship the open-source Godot 4.7 game "Chimera Epoch / 奇美拉纪元". It is a gene-evolution roguelike with semi-auto tactics. The player picks a progenitor race, goes on expeditions, defeats other races and bosses to loot genes, tactic cards and units, then fuses genes into new species, builds and wins the run. Use when the user asks to create, continue, playtest, balance, re-art or publish this game, or mentions 基因融合 / 种族进化 / 肉鸽 Build / 奇美拉 / Godot 基因游戏. Ships a verified project template (data-driven sim, fusion, enemy generator, procedural creature visuals, tests, balance simulator, screenshot tool, CI), the design doc, exact system specs, a milestone roadmap and a headless Godot workflow. Also use it when the user uploads art or asks what art is missing (导入美术 / 缺什么图 / 美术提示词). The user generates the images from the provided prompts, and Claude imports, recolors, aligns and checks them.
+description: Build, continue, test, balance and ship the open-source Godot 4.7 game "Chimera Epoch / 奇美拉纪元". It is a gene-evolution roguelike with semi-auto tactics. The player picks a progenitor race, goes on expeditions, defeats other races and bosses to loot genes, tactic cards and units, then fuses genes into new species, builds and wins the run. Use when the user asks to create, continue, playtest, balance, re-art or publish this game, or mentions 基因融合 / 种族进化 / 肉鸽 Build / 奇美拉 / Godot 基因游戏. Ships a verified project template (data-driven sim, fusion, enemy generator, procedural creature visuals, tests, balance simulator, screenshot tool, CI), the design doc, exact system specs, a milestone roadmap and a headless Godot workflow. Also use it when the user provides an art pack (zip or folder of images), uploads art or asks what art is missing (美术资产包 / 导入美术 / 缺什么图 / 美术提示词). The user generates the images from the provided prompts, and Claude unpacks, imports, recolors, aligns and checks them.
 ---
 
 # Chimera Epoch：Godot 游戏开发 Skill
@@ -18,18 +18,28 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 5. **基因是行为，不是数值。** 新基因要用"触发器-动作-目标"DSL 表达**玩法**，纯加数值的基因只能是少数。
 6. **一次只做一个里程碑**（见 `references/roadmap.md`）。不要提前做后面里程碑的系统，范围蔓延是这个项目最大的风险。
 7. **对外动作先问用户。** 推送远程仓库、发布到 itch.io/Steam、使用付费或授权不明的素材、确定署名和许可证持有人，都要先征得同意。本地的 git commit 可以自主进行。
-8. **你不能生成图片，美术由用户提供。** 缺少的美术绝不能阻塞开发，程序化占位美术会自动顶上。你的职责有三件：用 `tools/art_audit.gd` 告诉用户缺什么，并附上可直接复制的提示词；用户上传图片后，按 `references/art-pipeline.md` §4 导入、适配和质检；新增内容时，同步更新美术清单。
+8. **你不能生成图片，美术由用户提供。** 用户通常在开局就带来一个**美术资产包**（zip 或图片文件夹，放在项目文件夹里）。缺少的美术绝不能阻塞开发，程序化占位美术会自动顶上。你的职责有四件：
+   - 导入资产包：`scripts/import_assets.sh`
+   - 按 `references/art-pipeline.md` §4 逐张质检、对齐
+   - 用 `tools/art_audit.gd` 告诉用户还缺什么、哪些要重做，并附上可直接复制的提示词
+   - 新增内容时，同步更新美术清单
 
 ## 1. 每次会话开始（必做，按顺序）
 
 1. **定位项目**
    - 当前目录或用户给的路径里有 `project.godot`，且 `config/name` 含 "Chimera"：这是续作，进入第 2 步。
-   - 都没有：新建项目，默认放在 `./chimera-epoch`，见第 3 节。
+   - 没有项目，并且当前目录基本是空的（只有美术资产包、图片、txt 说明或 skill 压缩包）：**直接在当前目录新建**（`new_project.sh .`），见第 3 节。
+   - 没有项目，但当前目录里有别的东西：在 `./chimera-epoch` 新建，然后把资产包路径作为参数传给 `import_assets.sh`。
 2. **读记忆**：读 `docs/PROGRESS.md`（进度、下一步、已知问题）和 `docs/DECISIONS.md`（已做的决定，不要推翻）。
 3. **找引擎**：运行 `GODOT=$(bash SKILL_DIR/scripts/find_godot.sh)`。
    - 找不到：按 `references/godot-workflow.md` §1 指导用户安装 Godot 4.7.x，然后停下来等用户。没有引擎时写出的代码一律标注"未验证"。
    - Windows 上要使用 `*_console.exe`，普通版 exe 不会把输出打到终端。
-4. **检查美术收件箱**：如果 `art_inbox/` 里有图片（README.txt 和 credits.txt 不算），说明用户上传了新素材。先执行"导入美术"流程（art-pipeline §4），再继续开发。
+4. **检查美术资产**：出现以下任一情况，都说明用户带来了新素材：
+   - 项目根目录里有 zip 或图片文件夹（名字含 art、asset、美术、资产、素材）
+   - 项目根目录里有零散的图片
+   - `art_inbox/` 里有图片（README.txt 和 credits.txt 不算）
+
+   这时先跑 `bash SKILL_DIR/scripts/import_assets.sh <项目>`，再按 art-pipeline §4 质检，然后再继续开发。
 5. **可选的 MCP**：如果会话里有 `mcp__godot__*` 之类的 Godot MCP 工具，可以用来启动编辑器、查看调试输出。但验收永远以 CLI 的 `godot_check.sh` 为准（见 `references/godot-workflow.md` §2）。
 6. 用一两句中文告诉用户：现在在哪个里程碑、这次准备做什么。然后直接开始，不要停下来等确认（除非触发了原则 7）。
 
@@ -52,17 +62,35 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 ## 3. 新项目（M0 引导）
 
 ```bash
-bash SKILL_DIR/scripts/new_project.sh ./chimera-epoch   # 复制已验证模板 → 导入 → 全量检查 → git init
-bash SKILL_DIR/scripts/godot_check.sh ./chimera-epoch --shot screenshots/m0.png --balance
+bash SKILL_DIR/scripts/new_project.sh .        # 复制已验证模板 → 有资产包就自动导入 → 全量检查 → 截图 → git init
+bash SKILL_DIR/scripts/godot_check.sh . --balance
 ```
+
+`new_project.sh` 发现资产包时，会自动调用 `import_assets.sh`，依次完成：
+1. 用 Godot 自带的 ZIPReader 解压（Windows 不需要装 unzip）
+2. 抠图、裁边、转灰度
+3. 注册到 Godot
+4. 统计缺失情况
+5. 运行全量检查
+6. 截两张图：`screenshots/art_gallery.png` 和 `screenshots/main.png`
+
+资产包会被移到 `art_inbox/_packs/`，不会重复导入。
 
 模板已经包含：
 - 内容：6 个种族、13 个单位模板、28 个基因、8 张战术卡、3 个生态区、6 个精英协同、1 个 Boss、3 个隐藏配方
 - 系统：确定性战斗、语义融合、敌人生成、程序化生物外观加材质 shader
-- **美术协作管线**：82 项资产清单和提示词、缺失审计、自动导入、灰度图按种族上色、美术检查台
-- 工具：42 项测试、平衡模拟、截图工具、GitHub Actions CI
+- **美术协作管线**：82 项资产清单和提示词、资产包解压、自动导入、灰度图按种族上色、缺失审计、美术检查台
+- 工具：完整的单元测试、平衡模拟、截图工具、GitHub Actions CI
 
-M0 完成后，看一眼截图，向用户展示"基因实验室"演示。告诉用户 `docs/ART_TODO.md` 里有 P1 美术清单和提示词，可以随时生成后放进 `art_inbox/`。然后直接开始 M1，不要等美术。
+**M0 完成时必须做的事**：
+1. 用 Read 打开两张截图（美术检查台和基因实验室）。
+2. 按 art-pipeline §4、§5 逐项质检：文件名不认识的图片，要看图后改名，再重跑 `import_assets.sh`；错位的部件改 sidecar json，改完重新截图。
+3. 向用户汇报：
+   - 导入了多少张，各类资产的覆盖率（P1、P2、P3）
+   - **需要重做的图**，附上改好的完整提示词
+   - 还缺的 P1 资产，列前 10 项
+   - 两张截图的路径
+4. 然后直接开始 M1，不要等美术，缺的图会用占位美术代替。
 
 ## 4. 架构速览（细节见 `references/systems-spec.md`）
 
