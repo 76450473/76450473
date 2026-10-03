@@ -1,0 +1,162 @@
+# 视觉系统：看得见的血统
+
+## 目录
+1. 美术方向
+2. 视觉基因组规则（VisualGenome，已实现）
+3. 六族形状语言
+4. 插槽、骨架与绘制顺序
+5. 材质层 shader
+6. 调色板规则 60/25/15
+7. 从占位美术到正式美术：部件规范
+8. AI 生成美术：风格锁定提示词
+9. 动画
+10. 战斗画面构图（M1）
+11. 卡面、图鉴、UI 风格
+12. 截图验收清单
+
+---
+
+## 1. 美术方向
+
+**暗黑生物幻想 × 禁忌博物志**。
+- 不写实：写实风格下拼接异族器官会显得恶心又廉价。
+- 不 Q 版：会削弱进化带来的怪诞感。
+- 轮廓清晰、粗线描边、平涂加一层高光。在棋盘距离上也要能读懂。
+- 每个单位最多 3 个显著特征，避免"圣诞树挂满挂件"。
+- **只用 2D**，配合斜俯视的 2.5D 棋盘：后排单位稍微上移并缩小 0.9 倍来表现纵深。理由见 gdd §1。
+
+## 2. 视觉基因组规则（`src/view/visual_genome.gd`）
+
+`VisualGenome.build(spec, db)` 是一个纯函数，输出一个字典：body_plan、shape、parts[]、layers{}、palette、fx、scale、name、dominant、secondary、leaped。
+
+- **权重**：模板种族的基础权重为 12，每个基因按自身的稳定度给它的种族加权。
+- **骨架**：始终沿用模板种族的骨架。只有当某个外来种族的权重 ≥ 2 倍基础权重时，才会发生**跃迁**，换成那个种族的骨架（极端过载或突变时才会出现）。
+- **副种族**：权重最高的外来种族，占比 ≥ 20% 时成为副种族，会影响配色。界面上的标签显示为"人族·虫裔"；占比不到 20% 时显示为"人族·微虫"。
+- **部件**：每个带有 `visual.part` 的基因生成一个部件，**用基因所属种族的形状语言来画**。部件按稳定度排序，前 3 个是显著部件，其余的缩小到 0.65 倍并降低饱和度。
+- **材质层**：每个基因的 `visual.layer` 按 稳定度 / 10 累加；外来种族的固有材质层再加 0.8 × 占比。最终只取前 2 层。这就是"渐进表达"：虫族基因 20% 时只出现几块甲片，80% 时甲壳覆盖全身。
+- **特效（fx）**：主元素属于 poison / infect / regen / stun / vulnerable / summon 时，播放对应的粒子。
+- **体型**：`scale = clamp(0.8 + (hp - 8) / 40, 0.75, 1.5)`，Boss 再 ×1.55。
+- **命名**：元素前缀 + 最显著部件的名词 + 模板的 role 词根，例如"毒瞳猎使"、"疫腺母"。
+
+## 3. 六族形状语言（所有部件都要遵守）
+
+| 种族 | 轮廓 | 线条 | 主色（base / dark / accent） | 动作 | 部件例子 |
+|---|---|---|---|---|---|
+| 人族 | 对称、直立、矩形 | 圆角、规整 | 肤色 #d9c3a5 / #3a3346 / #9fb4c8 | 稳、有节奏 | 甲片、长矛、战旗、包扎 |
+| 虫族 | 分节、前倾、多肢 | 尖锐、分段 | 暗红 #7a3442 / #1f1418 / #e0aa4c | 抽动、快速 | 复眼、巨颚、喷口、卵囊 |
+| 菌族 | 膨胀、团簇 | 圆润、绵软 | 灰白 #cfc4ab / #47463a / #9ad27a | 缓慢、脉动 | 孢冠、触须、菌网、尸花 |
+| 兽族 | 肌肉、骨骼 | 粗壮曲线 | 棕 #8c5b3a / #2a1c14 / #eadbb2 | 弹跳、扑击 | 獠牙、鬃毛、利爪、冠 |
+| 晶族 | 切面、几何 | 直线、锐角 | 冰蓝 #6fb6d8 / #1e2e4a / #e6f6ff | 悬浮、共振 | 晶簇、棱镜、晶核 |
+| 幽体 | 漂浮、缺失、拖尾 | 渐隐 | 紫 #9a8fc8 / #1a1630 / #7ef0e0 | 飘移、闪烁 | 光环、纱、魂爪 |
+
+## 4. 插槽、骨架与绘制顺序（`CreaturePainter`）
+
+- **坐标系**：原点在脚底中心，单位面朝 +x 方向；敌人在 CreatureView 上设置 `facing = -1`。在 scale 1 时身高约 150px。
+- **骨架（body_plan）**：biped（人）、hexapod（虫）、cluster（菌）、quadruped（兽）、construct（晶）、floater（魂）。每种骨架都在 `sockets(plan)` 里定义了 head、back、core、limb、torso、eye 的坐标。
+- **绘制顺序**（从后往前）：阴影 → back 部件 → 骨架主体（远侧肢体 → 躯干 → 头 → 近侧肢体）→ skin 部件 → core 部件 → 默认眼睛（头部没有眼类部件时）→ head 部件 → limb 部件。
+- 新增部件时：先在 `Defs.PART_KINDS` 登记，再在 `_draw_part` 的 match 里实现，最后在 fusion.json 的 `part_word` 里补上它的名词。
+
+## 5. 材质层 shader（`src/shaders/gene_layers.gdshader`）
+
+- uniform：chitin、mycelium、crystal、fur、ether、rot，取值 0–1。
+- 每一层用噪声阈值控制覆盖范围，强度越高，覆盖越广。
+- 亮度 < 0.18 的像素不加任何修饰，以保护描边。
+- 新增一层的步骤：
+  1. 在 `Defs.LAYERS` 里登记。
+  2. 在 shader 里加对应的 uniform 和一段混合代码。
+  3. `CreatureView.setup` 会自动按名字把值传进去。
+- 换上正式美术后这个 shader 照样使用，因为它基于局部坐标，对纹理同样生效。
+
+## 6. 调色板规则 60/25/15
+
+- 60%：主种族的 base 色。
+- 25%：副种族的颜色混进 dark 和 base（dark 混 45%，base 混 18%）。
+- 15%：主元素的强调色（ELEMENT_COLOR），只用在囊、眼、特效、攻击光效上。
+- 部件本身用它所属种族的 base 色，再混 25% 的宿主 base 色，所以虫族部件长在人族身上，既能认出是虫族的东西，又不显得突兀。
+- **元素色固定，全局统一**：毒 #7bd23c、感染 #c9d88a、再生 #e0524a、眩晕 #f2d24b、易伤 #b06ae0、伤害 #f08a3c、护甲 #86b1d6。
+
+## 7. 从占位美术到正式美术：部件规范（M5）
+
+所有部件放在 `res://art/parts/<kind>.png`（需要按种族区分时用 `<kind>@<race>.png`），并配一个同名的 `.json`：
+```json
+{"pivot": [64, 120], "scale": 1.0, "z": "core", "tint": "palette", "author": "...", "license": "CC BY-SA 4.0"}
+```
+
+**绘制要求**：
+- 尺寸 128 或 256 的正方形，透明背景，侧视，面朝右。
+- 统一 3px 深色描边（按 1× 尺寸计算）。
+- **灰度绘制**：用 R 通道表示明暗，A 通道表示形状，G 通道作为可选的强调色遮罩。
+- 运行时用渐变映射 shader 上色：暗部映射到 dark，中间调映射到 base，G 遮罩区域映射到 accent。**这样同一张部件图能自动适配任何宿主的配色**，这是跨种族拼接仍然协调的关键。
+
+**加载器**：新增一个 `PartLibrary`。如果某个部件有对应的 PNG，就用 `draw_texture` 画在插槽位置；没有就回退到程序化绘制。正式美术可以一件一件地替换，不需要一次全部完成。
+
+躯干和骨架同理，也可以替换：`art/bodies/<body_plan>.png`，肢体建议拆开成 `upper` 和 `lower` 两张图，便于做动画。
+
+## 8. AI 生成美术：风格锁定提示词
+
+**部件**（每次只生成一个部件）：
+```
+2D game asset, a single [PART: compound insect eye cluster] for a creature-assembly game,
+side view facing right, [SHAPE LANGUAGE: segmented, sharp, chitinous], grayscale value painting,
+flat cel shading with one soft highlight, thick uniform dark outline, centered, transparent background,
+no text, no shadow on ground, clean silhouette, dark biological fantasy, naturalist bestiary style
+```
+反向提示：`photo, realistic, gore, text, watermark, multiple objects, background, color`
+
+**图鉴插画**（整只物种，用作卡面和宣传）：
+```
+dark biological fantasy creature illustration, forbidden naturalist bestiary page,
+a [human-insect hybrid warrior: human upright body, chitin plates on back and forearms, compound eyes, green venom sacs],
+[palette: warm skin + dark crimson chitin + toxic green accents], ink outlines, muted parchment background,
+full body side view, readable silhouette, no text
+```
+
+**规则**：
+- 把用到的工具、模型和授权写进 CREDITS.md。
+- 提示词里不要出现在世艺术家的名字或商业 IP。
+- 生成的图要人工检查后才能入库。
+- 入库前用 `tools/screenshot.gd` 截图，确认它和占位美术的比例一致。
+
+## 9. 动画
+
+- **M1 先用程序化动画**，基于 Tween 和 sin：
+  - 待机：上下呼吸 ±1.5%；漂浮类单位再加 ±3px 的浮动。
+  - 攻击：朝目标前冲 18px 然后回位，总共 0.25 秒。
+  - 受击：闪白 0.08 秒，后退 6px。
+  - 死亡：下沉加淡出，0.4 秒。
+  - 召唤：从 0.2 倍弹到 1 倍。
+- **M5 之后**再给每种骨架做一套 AnimationPlayer（idle、attack、hit、death），控制 `_Body` 子节点或者各个部件节点。部件跟随插槽运动，所以**一套骨架动画对任何基因组合都适用**。
+- 部件的二级运动（触须摆动、旗帜飘动、孢子飘散）由部件自己的 `t` 参数驱动，已经实现。
+
+## 10. 战斗画面构图（M1）
+
+- 视口 1600×900。玩家在左，敌人在右，每方 2×3 格。
+  - 前排两边的 x 坐标分别为 560 和 1040；每排后撤 170px，上移 40px，缩小到 0.9 倍。
+  - 三列的 y 坐标分别为 330、480、630（加上行偏移）。
+- 每个单位的 UI：
+  - 头顶：意图图标（会攻击谁、带什么效果）。
+  - 身下：血条 + 护甲盾牌数字 + 一排状态图标。
+  - 基因图标：最多显示 5 个，敌人未揭示的基因显示为"?"。
+- 底部：手牌（4 张）、能量球、结束回合按钮、战斗速度按钮（1×、2×、4×）。
+- 右上角是可以折叠的战斗日志，内容直接取事件日志的中文描述。
+- 每个生态区一张背景：先用程序化的渐变加剪影，M5 换成绘制的背景。
+
+## 11. 卡面、图鉴、UI 风格
+
+- **卡面**：用一个 SubViewport（256×320，透明）渲染单位的 CreatureView，取 ViewportTexture 当插图，外面套卡框。渲染结果缓存在 `user://codex/<hash>.png`。这样**玩家自己进化出的物种也会自动有卡面**。
+- **图鉴**：物种页显示插画、血统比例条（各种族占比）、基因列表（附来源）、首次发现的世代。
+- **UI 主题**：做一个 `res://ui/theme.tres`，风格是深色羊皮纸配墨线边框，强调色使用元素色。
+  - 字体必须**打包一个 OFL 授权的 CJK 字体**（例如思源黑体或霞鹜文楷），放在 `art/fonts/`，并在 CREDITS.md 里登记。Web 导出和部分 Linux 系统上没有可用的系统中文字体。
+- **状态图标**：形状和颜色同时编码，照顾色弱玩家。
+  - 毒：水滴　再生：十字　感染：孢子点　眩晕：星形　易伤：裂纹　护甲：盾形
+
+## 12. 截图验收清单（每次改画面都要过一遍）
+
+1. 不看文字，每个单位的血统能认出来吗？主骨架是否正确，异族部件是否明显？
+2. 单位轮廓在缩小到 50% 时还清楚吗？描边有没有被材质层覆盖掉？
+3. 显著部件是否不超过 3 个？有没有部件飘在身体外面，或者插错了插槽？
+4. 颜色是否符合 60/25/15？元素色是否只出现在强调位置？
+5. 中文文字有没有乱码方块、被截断，或者和其他元素重叠？
+6. 敌我是否朝向正确，前后排的纵深是否成立？
+7. 画面上有没有调试残留（比如 trigger_cap 提示）？
+有任何一项不通过，就修好再截图，不要把问题留给用户发现。

@@ -1,0 +1,14 @@
+{
+  "_doc": "生态区 = 世界规则。rules 在战斗中生效；fusion_mods 在该生态区融合时生效(融合'变调')。enemy_races 决定本区敌族。",
+  "biomes": [
+    {"id": "swamp", "name": "腐沼", "desc": "毒素在湿热中发酵：毒每次结算额外+1伤害。",
+     "rules": {"poison_tick_bonus": 1}, "enemy_races": ["fungal", "insect"],
+     "fusion_mods": [{"if_status": "poison", "amount_delta": 1}]},
+    {"id": "glacier", "name": "冰原", "desc": "严寒抑制代谢：再生每次少恢复1点；护甲上限提高。",
+     "rules": {"regen_tick_bonus": -1, "armor_cap_mult": 1.5}, "enemy_races": ["beast", "crystal"],
+     "fusion_mods": [{"if_action": "gain_armor", "amount_delta": 1}]},
+    {"id": "hive", "name": "巢穴深处", "desc": "资源枯竭，环境侵蚀提前到第10回合。",
+     "rules": {"erosion_start": 10}, "enemy_races": ["insect", "wraith"],
+     "fusion_mods": [{"if_action": "summon", "amount_delta": 1}]}
+  ]
+}

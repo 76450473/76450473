@@ -1,0 +1,18 @@
+{
+  "_doc": "敌人生成：普通敌人=随机合法组合；精英=按 synergy 模板挑选协同基因(活的Build教程)；Boss=固定核心机制(units.json 中 boss 模板的 innate) + 程序生成的辅助基因。",
+  "synergies": [
+    {"id": "plague", "name": "瘟疫", "race": "fungal", "tags": ["infect", "death", "spread"]},
+    {"id": "venom", "name": "毒刺", "race": "insect", "tags": ["poison", "area"]},
+    {"id": "swarm", "name": "虫海", "race": "insect", "tags": ["breed", "swarm", "death"]},
+    {"id": "pack", "name": "狼群", "race": "beast", "tags": ["rally", "pack", "melee"]},
+    {"id": "bastion", "name": "晶壁", "race": "crystal", "tags": ["armor", "support"]},
+    {"id": "phantom", "name": "幽影", "race": "wraith", "tags": ["evasive", "lifesteal", "control"]}
+  ],
+  "bosses": [
+    {"id": "rotbrood_matriarch", "unit": "boss_rotbrood", "name": "腐巢母皇", "act": 1,
+     "support_races": ["fungal", "insect"], "support_budget": 6,
+     "escorts": ["fungal_sporeling", "insect_larva"],
+     "dissect": ["fungal_corpse_bloom", "insect_brood", "fungal_plague_heart"],
+     "intro": "她把每一具倒下的躯体都重新孕育成自己的孩子。"}
+  ]
+}

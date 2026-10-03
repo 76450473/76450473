@@ -1,0 +1,81 @@
+《奇美拉纪元 Chimera Epoch》Claude Skill：安装说明与提示词
+==========================================================
+
+本包有两个文件：
+  1. chimera-godot-gamedev/       ← skill 文件夹（里面直接是 SKILL.md）
+     chimera-godot-gamedev.zip    ← 同一个 skill 的压缩包（用于上传到 claude.ai）
+  2. 提示词.txt                   ← 就是本文件
+
+
+一、准备工作（只需做一次，大约 10 分钟）
+----------------------------------------
+1) 安装 Godot 4.7.2（选"标准版"，不要选 .NET 版）
+   下载地址：https://godotengine.org/download
+   - Windows：解压到 C:\Godot\。里面有两个 exe，命令行要用带 _console 的那个。
+     然后在 PowerShell 里执行一次（之后重开终端才会生效）：
+       setx GODOT_PATH "C:\Godot\Godot_v4.7.2-stable_win64_console.exe"
+   - macOS：brew install --cask godot（或者下载 dmg 拖进"应用程序"）
+   - Linux：解压后 chmod +x，再把 GODOT_PATH 设为它的路径
+
+2) 安装 Claude Code（Claude 必须在你自己的电脑上运行，才能直接驱动 Godot）
+   - 最简单：下载 Claude 桌面版 App，使用里面的 "Code"（代码）功能
+   - 或者用终端安装：
+       Windows PowerShell： irm https://claude.ai/install.ps1 | iex
+       macOS / Linux：      curl -fsSL https://claude.ai/install.sh | bash
+   - Windows 还需要装 Git for Windows（https://git-scm.com/downloads/win）。
+     skill 里的检查脚本要靠 Git Bash 才能运行。
+   - 需要 Pro、Max、Team 或 Enterprise 账号。
+
+3) 安装本 skill：把整个 chimera-godot-gamedev 文件夹复制到下面的位置
+     Windows：      C:\Users\你的用户名\.claude\skills\chimera-godot-gamedev\
+     macOS / Linux：~/.claude/skills/chimera-godot-gamedev/
+   复制后要确认：打开这个文件夹，SKILL.md 就在第一层，不要多套一层文件夹。
+
+   （可选）在 claude.ai 网页版或桌面版的聊天中使用：
+   到 claude.ai 设置里的 Skills 页面（桌面版在侧边栏的 Customize 里）上传 chimera-godot-gamedev.zip。
+   注意：网页聊天没法在你的电脑上运行 Godot，只能帮你写代码和设计，
+   做游戏请用 Claude Code。
+
+4) （可选）让 Claude 还能操作 Godot 编辑器。需要先装 Node.js（LTS 版即可）。
+     claude mcp add godot -e GODOT_PATH="你的Godot路径" -- npx @coding-solo/godot-mcp
+   不装也完全没关系，skill 默认通过命令行驱动 Godot，测试和截图都能照常做。
+
+5) 新建一个空文件夹（例如 D:\games\chimera），在这个文件夹里启动 Claude Code。
+   Claude 第一次运行检查脚本时会请求权限，选"允许，以后不再询问"会省事很多。
+
+
+二、一句话提示词（第一次用）
+----------------------------
+复制下面这一整行发给 Claude：
+
+/chimera-godot-gamedev 在当前文件夹从零开始做《奇美拉纪元》：先完成 M0 并验证，然后按路线图一个里程碑一个里程碑做下去；每完成一个里程碑，用中文向我汇报并附上截图；需要我拍板的事再问我。
+
+（如果输入 / 之后没有弹出这个 skill，就把开头改成："使用 chimera-godot-gamedev 这个 skill，……"）
+
+
+三、之后每次继续
+----------------
+/chimera-godot-gamedev 继续开发：先读 docs/PROGRESS.md，从"下一步"接着做，做完当前里程碑再向我汇报。
+
+（进度都记在项目的 docs/PROGRESS.md 里，换一个新会话也不会丢。会话中途被打断时，直接说"继续"就行。）
+
+
+四、常用追加指令（按需复制）
+----------------------------
+· 跑一遍平衡模拟，把不达标的数值调回目标区间，然后告诉我改了什么、为什么改。
+· 截一张现在的战斗画面给我看，并按视觉验收清单自己检查一遍。
+· 我想加一个新种族「＿＿」，主题是＿＿。请按扩展清单把它加进去，并做平衡。
+· 我想加一个 Boss，它的核心机制是＿＿，要让玩家学会＿＿。
+· 把占位美术换成正式美术：先给我 6 个部件的 AI 生图提示词，我生成好以后放进 art/parts/。
+· 准备开源发布：补齐 README、CONTRIBUTING、CHANGELOG，并检查素材授权。先不要推送，等我确认。
+· 我玩下来觉得＿＿不好玩，请分析原因，给出 2–3 个改法，等我选。
+
+
+五、常见问题
+------------
+· Claude 说找不到 Godot：检查 GODOT_PATH 是否设置正确（Windows 要指向 _console.exe），然后重启终端或 Claude。
+· 想自己玩玩看：用 Godot 打开项目文件夹里的 project.godot，按 F5。
+  演示场景的按键：D 演示组　R 随机敌族　F 随机融合　B 重跑战斗。
+· 开源吗？Godot 引擎本身是 MIT 协议，免费、不抽成。skill 生成的项目默认也是开源授权：
+  代码用 MIT，美术和音频用 CC BY-SA 4.0。不过 Claude 只会在本地提交，
+  推送到 GitHub、发布到 itch.io 之前都会先问你。

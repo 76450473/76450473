@@ -1,0 +1,36 @@
+{
+  "_doc": "单位模板(棋子)。slots=可植入基因的部位；capacity=遗传稳定度上限；role=物种命名词根；innate=天生效果(同基因效果DSL)。summon_only=只能被召唤。",
+  "units": [
+    {"id": "human_militia", "name": "民兵", "race": "human", "role": "卫", "hp": 19, "atk": 3, "spd": 4, "armor": 1,
+     "slots": ["head", "limb", "core", "skin"], "capacity": 10, "innate": []},
+    {"id": "human_scout", "name": "斥候", "race": "human", "role": "猎使", "hp": 14, "atk": 3, "spd": 6, "armor": 0,
+     "slots": ["head", "limb", "back"], "capacity": 9, "innate": []},
+    {"id": "insect_larva", "name": "幼虫", "race": "insect", "role": "蛹", "hp": 11, "atk": 3, "spd": 6, "armor": 0,
+     "slots": ["head", "core"], "capacity": 6, "innate": []},
+    {"id": "insect_drone", "name": "螯兵", "race": "insect", "role": "螯兵", "hp": 17, "atk": 3, "spd": 5, "armor": 1,
+     "slots": ["head", "limb", "back", "skin"], "capacity": 9, "innate": []},
+    {"id": "insect_broodling", "name": "幼体", "race": "insect", "role": "幼体", "hp": 5, "atk": 2, "spd": 5, "armor": 0,
+     "slots": [], "capacity": 0, "innate": [], "summon_only": true},
+    {"id": "fungal_sporeling", "name": "孢子体", "race": "fungal", "role": "孢", "hp": 13, "atk": 2, "spd": 3, "armor": 0,
+     "slots": ["back", "core", "skin"], "capacity": 8, "innate": []},
+    {"id": "fungal_mother", "name": "菌母", "race": "fungal", "role": "母", "hp": 29, "atk": 2, "spd": 2, "armor": 0,
+     "slots": ["head", "back", "core", "skin"], "capacity": 12, "innate": []},
+    {"id": "fungal_spore_pod", "name": "孢囊", "race": "fungal", "role": "囊", "hp": 5, "atk": 0, "spd": 1, "armor": 0,
+     "slots": [], "capacity": 0, "summon_only": true,
+     "innate": [{"trigger": "on_death", "action": "apply_status", "status": "infect", "target": "lane_enemy", "amount": 1}]},
+    {"id": "beast_hunter", "name": "猎兽", "race": "beast", "role": "狩兽", "hp": 15, "atk": 3, "spd": 5, "armor": 0,
+     "slots": ["head", "limb", "skin"], "capacity": 9, "innate": []},
+    {"id": "beast_brute", "name": "巨兽", "race": "beast", "role": "巨兽", "hp": 25, "atk": 4, "spd": 2, "armor": 0,
+     "slots": ["head", "limb", "skin", "core"], "capacity": 11, "innate": []},
+    {"id": "crystal_shard", "name": "晶卫", "race": "crystal", "role": "晶卫", "hp": 14, "atk": 3, "spd": 3, "armor": 3,
+     "slots": ["head", "limb", "core"], "capacity": 10, "innate": []},
+    {"id": "wraith_wisp", "name": "游魂", "race": "wraith", "role": "魂", "hp": 16, "atk": 4, "spd": 7, "armor": 0,
+     "slots": ["head", "core", "back"], "capacity": 8, "innate": []},
+    {"id": "boss_rotbrood", "name": "腐巢母皇", "race": "fungal", "role": "母皇", "hp": 96, "atk": 4, "spd": 3, "armor": 2,
+     "slots": ["head", "back", "core", "skin"], "capacity": 20, "boss": true,
+     "innate": [
+       {"trigger": "on_ally_death", "action": "summon", "unit": "insect_broodling", "target": "self", "amount": 1},
+       {"trigger": "on_round_end", "action": "apply_status", "status": "infect", "target": "random_enemy", "amount": 1}
+     ]}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "_doc": "融合规则。通用规则: 形(form)提供 触发器+目标, 质(essence)提供 动作+状态, 数值按能量预算重算。recipes=隐藏配方(玩家发现后记入图鉴), 优先于通用规则。species_names=物种命名语法。",
+  "rules": {"budget_ratio": 0.85, "same_race_stability": 0.8, "cross_race_stability": 1.1, "stat_carry": 0.5, "max_amount": 9},
+  "recipes": [
+    {"id": "rx_corpse_brood", "name": "裂卵尸囊", "hint": "死亡 × 繁殖 → ?",
+     "form_tags_any": ["death"], "essence_tags_any": ["breed"], "rarity": "epic",
+     "effects": [{"trigger": "on_death", "action": "summon", "unit": "insect_broodling", "target": "self", "amount": 2}],
+     "tags": ["death", "breed", "swarm"], "visual": {"part": "egg_sac", "layer": "rot"}},
+    {"id": "rx_toxic_spore_cloud", "name": "毒孢云", "hint": "扩散 × 毒 → ?",
+     "form_tags_any": ["spread"], "essence_tags_any": ["poison"], "require_cross_race": false, "rarity": "epic",
+     "effects": [
+       {"trigger": "on_hit", "action": "apply_status", "status": "poison", "target": "enemy_area", "amount": 1},
+       {"trigger": "on_death", "action": "apply_status", "status": "infect", "target": "enemy_area", "amount": 1}],
+     "tags": ["poison", "spread", "infect"], "visual": {"part": "spore_cap", "layer": "rot"}},
+    {"id": "rx_symbiotic_shell", "name": "共生甲壳", "hint": "护甲 × 再生 → ?",
+     "form_tags_any": ["armor"], "essence_tags_any": ["heal"], "require_cross_race": true, "rarity": "epic",
+     "effects": [
+       {"trigger": "on_hit", "action": "gain_armor", "target": "self", "amount": 1},
+       {"trigger": "on_round_end", "action": "apply_status", "status": "regen", "target": "self", "amount": 2}],
+     "tags": ["armor", "heal"], "visual": {"part": "shell_plate", "layer": "mycelium"}}
+  ],
+  "species_names": {
+    "element_prefix": {"poison": "毒", "infect": "疫", "regen": "血", "stun": "惧", "vulnerable": "裂",
+                       "damage": "噬", "gain_armor": "铠", "heal": "愈", "buff_atk": "怒", "summon": "巢", "none": ""},
+    "part_word": {"sash": "缨", "plating": "铠", "satchel": "囊", "spear": "矛", "banner": "旗", "eye_compound": "瞳",
+                  "shell_plate": "甲", "sac": "腺", "spray_nozzle": "喷", "egg_sac": "卵", "volatile_sac": "爆",
+                  "mandible": "颚", "spore_cap": "孢", "tendril": "须", "mycelium_web": "丝", "bloom": "花",
+                  "fang": "牙", "fur_mane": "鬃", "claw": "爪", "crest": "冠", "crystal_cluster": "晶", "prism": "棱",
+                  "core_gem": "核", "halo": "冕", "ether_veil": "纱", "soul_claw": "魂", "none": ""}
+  }
+}

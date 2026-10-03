@@ -1,0 +1,21 @@
+{
+  "_doc": "战术卡：只影响当前远征。target: chosen_enemy / chosen_ally / all_enemies / all_allies / none。effects 复用基因 DSL 的 action 部分(无 trigger)。",
+  "cards": [
+    {"id": "card_strike", "name": "撕咬号令", "cost": 1, "rarity": "common", "target": "chosen_enemy", "tags": ["melee"],
+     "effects": [{"action": "damage", "amount": 4}]},
+    {"id": "card_harden", "name": "硬化", "cost": 1, "rarity": "common", "target": "chosen_ally", "tags": ["armor"],
+     "effects": [{"action": "gain_armor", "amount": 5}]},
+    {"id": "card_mend", "name": "组织修复", "cost": 1, "rarity": "common", "target": "chosen_ally", "tags": ["heal"],
+     "effects": [{"action": "heal", "amount": 5}]},
+    {"id": "card_toxin", "name": "毒雾", "cost": 2, "rarity": "common", "target": "all_enemies", "tags": ["poison"],
+     "effects": [{"action": "apply_status", "status": "poison", "amount": 2}]},
+    {"id": "card_rally", "name": "集群信息素", "cost": 2, "rarity": "rare", "target": "all_allies", "tags": ["rally"],
+     "effects": [{"action": "buff_atk", "amount": 1}]},
+    {"id": "card_stun", "name": "震慑", "cost": 2, "rarity": "common", "target": "chosen_enemy", "tags": ["control"],
+     "effects": [{"action": "apply_status", "status": "stun", "amount": 1}]},
+    {"id": "card_analyze", "name": "解析标记", "cost": 0, "rarity": "common", "target": "chosen_enemy", "tags": ["sense", "analyze"],
+     "effects": [{"action": "apply_status", "status": "vulnerable", "amount": 1}, {"action": "analyze", "amount": 1}]},
+    {"id": "card_brood", "name": "催化孵化", "cost": 2, "rarity": "rare", "target": "none", "tags": ["breed"],
+     "effects": [{"action": "summon", "unit": "insect_broodling", "amount": 2}]}
+  ]
+}

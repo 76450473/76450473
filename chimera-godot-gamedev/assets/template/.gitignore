@@ -1,0 +1,10 @@
+# Godot 4
+.godot/
+/android/
+/build/
+*.tmp
+export_credentials.cfg
+# local tool output
+/screenshots/*.png
+!/screenshots/.gitkeep
+/reports/

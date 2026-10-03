@@ -1,0 +1,27 @@
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GODOT_VERSION: "4.7.2"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot ${{ env.GODOT_VERSION }}
+        run: |
+          curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot && chmod +x godot
+      - name: Import (registers class_name)
+        run: ./godot --headless --path . --import || true
+      - name: Parse-check every script
+        run: ./godot --headless --path . --script res://tools/check_scripts.gd
+      - name: Unit tests
+        run: ./godot --headless --path . --script res://tests/run_tests.gd
+      - name: Balance report
+        run: ./godot --headless --path . --script res://tools/balance_sim.gd -- n=300 seed=1 tier=1
+      - name: Smoke-run main scene
+        run: |
+          ./godot --headless --path . --quit-after 120 2>&1 | tee smoke.log
+          ! grep -E "SCRIPT ERROR|^ERROR" smoke.log

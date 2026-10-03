@@ -1,0 +1,29 @@
+{
+  "_doc": "始祖种族。shape=形状语言(决定所有该族部件的绘制风格)，body_plan=骨架。palette 60/25/15 规则见 visual-system.md。",
+  "races": [
+    {"id": "human", "name": "人族", "adj": "人", "shape": "symmetric", "body_plan": "biped", "layer": "",
+     "palette": {"base": "#d9c3a5", "dark": "#3a3346", "accent": "#9fb4c8"},
+     "traits": {"capacity_bonus": 2, "cross_race_mult": 1.25}, "playable": true,
+     "theme": "适应、协作、装备。异族基因排斥最低。"},
+    {"id": "insect", "name": "虫族", "adj": "虫", "shape": "segmented", "body_plan": "hexapod", "layer": "chitin",
+     "palette": {"base": "#7a3442", "dark": "#1f1418", "accent": "#e0aa4c"},
+     "traits": {"capacity_bonus": 0, "cross_race_mult": 1.5}, "playable": true,
+     "theme": "数量、繁殖、献祭、死亡触发。"},
+    {"id": "fungal", "name": "菌族", "adj": "菌", "shape": "blob", "body_plan": "cluster", "layer": "mycelium",
+     "palette": {"base": "#cfc4ab", "dark": "#47463a", "accent": "#9ad27a"},
+     "traits": {"capacity_bonus": 1, "cross_race_mult": 1.5}, "playable": false,
+     "theme": "感染、扩散、尸体利用。"},
+    {"id": "beast", "name": "兽族", "adj": "兽", "shape": "muscle", "body_plan": "quadruped", "layer": "fur",
+     "palette": {"base": "#8c5b3a", "dark": "#2a1c14", "accent": "#eadbb2"},
+     "traits": {"capacity_bonus": 0, "cross_race_mult": 1.5}, "playable": false,
+     "theme": "器官、捕食、群猎、再生。"},
+    {"id": "crystal", "name": "晶族", "adj": "晶", "shape": "faceted", "body_plan": "construct", "layer": "crystal",
+     "palette": {"base": "#6fb6d8", "dark": "#1e2e4a", "accent": "#e6f6ff"},
+     "traits": {"capacity_bonus": 1, "cross_race_mult": 1.5}, "playable": false,
+     "theme": "护甲、折射、共鸣、能量积累。"},
+    {"id": "wraith", "name": "幽体", "adj": "魂", "shape": "wisp", "body_plan": "floater", "layer": "ether",
+     "palette": {"base": "#9a8fc8", "dark": "#1a1630", "accent": "#7ef0e0"},
+     "traits": {"capacity_bonus": 0, "cross_race_mult": 1.5}, "playable": false,
+     "theme": "精神、恐惧、附身、击杀成长。"}
+  ]
+}
