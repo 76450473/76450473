@@ -12,6 +12,7 @@
 - 每个单位的 UI：血条、护甲、状态图标、基因图标（悬停时显示 `GeneMath.describe_gene` 生成的描述）。
 - 手牌和能量 UI：抽 4 张，3 点能量；可以指定目标的卡要能选目标；有"结束回合"按钮。敌人意图可见（攻击的列，以及会触发的基因）。
 - 胜利和失败界面；从主菜单进入"快速战斗"（随机玩家队伍对随机敌人）。
+- 背景、状态图标、卡框优先通过 `ArtLibrary` 取图（bg_、icon_status_、card_frame），取不到就画占位。用户提前上传了这些图，就直接生效。
 - 打包 CJK 字体（OFL）并在 CREDITS.md 登记；用 `ui/theme.tres` 统一风格。
 - 新增一个 `PlayerController`，sim 和 UI 之间的唯一桥梁：只调用 `begin_round`、`play_card`、`resolve_round`。
 
@@ -43,9 +44,9 @@
 
 **验收**：三幕能完整通关一次（可以用调试作弊加速，但每场战斗都必须真实模拟）；每个 Boss 都有"它教给玩家什么"的测试场景；平衡全绿。
 
-## M5 正式美术管线
-- 新增 `PartLibrary` 加灰度部件的渐变映射 shader（visual-system §7）；有 PNG 就用 PNG，没有就回退到程序化绘制。
-- 每个种族至少有 6 个正式部件，加上一张躯干图；三个生态区各有一张背景；卡框、UI 主题和状态图标全部完成。
+## M5 正式美术落地（管线在 M0 就已就绪，用户随时可以上传）
+- 和用户一起把 P1、P2 美术补齐（art-pipeline §4）。每次导入都要截图质检，错位只改 sidecar 不改代码。
+- 每个种族的部件和骨架都有正式美术；三个生态区各有背景；卡框、UI 主题（ui_panel、ui_button 做成九宫格 StyleBox）、全部图标就位。
 - 每种骨架做一套 AnimationPlayer：idle、attack、hit、death。
 - 所有素材都登记在 CREDITS.md（作者、授权、AI 工具）。
 

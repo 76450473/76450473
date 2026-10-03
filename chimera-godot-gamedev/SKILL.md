@@ -1,6 +1,6 @@
 ---
 name: chimera-godot-gamedev
-description: Build, continue, test, balance and ship the open-source Godot 4.7 game "Chimera Epoch / 奇美拉纪元". It is a gene-evolution roguelike with semi-auto tactics. The player picks a progenitor race, goes on expeditions, defeats other races and bosses to loot genes, tactic cards and units, then fuses genes into new species, builds and wins the run. Use when the user asks to create, continue, playtest, balance, re-art or publish this game, or mentions 基因融合 / 种族进化 / 肉鸽 Build / 奇美拉 / Godot 基因游戏. Ships a verified project template (data-driven sim, fusion, enemy generator, procedural creature visuals, tests, balance simulator, screenshot tool, CI), the design doc, exact system specs, a milestone roadmap and a headless Godot workflow.
+description: Build, continue, test, balance and ship the open-source Godot 4.7 game "Chimera Epoch / 奇美拉纪元". It is a gene-evolution roguelike with semi-auto tactics. The player picks a progenitor race, goes on expeditions, defeats other races and bosses to loot genes, tactic cards and units, then fuses genes into new species, builds and wins the run. Use when the user asks to create, continue, playtest, balance, re-art or publish this game, or mentions 基因融合 / 种族进化 / 肉鸽 Build / 奇美拉 / Godot 基因游戏. Ships a verified project template (data-driven sim, fusion, enemy generator, procedural creature visuals, tests, balance simulator, screenshot tool, CI), the design doc, exact system specs, a milestone roadmap and a headless Godot workflow. Also use it when the user uploads art or asks what art is missing (导入美术 / 缺什么图 / 美术提示词). The user generates the images from the provided prompts, and Claude imports, recolors, aligns and checks them.
 ---
 
 # Chimera Epoch：Godot 游戏开发 Skill
@@ -18,6 +18,7 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 5. **基因是行为，不是数值。** 新基因要用"触发器-动作-目标"DSL 表达**玩法**，纯加数值的基因只能是少数。
 6. **一次只做一个里程碑**（见 `references/roadmap.md`）。不要提前做后面里程碑的系统，范围蔓延是这个项目最大的风险。
 7. **对外动作先问用户。** 推送远程仓库、发布到 itch.io/Steam、使用付费或授权不明的素材、确定署名和许可证持有人，都要先征得同意。本地的 git commit 可以自主进行。
+8. **你不能生成图片，美术由用户提供。** 缺少的美术绝不能阻塞开发，程序化占位美术会自动顶上。你的职责有三件：用 `tools/art_audit.gd` 告诉用户缺什么，并附上可直接复制的提示词；用户上传图片后，按 `references/art-pipeline.md` §4 导入、适配和质检；新增内容时，同步更新美术清单。
 
 ## 1. 每次会话开始（必做，按顺序）
 
@@ -28,8 +29,9 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 3. **找引擎**：运行 `GODOT=$(bash SKILL_DIR/scripts/find_godot.sh)`。
    - 找不到：按 `references/godot-workflow.md` §1 指导用户安装 Godot 4.7.x，然后停下来等用户。没有引擎时写出的代码一律标注"未验证"。
    - Windows 上要使用 `*_console.exe`，普通版 exe 不会把输出打到终端。
-4. **可选的 MCP**：如果会话里有 `mcp__godot__*` 之类的 Godot MCP 工具，可以用来启动编辑器、查看调试输出。但验收永远以 CLI 的 `godot_check.sh` 为准（见 `references/godot-workflow.md` §2）。
-5. 用一两句中文告诉用户：现在在哪个里程碑、这次准备做什么。然后直接开始，不要停下来等确认（除非触发了原则 7）。
+4. **检查美术收件箱**：如果 `art_inbox/` 里有图片（README.txt 和 credits.txt 不算），说明用户上传了新素材。先执行"导入美术"流程（art-pipeline §4），再继续开发。
+5. **可选的 MCP**：如果会话里有 `mcp__godot__*` 之类的 Godot MCP 工具，可以用来启动编辑器、查看调试输出。但验收永远以 CLI 的 `godot_check.sh` 为准（见 `references/godot-workflow.md` §2）。
+6. 用一两句中文告诉用户：现在在哪个里程碑、这次准备做什么。然后直接开始，不要停下来等确认（除非触发了原则 7）。
 
 ## 2. 开发循环（每个任务都走一遍）
 
@@ -54,9 +56,13 @@ bash SKILL_DIR/scripts/new_project.sh ./chimera-epoch   # 复制已验证模板 
 bash SKILL_DIR/scripts/godot_check.sh ./chimera-epoch --shot screenshots/m0.png --balance
 ```
 
-模板已经包含：6 个种族、13 个单位模板、28 个基因、8 张战术卡、3 个生态区、6 个精英协同、1 个 Boss、3 个隐藏配方；确定性战斗、语义融合、敌人生成、程序化生物外观加材质 shader；33 项测试、平衡模拟、截图工具和 GitHub Actions CI。
+模板已经包含：
+- 内容：6 个种族、13 个单位模板、28 个基因、8 张战术卡、3 个生态区、6 个精英协同、1 个 Boss、3 个隐藏配方
+- 系统：确定性战斗、语义融合、敌人生成、程序化生物外观加材质 shader
+- **美术协作管线**：82 项资产清单和提示词、缺失审计、自动导入、灰度图按种族上色、美术检查台
+- 工具：42 项测试、平衡模拟、截图工具、GitHub Actions CI
 
-M0 完成后，看一眼截图，向用户展示"基因实验室"演示，然后直接开始 M1。
+M0 完成后，看一眼截图，向用户展示"基因实验室"演示。告诉用户 `docs/ART_TODO.md` 里有 P1 美术清单和提示词，可以随时生成后放进 `art_inbox/`。然后直接开始 M1，不要等美术。
 
 ## 4. 架构速览（细节见 `references/systems-spec.md`）
 
@@ -97,7 +103,13 @@ autoload：Data（Data.db）、Rng（运行期随机流）
 
 ## 7. 美术、平衡与开源（各自的 reference 是详细规范）
 
-- **美术**（`visual-system.md`）：先用程序化占位美术，保证"一眼看出血统"。正式美术采用灰度绘制的部件 PNG，挂到同样的插槽上，再用渐变映射 shader 上色，这样跨种族部件能自动协调。AI 生成的图片必须在 `CREDITS.md` 登记工具名和授权。
+- **美术**（`visual-system.md` 和 `art-pipeline.md`）：
+  - 用户负责出图，你负责导入、适配和质检。
+  - 部件和骨架用灰度图，由 `part_palette` shader 按宿主的种族配色上色，跨种族拼接因此能自动协调。
+  - 每次导入后都要截美术检查台（`scenes/art_gallery.tscn`）亲眼看；对齐问题只改 sidecar json，不改代码。
+  - 用户说"导入美术"、"我上传了图"、"缺什么图"时，严格按 art-pipeline §4 执行。
+  - 汇报时必须列出：需要重做的图（附改好的完整提示词）、还缺的 P1 资产。
+  - 新增部件、骨架、生态区、卡牌、Boss 时，同步在 `data/art_manifest.json` 里加条目（test_data 会检查）。
 - **平衡与随机**（`balance-and-rng.md`）：每次改数值都要跑 balance_sim，按目标区间调整。调参优先改 amount，其次 trigger/target，最后才是 stats。随机原则是"输入随机、输出确定"：随机的是给玩家的选项，选项的结果是确定的。
 - **开源**（`open-source.md`）：代码用 MIT，素材用 CC BY-SA 4.0，字体用 OFL。CI 必须是绿的。发布前问用户。
 
@@ -108,7 +120,8 @@ autoload：Data（Data.db）、Rng（运行期随机流）
 | `references/gdd.md` | 第一次接手；做新系统或新内容之前；写剧情、事件、Boss 时 |
 | `references/systems-spec.md` | 改战斗、基因、融合、敌人、存档、数据格式时（以它为准） |
 | `references/roadmap.md` | 每次会话开始时确认里程碑；拆任务；判断里程碑是否完成 |
-| `references/visual-system.md` | 做任何画面、UI、动画、卡面、美术替换时 |
+| `references/visual-system.md` | 做任何画面、UI、动画、卡面时 |
+| `references/art-pipeline.md` | 用户上传了图片或者问缺什么图；导入、对齐、质检；新增内容需要同步美术清单时 |
 | `references/balance-and-rng.md` | 改数值、奖励、地图生成、难度时 |
 | `references/godot-workflow.md` | 安装或连接 Godot、命令行用法、MCP、GDScript 坑、导出、排错 |
 | `references/open-source.md` | 加素材、写 README / LICENSE、做 CI 或发布时 |

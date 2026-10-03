@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 # One-shot verification gate for a Chimera Epoch project. Run after EVERY change.
-#   bash godot_check.sh <project_dir> [--shot screenshots/name.png] [--key R] [--balance]
+#   bash godot_check.sh <project_dir> [--shot screenshots/name.png] [--scene res://scenes/x.tscn] [--key R] [--balance]
 # Steps: import -> parse-check all scripts -> unit tests -> headless smoke run of the main
 # scene (fails on any SCRIPT ERROR / ERROR line) -> optional balance report -> optional screenshot.
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJ="${1:-.}"; shift || true
-SHOT=""; KEY=""; BALANCE=0
+SHOT=""; KEY=""; BALANCE=0; SCENE="res://scenes/main.tscn"
 while [ $# -gt 0 ]; do
   case "$1" in
     --shot) SHOT="$2"; shift 2 ;;
     --key) KEY="$2"; shift 2 ;;
+    --scene) SCENE="$2"; shift 2 ;;
     --balance) BALANCE=1; shift ;;
     *) echo "unknown arg $1"; exit 2 ;;
   esac
@@ -35,11 +36,17 @@ step "unit tests"
 grep -E "^FAIL" "$LOG" | head -40
 tail -1 "$LOG"
 
-step "smoke run main scene (120 frames, headless)"
+step "smoke run main scene + art gallery (headless)"
 "$GODOT" --headless --path . --quit-after 120 >"$LOG" 2>&1
+[ -f scenes/art_gallery.tscn ] && "$GODOT" --headless --path . --scene res://scenes/art_gallery.tscn --quit-after 30 >>"$LOG" 2>&1
 if grep -qE "SCRIPT ERROR|^ERROR" "$LOG"; then
   fail=1; grep -E "SCRIPT ERROR|^ERROR" -A2 "$LOG" | head -30
 else echo "clean"; fi
+
+if [ -f tools/art_audit.gd ]; then
+  step "art coverage (missing art falls back to procedural; details in docs/ART_TODO.md)"
+  "$GODOT" --headless --path . --script res://tools/art_audit.gd 2>&1 | grep -E "^art coverage|^missing" | head -2
+fi
 
 if [ "$BALANCE" = 1 ]; then
   step "balance (n=400, tiers 1-3)"
@@ -50,7 +57,7 @@ fi
 
 if [ -n "$SHOT" ]; then
   step "screenshot -> $SHOT"
-  CMD=("$GODOT" --path . --audio-driver Dummy --resolution 1600x900 --script res://tools/screenshot.gd -- res://scenes/main.tscn "$SHOT" 90 $KEY)
+  CMD=("$GODOT" --path . --audio-driver Dummy --resolution 1600x900 --script res://tools/screenshot.gd -- "$SCENE" "$SHOT" 90 $KEY)
   if [ "$(uname -s)" = "Linux" ] && [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
     if command -v xvfb-run >/dev/null; then
       xvfb-run -a -s "-screen 0 1600x900x24" "${CMD[@]}" --rendering-driver opengl3 2>&1 | grep -E "screenshot|SCRIPT ERROR" | head -5

@@ -16,7 +16,14 @@ godot --headless --path . --script res://tools/check_scripts.gd      # 所有脚
 godot --headless --path . --script res://tests/run_tests.gd          # 单元测试
 godot --headless --path . --script res://tools/balance_sim.gd -- n=400 tier=1   # 平衡报告
 godot --path . --audio-driver Dummy --script res://tools/screenshot.gd -- res://scenes/main.tscn screenshots/main.png 90
+godot --headless --path . --script res://tools/art_audit.gd          # 缺哪些美术 → docs/ART_TODO.md（含提示词）
+godot --headless --path . --script res://tools/import_art.gd         # 导入 art_inbox/ 里的图片 → art/
 ```
+
+## 美术协作
+美术由人用 AI 生图工具生成：提示词在 `docs/ART_PROMPTS.md`，缺失清单在 `docs/ART_TODO.md`。
+生成的图片放进 `art_inbox/`，运行导入工具即可。缺失的资产会自动用程序化占位美术代替。
+美术检查台：`scenes/art_gallery.tscn`。
 
 ## 目录
 ```
@@ -25,7 +32,9 @@ src/sim/     纯逻辑（无 Node、无全局随机）：战斗、融合、敌�
 src/view/    表现：VisualGenome（基因→外观描述）、CreaturePainter（程序化占位美术）、CreatureView
 src/shaders/ 基因材质层（甲壳/菌丝/晶化/毛皮/灵体/腐化 渐进扩散）
 tests/       零依赖测试（tests/run_tests.gd）
-tools/       平衡模拟、截图、脚本检查
+src/art/     美术管线：资产清单推导、图片导入处理、运行时查找（缺图回退）
+tools/       平衡模拟、截图、脚本检查、美术审计与导入
+art/         导入后的正式美术与 sidecar json（art_inbox/ 是原图收件箱，不入库）
 docs/        PROGRESS.md（进度与下一步）、DECISIONS.md（设计决策记录）
 ```
 

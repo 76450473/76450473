@@ -41,7 +41,9 @@ static func build(spec: Dictionary, db: GameData) -> Dictionary:
 		var kind: String = vis.get("part", "none")
 		if kind == "none":
 			continue
+		var art_spec: Dictionary = (db.art.get("parts", {}) as Dictionary).get(kind, {})
 		parts.append({"slot": g.get("slot", "core"), "kind": kind, "race": g.race,
+			"socket": art_spec.get("socket", "core"),
 			"shape": db.races.get(g.race, {}).get("shape", "symmetric"),
 			"element": GeneMath.main_element(g), "weight": float(g.get("stability", 1)),
 			"gene": g.get("name", "")})

@@ -75,47 +75,22 @@
 - 部件本身用它所属种族的 base 色，再混 25% 的宿主 base 色，所以虫族部件长在人族身上，既能认出是虫族的东西，又不显得突兀。
 - **元素色固定，全局统一**：毒 #7bd23c、感染 #c9d88a、再生 #e0524a、眩晕 #f2d24b、易伤 #b06ae0、伤害 #f08a3c、护甲 #86b1d6。
 
-## 7. 从占位美术到正式美术：部件规范（M5）
+## 7. 从占位美术到正式美术（管线已实现，详见 art-pipeline.md）
 
-所有部件放在 `res://art/parts/<kind>.png`（需要按种族区分时用 `<kind>@<race>.png`），并配一个同名的 `.json`：
-```json
-{"pivot": [64, 120], "scale": 1.0, "z": "core", "tint": "palette", "author": "...", "license": "CC BY-SA 4.0"}
-```
+- 资产规格和提示词：`data/art_manifest.json`（唯一真相源）。完整清单是推导出来的，用 `tools/art_audit.gd` 查看。
+- 用户把图放进 `art_inbox/`，`tools/import_art.gd` 负责抠图、裁边和灰度化，输出到 `art/parts/<kind>.png`、`art/bodies/<plan>.png` 等位置，并生成同名的 sidecar `.json`（pivot、scale、offset、sockets……）。
+- **灰度加发光色**：部件和骨架画成灰度图，高饱和的区域（提示词里要求画成鲜绿）会被当作发光强调色。运行时 `part_palette.gdshader` 把明暗映射到宿主的 dark→base→light 配色，强调区映射到元素色，然后叠加基因材质层。**所以同一张部件图能适配任何宿主。**
+- `ArtLibrary` 找到图就用 Sprite2D 显示，找不到就回退到程序化绘制。可以一张一张地替换。
+- 骨架图存在时，部件挂点用这张骨架图 sidecar 里的 `sockets` 坐标（没有写的挂点用默认值）。
+- 后续可以把肢体拆成 `upper` 和 `lower` 两张图，以支持骨骼动画（M5）。
 
-**绘制要求**：
-- 尺寸 128 或 256 的正方形，透明背景，侧视，面朝右。
-- 统一 3px 深色描边（按 1× 尺寸计算）。
-- **灰度绘制**：用 R 通道表示明暗，A 通道表示形状，G 通道作为可选的强调色遮罩。
-- 运行时用渐变映射 shader 上色：暗部映射到 dark，中间调映射到 base，G 遮罩区域映射到 accent。**这样同一张部件图能自动适配任何宿主的配色**，这是跨种族拼接仍然协调的关键。
+## 8. AI 生成美术：风格锁定
 
-**加载器**：新增一个 `PartLibrary`。如果某个部件有对应的 PNG，就用 `draw_texture` 画在插槽位置；没有就回退到程序化绘制。正式美术可以一件一件地替换，不需要一次全部完成。
-
-躯干和骨架同理，也可以替换：`art/bodies/<body_plan>.png`，肢体建议拆开成 `upper` 和 `lower` 两张图，便于做动画。
-
-## 8. AI 生成美术：风格锁定提示词
-
-**部件**（每次只生成一个部件）：
-```
-2D game asset, a single [PART: compound insect eye cluster] for a creature-assembly game,
-side view facing right, [SHAPE LANGUAGE: segmented, sharp, chitinous], grayscale value painting,
-flat cel shading with one soft highlight, thick uniform dark outline, centered, transparent background,
-no text, no shadow on ground, clean silhouette, dark biological fantasy, naturalist bestiary style
-```
-反向提示：`photo, realistic, gore, text, watermark, multiple objects, background, color`
-
-**图鉴插画**（整只物种，用作卡面和宣传）：
-```
-dark biological fantasy creature illustration, forbidden naturalist bestiary page,
-a [human-insect hybrid warrior: human upright body, chitin plates on back and forearms, compound eyes, green venom sacs],
-[palette: warm skin + dark crimson chitin + toxic green accents], ink outlines, muted parchment background,
-full body side view, readable silhouette, no text
-```
-
-**规则**：
-- 把用到的工具、模型和授权写进 CREDITS.md。
-- 提示词里不要出现在世艺术家的名字或商业 IP。
-- 生成的图要人工检查后才能入库。
-- 入库前用 `tools/screenshot.gd` 截图，确认它和占位美术的比例一致。
+- 风格锁定文本、反向提示词、各族的形状语言、每项资产的主体描述，都写在 `data/art_manifest.json` 的 style、race_art、parts 等节里。**改风格只改这里**，然后重新生成 `docs/ART_PROMPTS.md`（运行 `art_audit.gd -- full`）。
+- 提示词规则：
+  - 侧视朝右；单个物件；灰度；粗的闭合深色描边；纯白平底背景（图标用纯黑平底）；主体占满画面。
+  - 不出现在世艺术家的名字或商业 IP。
+- 不同工具的用法见 `docs/ART_TODO.md` 开头（Midjourney 的 --sref、即梦关闭智能扩写等）。
 
 ## 9. 动画
 

@@ -137,35 +137,76 @@ static func sockets(plan: String) -> Dictionary:
 
 # ---------------------------------------------------------------- main entry
 
+## Sockets for this creature: defaults per body plan, overridden by an imported body's
+## sidecar "sockets" (art/bodies/<plan>.json). Adds "textured_body" when body art exists.
+static func sockets_for(vg: Dictionary) -> Dictionary:
+	var s := sockets(vg.get("body_plan", "biped"))
+	var body := ArtLibrary.body(vg.get("body_plan", "biped"))
+	if not body.is_empty():
+		s["textured_body"] = true
+		var over: Dictionary = body.get("sockets", {})
+		for k: String in over:
+			s[k] = over[k]
+	return s
+
+
+## Where a textured part of a given socket name is pinned (see data/art_manifest.json parts.*.socket).
+static func anchor_point(s: Dictionary, socket_name: String) -> Vector2:
+	var head: Vector2 = s.head
+	var r: float = s.head_r
+	match socket_name:
+		"head_top":
+			return head + Vector2(-4, -r + 2)
+		"mouth":
+			return head + Vector2(r - 2, 6)
+		"halo":
+			return head + Vector2(0, -r - 10)
+		"eye_top":
+			return (s.eye as Vector2) + Vector2(0, -6)
+	return s.get(socket_name, s.core)
+
+
 static func draw_creature(ci: CanvasItem, vg: Dictionary, races: Dictionary, t: float) -> void:
-	var col := colors(vg)
 	var s := sockets(vg.body_plan)
+	draw_back(ci, vg, races, t, s, {})
+	draw_front(ci, vg, races, t, s, {}, true)
+
+
+## Shadow + back-slot parts (behind the body). `skip` = part indices drawn as textures instead.
+static func draw_back(ci: CanvasItem, vg: Dictionary, races: Dictionary, t: float, s: Dictionary, skip: Dictionary) -> void:
+	ci.draw_colored_polygon(ellipse(Vector2(0, 2), 46, 9), Color(0, 0, 0, 0.28))
+	_draw_parts(ci, vg.parts, "back", s, vg, races, t, skip)
+
+
+## Procedural body (unless body art exists) + skin/core/head/limb parts not drawn as textures.
+static func draw_front(ci: CanvasItem, vg: Dictionary, races: Dictionary, t: float, s: Dictionary,
+		skip: Dictionary, draw_body: bool) -> void:
+	var col := colors(vg)
 	var parts: Array = vg.parts
 	var has_head_part := false
 	for p: Dictionary in parts:
 		if p.slot == "head" and p.kind in ["eye_compound", "prism"]:
 			has_head_part = true
-	ci.draw_colored_polygon(ellipse(Vector2(0, 2), 46, 9), Color(0, 0, 0, 0.28))
-	_draw_parts(ci, parts, "back", s, vg, races, t)
-	match vg.body_plan:
-		"hexapod":
-			_body_hexapod(ci, col, vg.shape, t)
-		"cluster":
-			_body_cluster(ci, col, vg.shape, t)
-		"quadruped":
-			_body_quadruped(ci, col, vg.shape, t)
-		"construct":
-			_body_construct(ci, col, t)
-		"floater":
-			_body_floater(ci, col, t)
-		_:
-			_body_biped(ci, col, vg.shape, t, _has_slot(parts, "limb"))
-	_draw_parts(ci, parts, "skin", s, vg, races, t)
-	_draw_parts(ci, parts, "core", s, vg, races, t)
-	if not has_head_part:
+	if draw_body:
+		match vg.body_plan:
+			"hexapod":
+				_body_hexapod(ci, col, vg.shape, t)
+			"cluster":
+				_body_cluster(ci, col, vg.shape, t)
+			"quadruped":
+				_body_quadruped(ci, col, vg.shape, t)
+			"construct":
+				_body_construct(ci, col, t)
+			"floater":
+				_body_floater(ci, col, t)
+			_:
+				_body_biped(ci, col, vg.shape, t, _has_slot(parts, "limb"))
+	_draw_parts(ci, parts, "skin", s, vg, races, t, skip)
+	_draw_parts(ci, parts, "core", s, vg, races, t, skip)
+	if draw_body and not has_head_part:
 		_default_eyes(ci, s, col, vg.body_plan)
-	_draw_parts(ci, parts, "head", s, vg, races, t)
-	_draw_parts(ci, parts, "limb", s, vg, races, t)
+	_draw_parts(ci, parts, "head", s, vg, races, t, skip)
+	_draw_parts(ci, parts, "limb", s, vg, races, t, skip)
 
 
 static func _has_slot(parts: Array, slot: String) -> bool:
@@ -299,9 +340,10 @@ static func _body_floater(ci: CanvasItem, c: Dictionary, t: float) -> void:
 # ---------------------------------------------------------------- parts
 
 static func _draw_parts(ci: CanvasItem, parts: Array, slot: String, s: Dictionary, vg: Dictionary,
-		races: Dictionary, t: float) -> void:
-	for p: Dictionary in parts:
-		if p.slot != slot:
+		races: Dictionary, t: float, skip: Dictionary = {}) -> void:
+	for i in parts.size():
+		var p: Dictionary = parts[i]
+		if p.slot != slot or skip.has(i):
 			continue
 		var k := 1.0 if p.get("prominent", true) else 0.65
 		var pc := part_colors(p, vg, races)
@@ -472,7 +514,7 @@ static func _draw_part(ci: CanvasItem, p: Dictionary, at: Vector2, k: float, pc:
 
 ## Stub arm used when a limb part replaces the default near arm (biped / construct / floater).
 static func _arm(ci: CanvasItem, s: Dictionary, plan: String, hand: Vector2, pc: Dictionary) -> void:
-	if plan in ["hexapod", "quadruped", "cluster"]:
+	if plan in ["hexapod", "quadruped", "cluster"] or s.get("textured_body", false):
 		return
 	var shoulder: Vector2 = s.torso + Vector2(18, -14)
 	limb(ci, [shoulder, hand + Vector2(-2, -12), hand], 6.0, 5.0, pc.fill, pc.line)

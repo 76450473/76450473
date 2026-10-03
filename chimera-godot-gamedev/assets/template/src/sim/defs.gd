@@ -32,6 +32,10 @@ const PART_KINDS := ["none", "sash", "plating", "satchel", "spear", "banner", "e
 	"prism", "core_gem", "halo", "ether_veil", "soul_claw"]
 const LAYERS := ["", "chitin", "mycelium", "crystal", "fur", "ether", "rot"]
 const SHAPES := ["symmetric", "segmented", "blob", "muscle", "faceted", "wisp"]
+## Art pipeline: where a textured part is pinned (CreaturePainter.anchor_point) and which
+## image point is the pivot (ArtImporter.anchor_pivot).
+const ART_SOCKETS := ["eye", "eye_top", "head_top", "mouth", "halo", "torso", "back", "core", "limb"]
+const ART_ANCHORS := ["center", "bottom_center", "top_center", "left_center", "right_center"]
 const BODY_PLANS := ["biped", "hexapod", "cluster", "quadruped", "construct", "floater"]
 
 # ---- Power budget (one number to compare any gene / card / enemy) ----

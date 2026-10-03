@@ -8,3 +8,6 @@ export_credentials.cfg
 /screenshots/*.png
 !/screenshots/.gitkeep
 /reports/
+# raw user uploads (processed results live in art/ and ARE committed)
+/art_inbox/*
+!/art_inbox/README.txt

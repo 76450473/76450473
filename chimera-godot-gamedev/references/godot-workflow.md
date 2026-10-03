@@ -139,6 +139,7 @@ bash SKILL_DIR/scripts/godot_check.sh . [--shot screenshots/x.png] [--key R] [--
 ## 9. 导出与发布构建（M8）
 
 - 在编辑器里创建 `export_presets.cfg`：Windows Desktop、Linux、macOS、Web。这个文件要提交到仓库，但其中的签名凭据等敏感内容不能提交。
+- **导出过滤器**：在导出预设的"资源 → 导出非资源文件"里填 `*.json`。否则 `data/*.json` 和 `art/**/*.json`（sidecar）不会被打包，导出后的游戏会读不到数据。
 - 命令行导出：`"$GODOT" --headless --path . --export-release "Windows Desktop" build/windows/ChimeraEpoch.exe`
 - Web 导出：用 Compatibility 渲染器，并关闭 "Thread Support"，这样才能部署到 GitHub Pages 或 itch.io，不需要 COOP/COEP 响应头。
 - 可以在 CI 里加一个导出任务，用缓存的导出模板，把构建产物上传为 artifact。**发布到 Release 或 itch.io 之前先问用户。**

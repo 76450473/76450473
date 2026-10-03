@@ -16,6 +16,7 @@ var bosses: Dictionary = {}
 var fusion_rules: Dictionary = {}
 var recipes: Array = []
 var species_names: Dictionary = {}
+var art: Dictionary = {}  # data/art_manifest.json (see ArtManifest)
 var load_errors: PackedStringArray = []
 
 
@@ -38,6 +39,7 @@ func load_dir(dir: String) -> void:
 	fusion_rules = fusion.get("rules", {})
 	recipes = fusion.get("recipes", [])
 	species_names = fusion.get("species_names", {})
+	art = _read(dir + "/art_manifest.json")
 
 
 func get_gene(id: String) -> Dictionary:
@@ -146,7 +148,44 @@ func validate() -> PackedStringArray:
 	for rx: Dictionary in recipes:
 		for eff: Dictionary in rx.get("effects", []):
 			_validate_effect("recipe %s" % rx.get("id"), eff, errs)
+	_validate_art(errs)
 	return errs
+
+
+## Every visual/content id must have an art spec, so the audit can always print a prompt.
+func _validate_art(errs: PackedStringArray) -> void:
+	var parts: Dictionary = art.get("parts", {})
+	for kind: String in Defs.PART_KINDS:
+		if kind == "none":
+			continue
+		if not parts.has(kind):
+			errs.append("art_manifest: missing parts.%s" % kind)
+		else:
+			var spec: Dictionary = parts[kind]
+			if not Defs.ART_SOCKETS.has(spec.get("socket", "")):
+				errs.append("art_manifest: parts.%s unknown socket %s" % [kind, spec.get("socket")])
+			if not Defs.ART_ANCHORS.has(spec.get("anchor", "")):
+				errs.append("art_manifest: parts.%s unknown anchor %s" % [kind, spec.get("anchor")])
+			if str(spec.get("subject", "")) == "":
+				errs.append("art_manifest: parts.%s has no subject" % kind)
+	for plan: String in Defs.BODY_PLANS:
+		if not (art.get("bodies", {}) as Dictionary).has(plan):
+			errs.append("art_manifest: missing bodies.%s" % plan)
+	for r: String in races:
+		if not (art.get("race_art", {}) as Dictionary).has(r):
+			errs.append("art_manifest: missing race_art.%s" % r)
+	for b: String in biomes:
+		if not (art.get("biome_art", {}) as Dictionary).has(b):
+			errs.append("art_manifest: missing biome_art.%s" % b)
+	for st: String in Defs.STATUSES:
+		if not (art.get("icons", {}) as Dictionary).has("status_" + st):
+			errs.append("art_manifest: missing icons.status_%s" % st)
+	for c: String in cards:
+		if not (art.get("card_art", {}) as Dictionary).has(c):
+			errs.append("art_manifest: missing card_art.%s" % c)
+	for b: String in bosses:
+		if not (art.get("boss_art", {}) as Dictionary).has(b):
+			errs.append("art_manifest: missing boss_art.%s" % b)
 
 
 func _validate_effect(where: String, eff: Dictionary, errs: PackedStringArray) -> void:

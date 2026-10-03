@@ -18,7 +18,7 @@
 ## 3. 仓库卫生
 
 - 必须提交：`project.godot`、`*.gd`、`*.tscn`、`*.tres`、`*.gdshader`、`*.uid`、`*.import`、`data/`、`docs/`、`export_presets.cfg`（不含凭据）。
-- 不要提交：`.godot/`、`build/`、`screenshots/*.png`、`reports/`、`export_credentials.cfg`（`.gitignore` 里已经排除）。
+- 不要提交：`.godot/`、`build/`、`screenshots/*.png`、`reports/`、`export_credentials.cfg`、`art_inbox/`（用户上传的原图，`.gitignore` 里已经排除）。处理后的 `art/` 和它的 sidecar json **要提交**。
 - 提交信息用 conventional commits：`feat:`、`fix:`、`balance:`、`art:`、`docs:`、`test:`、`chore:`。
 - 每次提交都应该是可运行的（godot_check 全绿）。大功能拆成多个能独立运行的小提交。
 
