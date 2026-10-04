@@ -1,0 +1,4 @@
+interface:
+  display_name: "奇美拉美术"
+  short_description: "奇美拉纪元美术资产：选画风、出图、自检、审核、打包"
+  default_prompt: "$chimera-art 开始"

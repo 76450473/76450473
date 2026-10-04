@@ -185,13 +185,14 @@ func test_enemy_specs_use_villain_art() -> void:
 func test_gpt_request_lists_numbers_and_reasons() -> void:
 	var entries := ArtManifest.build(db)
 	var by_id := ArtManifest.by_id(entries)
-	var req := ArtManifest.to_gpt_request(entries, [by_id["part_sac"], by_id["body_biped"]], {"part_sac": "背景有阴影"})
+	var req := ArtManifest.to_request(entries, [by_id["part_sac"], by_id["body_biped"]], {"part_sac": "背景有阴影"})
 	var n_sac := entries.find(by_id["part_sac"]) + 1
 	check(req.contains("【%d】part_sac.png" % n_sac), "item number matches the list numbering")
 	check(req.contains("重做：背景有阴影"), "redo reason shown")
 	check(req.contains("body_biped.png") and req.contains("缺失"), "missing item shown")
 	check(req.contains("共 2 项"), "count")
-	var restyle := ArtManifest.to_gpt_request(entries, entries, {"part_sac": "风格已更换"}, ArtManifest.RESTYLE_NOTE)
+	check(req.begins_with("$chimera-art 【补图请求】"), "first line invokes the Codex skill and keeps the 【补图请求】 marker")
+	var restyle := ArtManifest.to_request(entries, entries, {"part_sac": "风格已更换"}, ArtManifest.RESTYLE_NOTE)
 	check(restyle.split("\n")[2].begins_with("风格已更换"), "restyle note sits right under the header")
 	check(restyle.contains("共 %d 项" % entries.size()), "restyle request lists every asset")
 
@@ -204,6 +205,25 @@ func test_prompt_text_header_for_chatgpt() -> void:
 	check(txt.contains("character lineup sheet"), "header carries the style-reference prompt")
 	check(txt.contains("【1】") and txt.contains("【%d】" % entries.size()), "items numbered 1..N")
 	check(not ArtManifest.to_text(entries).begins_with("《"), "no header without the manifest")
+
+
+func test_assets_json_for_codex() -> void:
+	var entries := ArtManifest.build(db)
+	var parsed: Variant = JSON.parse_string(ArtManifest.to_json(entries, db.art))
+	check(parsed is Dictionary, "valid JSON object")
+	var d: Dictionary = parsed
+	var items: Array = d.get("items", [])
+	check_eq(int(d.get("total", 0)), entries.size(), "total")
+	check_eq(items.size(), entries.size(), "one item per asset")
+	check_eq(int((items[0] as Dictionary).n), 1, "numbering starts at 1")
+	check_eq(str((items[0] as Dictionary).file), str((entries[0] as Dictionary).id) + ".png", "file name = id.png")
+	check_eq((d.get("anchor_batch", []) as Array).size(), 7, "anchors carried")
+	check(str(d.get("reference_sheet", "")).contains("lineup"), "style reference prompt carried")
+	var villains := 0
+	for raw: Variant in items:
+		if bool((raw as Dictionary).villain):
+			villains += 1
+	check_eq(villains, 6, "six villain standees flagged")
 
 
 func test_anchor_batch_ids_exist() -> void:

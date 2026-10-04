@@ -202,7 +202,7 @@ static func to_text(entries: Array, art: Dictionary = {}) -> String:
 			if ids.has(raw):
 				anchors.append(raw + ".png")
 		lines.append("《奇美拉纪元》逐项提示词（共 %d 项）—— docs/ART_PROMPTS.txt，Claude 根据游戏数据生成" % entries.size())
-		lines.append("上传到 ChatGPT 项目后，逐项内容、编号和总数以这份为准（和《美术资产清单与提示词.txt》第七节格式相同）。")
+		lines.append("给 ChatGPT 项目用（Codex 用 ART_ASSETS.json）：上传后逐项内容、编号和总数以这份为准（和《美术资产清单与提示词.txt》第七节格式相同）。")
 		lines.append("")
 		lines.append("定调批（第一次生产或换了风格时先做这几项，确认风格）：" + "、".join(anchors))
 		var sheet := str((art.get("style", {}) as Dictionary).get("reference_sheet", ""))
@@ -234,17 +234,41 @@ static func to_text(entries: Array, art: Dictionary = {}) -> String:
 	return "\n".join(lines)
 
 
-## A short request the user pastes into their ChatGPT project (which already holds the full list
-## 《美术资产清单与提示词.txt》): file name + list number 【n】 + name + why (missing / redo reason).
+## Machine-readable list for the Codex art skill (docs/ART_ASSETS.json). Same numbering as to_text.
+static func to_json(entries: Array, art: Dictionary) -> String:
+	var items: Array = []
+	var ids := {}
+	var n := 0
+	for e: Dictionary in entries:
+		n += 1
+		ids[e.id] = true
+		items.append({
+			"n": n, "id": str(e.id), "file": str(e.id) + ".png", "cn": str(e.cn), "priority": int(e.priority),
+			"category": str(e.get("category", "")), "villain": bool(e.get("enemy", false)),
+			"ratio": str(e.ratio), "gen_size": str(e.gen_size), "bg": str(e.bg), "mode": str(e.mode),
+			"prompt": str(e.prompt), "negative": str(e.negative), "used_by": e.get("used_by", []),
+		})
+	var anchors: Array = []
+	for raw: String in art.get("anchor_batch", []):
+		if ids.has(raw):
+			anchors.append(raw)
+	return JSON.stringify({
+		"game": "奇美拉纪元 Chimera Epoch", "total": n, "anchor_batch": anchors,
+		"reference_sheet": str((art.get("style", {}) as Dictionary).get("reference_sheet", "")),
+		"items": items}, "  ", false)
+
+
+## The 补图请求 the user pastes into Codex (skill chimera-art; the first line invokes it) or into the
+## fallback ChatGPT project: file name + list number 【n】 + name + why (missing / redo reason).
 ## all_entries: the full ordered list (numbering = to_text order); wanted: entries to request;
 ## reasons: {asset_id: "重做原因"} (absent = 缺失). note: an extra line under the header (e.g. RESTYLE_NOTE).
-static func to_gpt_request(all_entries: Array, wanted: Array, reasons: Dictionary, note: String = "") -> String:
+static func to_request(all_entries: Array, wanted: Array, reasons: Dictionary, note: String = "") -> String:
 	var number := {}
 	for i in all_entries.size():
 		number[(all_entries[i] as Dictionary).id] = i + 1
 	var lines := PackedStringArray([
-		"【补图请求】来自 Claude（《奇美拉纪元》）",
-		"请按项目指令和项目里的清单（有 ART_PROMPTS.txt 时以它为准）生产下面这些资产：每项照常自检、请我确认。文件名必须和下面完全一致。"])
+		"$chimera-art 【补图请求】来自 Claude（《奇美拉纪元》）",
+		"请按美术技能（或 ChatGPT 项目指令）和清单生产下面这些资产，按文件名找对应的项：每项照常自检，再请我审核。文件名必须和下面完全一致。"])
 	if note != "":
 		lines.append(note)
 	lines.append("")
@@ -260,7 +284,7 @@ static func to_gpt_request(all_entries: Array, wanted: Array, reasons: Dictionar
 
 
 ## Line GPT项目指令 §九 reacts to: redo the style reference + 定调批 once, then the listed items.
-const RESTYLE_NOTE := "风格已更换：旧的风格参考图和已通过的旧图都不要再参照，先按 ART_PROMPTS.txt 开头重新出风格参考图和定调批，请我确认后再做下面的项。"
+const RESTYLE_NOTE := "风格已更换：旧的风格参考图和已通过的旧图都不要再参照，先用新清单（ART_ASSETS.json / ART_PROMPTS.txt）重新选画风、做定调批，请我确认后再做下面的项。"
 
 
 const MODE_CN := {"palette": "灰度（游戏内自动上色，只有发光处用鲜绿）", "mono": "白色剪影图标",

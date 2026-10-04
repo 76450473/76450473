@@ -1,5 +1,5 @@
 《奇美拉纪元》逐项提示词（共 88 项）—— docs/ART_PROMPTS.txt，Claude 根据游戏数据生成
-上传到 ChatGPT 项目后，逐项内容、编号和总数以这份为准（和《美术资产清单与提示词.txt》第七节格式相同）。
+给 ChatGPT 项目用（Codex 用 ART_ASSETS.json）：上传后逐项内容、编号和总数以这份为准（和《美术资产清单与提示词.txt》第七节格式相同）。
 
 定调批（第一次生产或换了风格时先做这几项，确认风格）：body_biped.png、body_hexapod.png、body_hexapod_enemy.png、part_eye_compound.png、part_sac.png、icon_status_poison.png、bg_swamp.png
 风格参考图提示词（可选，不计入总数，不放进资产包；只给本体角色 body_ 和部件 part_ 参照）：

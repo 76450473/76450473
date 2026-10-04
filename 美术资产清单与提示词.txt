@@ -3,11 +3,12 @@
 
 这份文件说明：要生成哪些图、每张图叫什么名字、用什么提示词，以及做完后怎么打包。
 
-【先看这里】推荐用你的 ChatGPT 订阅来生产（不用 API，不额外花钱）：
-按《GPT使用说明.txt》建一个 ChatGPT 项目，把《GPT项目指令.txt》贴进项目指令，再把这份文件上传到项目里。
-之后 GPT 会自己读这份清单，按顺序一张张出图：每张 GPT 自检、你确认（回复 1=通过、2=重画，或者直接写修改意见）。
-你只需要确认、下载、按文件名保存，最后打包。
-下面的规则 GPT 会自动遵守；用 Midjourney、即梦等其他工具自己出图时，再照着下面的步骤做。
+【先看这里】推荐用 Codex 来生产（用你的 ChatGPT 订阅，不用 API，不额外花钱）：
+按《Codex使用说明.txt》在 Codex 里打开 chimera_art 文件夹，发「$chimera-art 开始」。
+Codex 会自己用这份清单的数据出图、自检、预选，你在审核页里点"通过/重画"，文件名和打包它都会弄好。
+这时这份文件只是给你查看的：一共有哪些图、每张用在哪里、用的什么提示词。
+备用方案是网页版 ChatGPT 的"项目"（见《GPT使用说明.txt》，要把这份文件上传到项目里）。
+用 Midjourney、即梦等其他工具自己出图时，照着下面的步骤做。
 
 美术风格：二次元 × 仙侠游戏立绘 × 哥特未来。
   - 每个种族是一名拟人化的成年角色立绘，我方以女性为主（5 女 1 男）。
@@ -32,13 +33,13 @@
    文件名必须用清单里的英文名，不要改成中文。
 3. 新建一个英文名的文件夹，例如 art_pack（文件夹名不要用中文，Windows 压缩中文名容易乱码），
    把全部图片放进去，再新建一个 credits.txt，写一行：
-       你用的工具或模型，以及授权。例如：ChatGPT 图像生成（Plus 订阅）
+       你用的工具或模型，以及授权。例如：ChatGPT 图像生成（Plus 订阅）（用 Codex 时它会自动写好）
        用别的工具就写别的，例如：Midjourney v7，付费订阅可商用
    用记事本保存时，"另存为"里的编码选 UTF-8。
 4. 右键这个文件夹，压缩成 zip。zip 文件本身可以叫"美术资产包.zip"。
 5. 按《提示词.txt》的步骤，把 zip 放进游戏文件夹，然后启动 Claude。
    Claude 会自动解压、抠图、对齐，然后截图给你看效果。
-   缺的图和有瑕疵的图，它会给你一段「补图请求」，粘贴到 ChatGPT 项目里补做就行。
+   缺的图和有瑕疵的图，它会给你一段「补图请求」，粘贴给 Codex（或 ChatGPT 项目）补做就行。
 
 
 二、硬要求（决定能不能自动抠图、装进游戏）
@@ -46,7 +47,7 @@
 1. 背景按类别：
    - 角色立绘（body_）、部件（part_）、Boss（boss_）、卡牌边框（card_frame）：纯白平底背景，
      工具能直接导出真正的透明背景 PNG 的话也可以（导入时自动识别）。
-     ChatGPT 不要要求"透明背景"：它常把灰白棋盘格画进图里，这种假透明没法抠图。
+     ChatGPT / Codex 不要要求"透明背景"：常常会把灰白棋盘格画进图里，这种假透明没法抠图。
    - 图标（icon_）：纯黑平底背景，白色剪影
    - 战斗背景（bg_）、卡图（cardart_）、卡背、按钮、面板、标题图：出完整画面，铺满整张图
    导入工具是从图片四边往里"泛洪"去背景的，所以白底的那几类，背景必须是没有渐变、没有纹理的纯色，
@@ -62,7 +63,8 @@
 
 三、定调批：先做这 7 项，验证风格和流程
 --------------------------------------
-（在 ChatGPT 项目里生产时，GPT 会先做这 7 项请你确认。定调通过后，后面的图都照着它们的画风画。）
+（用 Codex 或 ChatGPT 项目生产时，会先做这 7 项请你确认。定调通过后，后面的图都照着它们的画风画。
+  Codex 还会在定调前先出 3 种画风让你选一次。）
 （可选，但强烈推荐）先生成一张风格参考图，它不用放进资产包：
   提示词：
   character lineup sheet of six adult anime race characters for a 2D game, refined Japanese anime style blended with Chinese xianxia game standee art, gothic-futurist fantasy, a human cultivator-knight woman in a midnight-blue hanfu-inspired dress, an insect-race woman in a crimson chitin gown with antennae, a mushroom-fairy woman with a glowing mushroom-cap hat, a wolf-beastman young man with wolf ears and tail, a crystal android woman with ice-blue crystal hair, a ghost lady in tattered black-violet veils who floats, all full body, 3/4 view facing right, evenly spaced, plain flat pure white background, no ground, no shadow, no text
@@ -93,7 +95,8 @@
   风格统一：角色立绘和部件加 --sref 风格参考图的链接；同一个角色要多张时再加 --cref。
 - Stable Diffusion / ComfyUI：
   用二次元模型；提示词和反向提示词分别填进对应的栏，固定模型和采样器；立绘和部件用 IP-Adapter 加风格参考图。
-- ChatGPT（推荐）：
+- Codex（推荐）：按《Codex使用说明.txt》做，比例、背景、反向提示词、文件名、打包都自动处理。
+- ChatGPT 网页版（备用）：
   按《GPT使用说明.txt》用项目来做，比例、背景、反向提示词 GPT 都会自动处理。
   在普通对话里手动出图的话：没有反向提示词栏，在提示词末尾加一句 "Avoid: 反向提示词内容"。
 - 即梦 / 通义万相 / 可灵 / 其他国内工具：

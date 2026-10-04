@@ -1,6 +1,6 @@
 ---
 name: chimera-godot-gamedev
-description: Build, continue, test, balance and ship the open-source Godot 4.7 game "Chimera Epoch / 奇美拉纪元", a gene-evolution roguelike with semi-auto tactics (pick a progenitor race, defeat other races and bosses to loot genes, cards and units, fuse genes into new species and builds). Use when the user asks to create, continue, playtest, balance, re-art or publish this game, or mentions 基因融合 / 种族进化 / 肉鸽 Build / 奇美拉 / Godot 基因游戏. Ships a verified project template (data-driven sim, fusion, enemy generator, creature visuals, tests, balance simulator, screenshot tool, CI), the design doc, system specs, a milestone roadmap and a headless Godot workflow. Also use it when the user brings an art pack (zip or folder of images, typically made in their ChatGPT project from the provided prompt list), uploads art or asks what art is missing (美术资产包 / 导入美术 / 缺什么图 / 补图 / 美术提示词): Claude imports, aligns and checks the art, and asks for missing or flawed images with a request the user pastes into ChatGPT.
+description: Build, continue, test, balance and ship the open-source Godot 4.7 game "Chimera Epoch / 奇美拉纪元", a gene-evolution roguelike with semi-auto tactics (pick a progenitor race, defeat other races and bosses to loot genes, cards and units, fuse genes into new species and builds). Use when the user asks to create, continue, playtest, balance, re-art or publish this game, or mentions 基因融合 / 种族进化 / 肉鸽 Build / 奇美拉 / Godot 基因游戏. Ships a verified project template (data-driven sim, fusion, enemy generator, creature visuals, tests, balance simulator, screenshot tool, CI), the design doc, system specs, a milestone roadmap and a headless Godot workflow. Also use it when the user brings an art pack (zip or folder of images, typically made with the Codex art skill chimera-art), uploads art or asks what art is missing (美术资产包 / 导入美术 / 缺什么图 / 补图 / 美术提示词): Claude imports, aligns and checks the art, and asks for missing or flawed images with a 补图请求 the user pastes into Codex.
 ---
 
 # Chimera Epoch：Godot 游戏开发 Skill
@@ -18,24 +18,24 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 5. **基因是行为，不是数值。** 新基因要用"触发器-动作-目标"DSL 表达**玩法**，纯加数值的基因只能是少数。
 6. **一次只做一个里程碑**（见 `references/roadmap.md`）。不要提前做后面里程碑的系统，范围蔓延是这个项目最大的风险。
 7. **对外动作先问用户。** 推送远程仓库、发布到 itch.io/Steam、使用付费或授权不明的素材、确定署名和许可证持有人，都要先征得同意。本地的 git commit 可以自主进行。
-8. **你不能生成图片，美术由用户提供。** 用户在自己的 ChatGPT 项目里按《美术资产清单与提示词.txt》批量生产（GPT 自检、用户确认），然后打包成**美术资产包**（zip 或图片文件夹）放进项目文件夹交给你。本项目不调用任何生图 API。缺图永远不阻塞开发，程序化占位美术会自动顶上。你的职责：
+8. **你不能生成图片，美术由用户提供。** 用户在自己的 Codex 里用美术技能 chimera-art 批量生产（Codex 出候选、自检预选，用户在审核页里审；备用方案是 ChatGPT 网页版项目），然后打包成**美术资产包**（zip 或图片文件夹）放进项目文件夹交给你。本项目不调用任何生图 API。缺图永远不阻塞开发，程序化占位美术会自动顶上。你的职责：
    - 导入资产包：`scripts/import_assets.sh`
    - 按 `references/art-pipeline.md` §4 逐张质检、对齐
-   - **缺图或有瑕疵时主动向用户要**：给一段可以直接粘贴到 ChatGPT 项目里的补图请求（`docs/ART_REQUEST_GPT.txt` 是缺失部分；有瑕疵的按 art-pipeline §7 加上重做原因）
-   - 新增内容时，同步更新美术清单，并让用户把新的 `docs/ART_PROMPTS.txt` 上传到 ChatGPT 项目（art-pipeline §8）
+   - **缺图或有瑕疵时主动向用户要**：给一段可以直接粘贴到 Codex 的补图请求（第一行 `$chimera-art 【补图请求】` 会调用美术技能；`docs/ART_REQUEST.txt` 是缺失部分；有瑕疵的按 art-pipeline §7 加上重做原因）
+   - 新增内容时，同步更新美术清单，并让用户把新的 `docs/ART_ASSETS.json` 放进他的 Codex 美术文件夹（用 ChatGPT 备用方案时是 `docs/ART_PROMPTS.txt`，art-pipeline §8）
 
 ## 1. 每次会话开始（必做，按顺序）
 
 1. **定位项目**
    - 当前目录或用户给的路径里有 `project.godot`，且 `config/name` 含 "Chimera"：这是续作，进入第 2 步。
-   - 没有项目，并且当前目录基本是空的（只有美术资产包、图片、txt 说明、skill 压缩包、「给Claude的文件.zip / 给GPT的文件.zip」或解压后的 skill 文件夹）：**直接在当前目录新建**（`new_project.sh .`），见第 3 节。skill 文件夹会被自动排除（`prepare_root.sh`），skill 压缩包和这两个打包 zip 不会被当成美术导入，也都不会被提交。
+   - 没有项目，并且当前目录基本是空的（只有美术资产包、图片、txt 说明、skill 压缩包、「给Claude的文件.zip / 给Codex的文件.zip」（或它们解压出的文件夹、Codex 美术文件夹 chimera_art）或解压后的 skill 文件夹）：**直接在当前目录新建**（`new_project.sh .`），见第 3 节。skill 文件夹会被自动排除（`prepare_root.sh`），skill 压缩包和这两个打包 zip 不会被当成美术导入，也都不会被提交。
    - 没有项目，但当前目录里有别的东西：在 `./chimera-epoch` 新建，然后在当前目录执行 `import_assets.sh ./chimera-epoch ./资产包.zip`（资产包路径相对于当前目录，或者用绝对路径）。
 2. **读记忆**：读 `docs/PROGRESS.md`（进度、下一步、已知问题）和 `docs/DECISIONS.md`（已做的决定，不要推翻）。
 3. **找引擎**：运行 `GODOT=$(bash SKILL_DIR/scripts/find_godot.sh)`。
    - 找不到：按 `references/godot-workflow.md` §1 指导用户安装 Godot 4.7.x，然后停下来等用户。没有引擎时写出的代码一律标注"未验证"。
    - Windows 上要使用 `*_console.exe`，普通版 exe 不会把输出打到终端。
 4. **检查美术资产**：出现以下任一情况，都说明用户带来了新素材：
-   - 项目根目录里有任何 zip（skill 包 chimera-godot-gamedev*.zip 和「给Claude的文件 / 给GPT的文件」打包除外，例如 补图1.zip），或图片文件夹（名字含 art、asset、image、img、pic、美术、资产、素材、图片、图像）
+   - 项目根目录里有任何 zip（skill 包和「给Claude / 给Codex / 给GPT」打包除外，例如 art_pack.zip、fix_01.zip、补图1.zip），或图片文件夹（名字含 art、asset、image、img、pic、美术、资产、素材、图片、图像）
    - 项目根目录里有零散的图片
    - `art_inbox/` 顶层有图片（README.txt、credits.txt 和 `_done/`、`_failed/`、`_packs/` 子文件夹都不算）
 
@@ -79,7 +79,7 @@ bash SKILL_DIR/scripts/godot_check.sh . --balance
 模板已经包含：
 - 内容：6 个种族、13 个单位模板、28 个基因、8 张战术卡、3 个生态区、6 个精英协同、1 个 Boss、3 个隐藏配方
 - 系统：确定性战斗、语义融合、敌人生成、程序化生物外观加材质 shader
-- **美术协作管线**：88 项资产清单和提示词（二次元 × 仙侠立绘 × 哥特未来，含 6 个敌方反派立绘）、资产包解压、自动导入、缺失审计、给 ChatGPT 的补图请求、美术检查台
+- **美术协作管线**：88 项资产清单和提示词（二次元 × 仙侠立绘 × 哥特未来，含 6 个敌方反派立绘）、资产包解压、自动导入、缺失审计、给 Codex 的补图请求和清单数据（ART_ASSETS.json）、美术检查台
 - 工具：完整的单元测试、平衡模拟、截图工具、GitHub Actions CI
 
 **M0 完成时必须做的事**：
@@ -89,7 +89,7 @@ bash SKILL_DIR/scripts/godot_check.sh . --balance
    - 导入了多少张，各类资产的覆盖率（P1、P2、P3）
    - **需要重做的图**和原因
    - 还缺的资产数量
-   - 一段**补图请求**（art-pipeline §7 的格式，缺失部分直接取 `docs/ART_REQUEST_GPT.txt`），让用户复制到 ChatGPT 项目里生产。用户只交了一部分、还在 GPT 里按顺序做时，补图请求只写要重做的，缺失的让用户在 GPT 里发"继续"加接力码；还没有资产包时不给补图请求，让用户按《GPT使用说明.txt》在 ChatGPT 项目里发"开始"（art-pipeline §4 第 9 步）
+   - 一段**补图请求**（art-pipeline §7 的格式，缺失部分直接取 `docs/ART_REQUEST.txt`），让用户复制到 Codex 里生产。用户只交了一部分、还在 Codex 里按顺序做时，补图请求只写要重做的，缺失的让用户在 Codex 里说"$chimera-art 继续"；还没有资产包时不给补图请求，让用户按《Codex使用说明.txt》在美术文件夹里发"$chimera-art 开始"（art-pipeline §4 第 9 步）
    - 5 张截图的路径（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`art_enemies.png`、`main.png`）
 4. 然后直接开始 M1，不要等美术，缺的图会用占位美术代替。
 
@@ -133,11 +133,11 @@ autoload：Data（Data.db）、Rng（运行期随机流）
 ## 7. 美术、平衡与开源（各自的 reference 是详细规范）
 
 - **美术**（`visual-system.md` 和 `art-pipeline.md`）：
-  - 用户在 ChatGPT 项目里出图（GPT 自检 + 用户确认），你负责导入、适配和质检，缺图和瑕疵图向用户要。
+  - 用户在 Codex 里用美术技能 chimera-art 出图（Codex 自检预选 + 用户审核），你负责导入、适配和质检，缺图和瑕疵图向用户要。
   - 美术方向：**二次元 × 仙侠立绘 × 哥特未来**（visual-system §1）。每族一名成年角色立绘，我方以女性为主；敌人用同族的反派立绘，更大更凶；基因部件是可装配的配饰，保留来源种族的配色。**所有角色都是成年人**，性感但不裸露。
   - 每次导入后，美术检查台四页都要截图并亲眼看；对齐问题只改 sidecar json，不改代码。
   - 用户说"导入美术"、"我上传了图"、"缺什么图"、"要补哪些图"时，严格按 art-pipeline §4 执行。
-  - 汇报时必须列出：需要重做的图（原因）、还缺的资产，并附一段可以直接粘贴到 ChatGPT 项目里的补图请求（art-pipeline §7）。
+  - 汇报时必须列出：需要重做的图（原因）、还缺的资产，并附一段可以直接粘贴到 Codex 的补图请求（art-pipeline §7）。
   - 新增部件、骨架、生态区、卡牌、Boss 时，同步在 `data/art_manifest.json` 里加条目（test_data 会检查）。
 - **平衡与随机**（`balance-and-rng.md`）：每次改数值都要跑 balance_sim，按目标区间调整。调参优先改 amount，其次 trigger/target，最后才是 stats。随机原则是"输入随机、输出确定"：随机的是给玩家的选项，选项的结果是确定的。
 - **开源**（`open-source.md`）：代码用 MIT，素材用 CC BY-SA 4.0，字体用 OFL。CI 必须是绿的。发布前问用户。

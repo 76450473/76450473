@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Import the user's art pack(s) into a Chimera Epoch project, end to end:
 #   pack (zip / folder / loose images) -> art_inbox/ -> processed into art/ -> registered
-#   -> coverage audit (docs/ART_TODO.md, docs/ART_REQUEST_GPT.txt) -> full godot_check
+#   -> coverage audit (docs/ART_TODO.md, docs/ART_REQUEST.txt) -> full godot_check
 #   -> screenshots of the 4 art QA pages + the main scene (5 PNGs).
 #   bash import_assets.sh <project_dir> [pack.zip|folder ...]
 # Pack paths may be absolute or relative to the folder you run this from.
 # With no pack arguments it auto-detects inside <project_dir> (top level only):
-#   *.zip files (the skill zip and the 给Claude/给GPT bundles are skipped), folders whose name contains art/asset/image/img/pic/
+#   *.zip files (the skill zips and the 给Claude/给Codex/给GPT bundles are skipped), folders whose name contains art/asset/image/img/pic/
 #   美术/资产/素材/图片/图像 and hold images, and loose images (also images dropped straight into art/). Processed packs move to art_inbox/_packs/ so a later
 #   run never imports them twice.
 set -u
@@ -38,11 +38,11 @@ quiet() {
 bash "$HERE/prepare_root.sh" .
 if [ ${#packs[@]} -eq 0 ]; then
   while IFS= read -r -d '' z; do
-    case "$(basename "$z" | tr 'A-Z' 'a-z')" in chimera-godot-gamedev*|给claude*|给gpt*) continue ;; esac
+    case "$(basename "$z" | tr 'A-Z' 'a-z')" in chimera-godot-gamedev*|chimera-art*|给claude*|给gpt*|给codex*) continue ;; esac
     packs+=("$z")
   done < <(find "$ROOT" -maxdepth 1 -type f -iname '*.zip' -print0 2>/dev/null)
   while IFS= read -r -d '' d; do
-    case "$(basename "$d")" in art|art_inbox|.godot|chimera-godot-gamedev*) continue ;; esac
+    case "$(basename "$d")" in art|art_inbox|.godot|chimera-godot-gamedev*|chimera-art*|chimera_art*) continue ;; esac
     [ -f "$d/.gdignore" ] && continue
     # never swallow a real project folder (scripts/scenes/resources inside = game content)
     find "$d" -maxdepth 4 -type f \( -name '*.gd' -o -name '*.tscn' -o -name '*.tres' -o -name '*.gdshader' \) 2>/dev/null | grep -q . && continue

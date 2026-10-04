@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>奇美拉美术审核</title>
+<style>
+  :root { --bg: #f4f2ee; --panel: #ffffff; --ink: #1f1d1a; --muted: #6b665e; --line: #ddd8cf;
+          --ok: #2f7d4f; --redo: #b8442f; --pick: #3b5bdb; --stage: #8a8a8a; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #17161a; --panel: #222126; --ink: #ece9e4; --muted: #a29d94; --line: #38363c;
+            --ok: #5fbf85; --redo: #e0735c; --pick: #7d97ff; --stage: #5a5a5a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  header h1 { font-size: 17px; margin: 0; }
+  header .hint { color: var(--muted); font-size: 13px; flex: 1 1 260px; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 6px; padding: 5px 12px; cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button.ok.on { background: var(--ok); border-color: var(--ok); color: #fff; }
+  button.redo.on { background: var(--redo); border-color: var(--redo); color: #fff; }
+  button.primary { background: var(--pick); border-color: var(--pick); color: #fff; }
+  main { padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 2px solid var(--line); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .card.ok { border-color: var(--ok); }
+  .card.redo { border-color: var(--redo); }
+  .card h2 { font-size: 15px; margin: 0; }
+  .card .file { font-family: Consolas, monospace; font-size: 13px; color: var(--muted); word-break: break-all; }
+  .cands { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cand { flex: 1 1 120px; position: relative; border: 3px solid transparent; border-radius: 8px; background: var(--stage); cursor: pointer; min-height: 120px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .cand.chosen { border-color: var(--pick); }
+  .cand img { max-width: 100%; max-height: 300px; display: block; }
+  .cand .tag { position: absolute; left: 4px; top: 4px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; padding: 1px 6px; border-radius: 4px; }
+  .cand .zoom { position: absolute; right: 4px; bottom: 4px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; padding: 1px 6px; border-radius: 4px; }
+  .check { font-size: 13px; color: var(--muted); }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .note { flex: 1 1 160px; font: inherit; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+  footer { padding: 16px; display: flex; flex-direction: column; gap: 8px; max-width: 900px; }
+  textarea { width: 100%; min-height: 120px; font: 14px/1.5 Consolas, "Microsoft YaHei", monospace; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+  .status { color: var(--muted); font-size: 13px; }
+  .bgbar button { padding: 2px 8px; font-size: 13px; }
+  #lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; z-index: 10; cursor: zoom-out; }
+  #lightbox img { max-width: 96vw; max-height: 94vh; background: var(--stage); }
+  .empty { padding: 40px 16px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">奇美拉美术审核</h1>
+  <span class="hint" id="hint">每张选「通过」或「重画」（可写修改意见）。有几个候选时，点图片换成你喜欢的那张。最后点「生成审核结果」，复制粘贴给 Codex。</span>
+  <span class="bgbar">底色：<button data-bg="#8a8a8a">灰</button><button data-bg="#000000">黑</button><button data-bg="#ffffff">白</button></span>
+  <button id="allok">全部通过</button>
+  <button id="make" class="primary">生成审核结果</button>
+</header>
+<main id="grid"></main>
+<footer>
+  <div class="row"><button id="make2" class="primary">生成审核结果</button><button id="copy">复制</button><span class="status" id="status"></span></div>
+  <textarea id="out" readonly placeholder="点「生成审核结果」后，这里会出现一段文字，复制后粘贴给 Codex。"></textarea>
+</footer>
+<div id="lightbox"><img alt=""></div>
+<script src="review_data.js"></script>
+<script>
+(function () {
+  "use strict";
+  var data = window.REVIEW || { items: [] };
+  var mode = data.mode === "style" ? "style" : "items";
+  var items = data.items || [];
+  var key = "chimera-review:" + (data.id || data.title || "batch");
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(key) || "{}") || {}; } catch (e) { state = {}; }
+  function save() { try { localStorage.setItem(key, JSON.stringify(state)); } catch (e) {} }
+  function st(i) { var k = String(items[i].n != null ? items[i].n : i); if (!state[k]) state[k] = { verdict: "", pick: 0, note: "" }; return state[k]; }
+
+  document.getElementById("title").textContent = data.title || "奇美拉美术审核";
+  if (mode === "style") {
+    document.getElementById("hint").textContent = "选一个你最喜欢的整体画风（点图片或「选这个」），可以写一句补充意见。最后点「生成审核结果」，复制粘贴给 Codex。";
+    document.getElementById("allok").style.display = "none";
+  }
+  var grid = document.getElementById("grid");
+  if (!items.length) { grid.innerHTML = '<div class="empty">这一批没有图片（review_data.js 里没有内容）。</div>'; }
+
+  function candidates(it) { return [it.img].concat(it.alts || []).filter(Boolean); }
+
+  function render() {
+    grid.textContent = "";
+    items.forEach(function (it, i) {
+      var s = st(i);
+      var card = document.createElement("section");
+      card.className = "card" + (s.verdict ? " " + s.verdict : "");
+      var h = document.createElement("h2");
+      h.textContent = mode === "style" ? ("方案 " + (it.label || String.fromCharCode(65 + i)) + (it.cn ? "　" + it.cn : ""))
+                                       : ("【" + it.n + "】" + (it.cn || ""));
+      card.appendChild(h);
+      if (it.file && mode !== "style") { var f = document.createElement("div"); f.className = "file"; f.textContent = it.file; card.appendChild(f); }
+      var cs = document.createElement("div"); cs.className = "cands";
+      candidates(it).forEach(function (src, j) {
+        var c = document.createElement("div");
+        c.className = "cand" + ((mode === "style" ? s.verdict === "ok" : s.pick === j) ? " chosen" : "");
+        var img = document.createElement("img"); img.src = src; img.alt = (it.file || "") + " 候选 " + (j + 1); img.loading = "lazy";
+        img.onerror = function () { c.textContent = "图片没找到：" + src; };
+        c.appendChild(img);
+        var multi = candidates(it).length > 1;
+        if (multi) { var t = document.createElement("span"); t.className = "tag"; t.textContent = (j === 0 ? "Codex 首选" : "候选 " + (j + 1)); c.appendChild(t); }
+        var z = document.createElement("span"); z.className = "zoom"; z.textContent = "放大";
+        z.onclick = function (ev) { ev.stopPropagation(); openBox(src); };
+        c.appendChild(z);
+        c.onclick = function () {
+          if (mode === "style") { items.forEach(function (_, k) { st(k).verdict = ""; }); s.verdict = "ok"; }
+          else { s.pick = j; if (!s.verdict) s.verdict = "ok"; }
+          save(); render();
+        };
+        cs.appendChild(c);
+      });
+      card.appendChild(cs);
+      if (it.check) { var ck = document.createElement("div"); ck.className = "check"; ck.textContent = "Codex 自检：" + it.check; card.appendChild(ck); }
+      var row = document.createElement("div"); row.className = "row";
+      if (mode === "style") {
+        var pick = document.createElement("button"); pick.className = "ok" + (s.verdict === "ok" ? " on" : ""); pick.textContent = "选这个";
+        pick.onclick = function () { items.forEach(function (_, k) { st(k).verdict = ""; }); s.verdict = "ok"; save(); render(); };
+        row.appendChild(pick);
+      } else {
+        var ok = document.createElement("button"); ok.className = "ok" + (s.verdict === "ok" ? " on" : ""); ok.textContent = "通过";
+        ok.onclick = function () { s.verdict = "ok"; save(); render(); };
+        var redo = document.createElement("button"); redo.className = "redo" + (s.verdict === "redo" ? " on" : ""); redo.textContent = "重画";
+        redo.onclick = function () { s.verdict = "redo"; save(); render(); };
+        row.appendChild(ok); row.appendChild(redo);
+      }
+      var note = document.createElement("input"); note.className = "note"; note.type = "text";
+      note.placeholder = mode === "style" ? "补充意见（可不填）" : "修改意见（写了就算重画）";
+      note.value = s.note || "";
+      note.oninput = function () { s.note = note.value; if (mode !== "style" && s.note.trim()) { s.verdict = "redo"; card.className = "card redo"; ok.classList.remove("on"); redo.classList.add("on"); } save(); };
+      row.appendChild(note);
+      card.appendChild(row);
+      grid.appendChild(card);
+    });
+  }
+
+  function clean(t) { return String(t || "").replace(/[\r\n]+/g, " ").replace(/[；;]/g, "，").trim(); }
+
+  function result() {
+    var head = "$chimera-art 审核结果 " + (data.id || "");
+    if (mode === "style") {
+      var chosen = -1;
+      items.forEach(function (_, i) { if (st(i).verdict === "ok") chosen = i; });
+      if (chosen < 0) return { text: "", missing: ["还没选方案"] };
+      var it = items[chosen], n = clean(st(chosen).note);
+      var notes = [];
+      items.forEach(function (x, i) { var t = clean(st(i).note); if (t && i !== chosen) notes.push("方案" + (x.label || String.fromCharCode(65 + i)) + "：" + t); });
+      return { text: head + "\n风格选择：" + (it.label || String.fromCharCode(65 + chosen)) + (n ? "（" + n + "）" : "") + (notes.length ? "\n其他意见：" + notes.join("；") : ""), missing: [] };
+    }
+    var okN = [], pick = [], redo = [], missing = [];
+    items.forEach(function (it, i) {
+      var s = st(i), n = String(it.n);
+      if (s.verdict === "ok") { okN.push(n); if (s.pick > 0) pick.push(n + "=候选" + (s.pick + 1)); }
+      else if (s.verdict === "redo") { var t = clean(s.note); redo.push(n + (t ? "（" + t + "）" : "")); }
+      else missing.push(n);
+    });
+    var lines = [head];
+    if (okN.length) lines.push("通过：" + okN.join(","));
+    if (pick.length) lines.push("换候选：" + pick.join(","));
+    if (redo.length) lines.push("重画：" + redo.join("；"));
+    if (missing.length) lines.push("没审：" + missing.join(","));
+    return { text: lines.join("\n"), missing: missing };
+  }
+
+  function make() {
+    var r = result(), out = document.getElementById("out"), stEl = document.getElementById("status");
+    out.value = r.text;
+    stEl.textContent = r.missing.length ? ("还有没审的：" + r.missing.join("、") + "（也可以先发出去，Codex 会当作没审）") : "已生成，点「复制」后粘贴给 Codex。";
+    out.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  function copy() {
+    var out = document.getElementById("out"), stEl = document.getElementById("status");
+    if (!out.value) make();
+    function fallback() { out.removeAttribute("readonly"); out.select(); try { document.execCommand("copy"); stEl.textContent = "已复制，粘贴给 Codex 就行。"; } catch (e) { stEl.textContent = "请手动全选上面的文字复制。"; } out.setAttribute("readonly", ""); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(out.value).then(function () { stEl.textContent = "已复制，粘贴给 Codex 就行。"; }, fallback);
+    } else fallback();
+  }
+  function openBox(src) { var b = document.getElementById("lightbox"); b.querySelector("img").src = src; b.style.display = "flex"; }
+  document.getElementById("lightbox").onclick = function () { this.style.display = "none"; };
+  document.getElementById("make").onclick = make;
+  document.getElementById("make2").onclick = make;
+  document.getElementById("copy").onclick = copy;
+  document.getElementById("allok").onclick = function () { items.forEach(function (_, i) { var s = st(i); if (!s.note || !s.note.trim()) s.verdict = "ok"; }); save(); render(); };
+  Array.prototype.forEach.call(document.querySelectorAll(".bgbar button"), function (b) {
+    b.onclick = function () { document.documentElement.style.setProperty("--stage", b.getAttribute("data-bg")); try { localStorage.setItem("chimera-review:bg", b.getAttribute("data-bg")); } catch (e) {} };
+  });
+  try { var bg = localStorage.getItem("chimera-review:bg"); if (bg) document.documentElement.style.setProperty("--stage", bg); } catch (e) {}
+  render();
+})();
+</script>
+</body>
+</html>

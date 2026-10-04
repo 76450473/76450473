@@ -17,6 +17,9 @@ export_credentials.cfg
 /GPT使用说明.txt
 /给Claude的文件*/
 /给GPT的文件*/
+/给Codex的文件*/
+/chimera_art/
+/Codex使用说明.txt
 # OS junk and per-user Claude Code permissions
 .DS_Store
 Thumbs.db

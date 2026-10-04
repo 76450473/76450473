@@ -1,23 +1,24 @@
 extends SceneTree
 ## Which art is still missing, with a ready-to-paste prompt for each asset.
 ##   godot --headless --path . --script res://tools/art_audit.gd
-## Every run rewrites ALL four files, so they never go stale after a style change or new content:
+## Every run rewrites ALL five files, so they never go stale after a style change or new content:
 ##   docs/ART_TODO.md (missing only) · docs/ART_PROMPTS.md (every asset) · docs/ART_PROMPTS.txt (every asset, plain text)
-##   docs/ART_REQUEST_GPT.txt (missing only, a short request the user pastes into their ChatGPT project)
-##   ... -- p1   -> ART_TODO.md and ART_REQUEST_GPT.txt limited to priority 1   (legacy "-- full" / "-- txt" are accepted and ignored)
-##   ... -- restyle -> after a style change: ART_REQUEST_GPT.txt asks for EVERY asset ("重做：风格已更换")
+##   docs/ART_REQUEST.txt (missing only: the 补图请求 the user pastes into Codex / ChatGPT) · docs/ART_ASSETS.json (every asset, for the Codex skill)
+##   ... -- p1   -> ART_TODO.md and ART_REQUEST.txt limited to priority 1   (legacy "-- full" / "-- txt" are accepted and ignored)
+##   ... -- restyle -> after a style change: ART_REQUEST.txt asks for EVERY asset ("重做：风格已更换")
 ## The list is derived from game data, so new genes/biomes/cards show up here automatically.
 
 const INTRO := """怎么用：
-1. 推荐用 ChatGPT（网页版或桌面版）的"项目"批量生产：按《GPT使用说明.txt》设置一次，GPT 会逐项生成、自检，再请你确认。
+1. 推荐用 Codex 的美术技能 chimera-art 批量生产：按《Codex使用说明.txt》装好，在美术文件夹里说"$chimera-art 开始"，Codex 会出图、自检预选，再请你在审核页里审。
+   备用：ChatGPT（网页版或桌面版）的"项目"，按《GPT使用说明.txt》设置一次。
    也可以用任意 AI 生图工具（Midjourney / Stable Diffusion / 即梦 / 通义万相 …）复制下面的提示词生成：
    Midjourney 建议用二次元模型（--niji 6），末尾加 `--ar 比例 --no 反向提示词`；后续都加 `--sref 第一张满意图的链接`，保持风格统一。
    没有反向提示词栏的工具：在提示词末尾加 `Avoid: 反向提示词`。即梦、通义万相、可灵请关闭"智能扩写/提示词优化"。
 2. 每张图按「保存为」的文件名保存（png/jpg/webp 都行，名字对了最省事），打包成 zip 放进游戏文件夹，或者直接放进项目的 `art_inbox/`。
 3. 背景要求：角色立绘、部件、Boss 用**纯白平底**（能导出真正的透明 PNG 也行；在 ChatGPT 里别要"透明背景"，它常画出假的灰白棋盘格），图标用**纯黑平底**；主体边缘要清楚，这样才能自动抠图。
-   所有角色都是成年人，服装性感但不裸露。
-4. 资产包里放一个 credits.txt，写一行：用的工具/模型 + 授权（例如：ChatGPT 图像生成，Plus 订阅）。
-5. 对 Claude 说「导入美术」。它会处理、截图检查，并告诉你哪些要重做、还缺什么（附一段可以直接发给 GPT 的补图请求）。
+   所有角色都是成年人，服装迷人但不裸露。
+4. 资产包里放一个 credits.txt，写一行：用的工具/模型 + 授权（例如：Codex 内置图像生成（ChatGPT 订阅））。
+5. 对 Claude 说「导入美术」。它会处理、截图检查，并告诉你哪些要重做、还缺什么（附一段可以直接发给 Codex 的补图请求）。
 缺的资产不影响游戏运行——会自动用程序化占位美术代替。"""
 
 
@@ -47,13 +48,14 @@ func _initialize() -> void:
 	_write("docs/ART_TODO.md", ArtManifest.to_markdown(missing, "缺失的美术资产（%d 项）" % missing.size(), intro))
 	_write("docs/ART_PROMPTS.md", ArtManifest.to_markdown(entries, "美术资产提示词（全部 %d 项）" % entries.size(), intro))
 	_write("docs/ART_PROMPTS.txt", ArtManifest.to_text(entries, db.art))
+	_write("docs/ART_ASSETS.json", ArtManifest.to_json(entries, db.art))
 	if restyle:
 		var reasons := {}
 		for e: Dictionary in entries:
 			reasons[e.id] = "风格已更换"
-		_write("docs/ART_REQUEST_GPT.txt", ArtManifest.to_gpt_request(entries, entries, reasons, ArtManifest.RESTYLE_NOTE))
+		_write("docs/ART_REQUEST.txt", ArtManifest.to_request(entries, entries, reasons, ArtManifest.RESTYLE_NOTE))
 	else:
-		_write("docs/ART_REQUEST_GPT.txt", ArtManifest.to_gpt_request(entries, missing, {}))
+		_write("docs/ART_REQUEST.txt", ArtManifest.to_request(entries, missing, {}))
 	var out_rel := "docs/ART_TODO.md"
 	print("art coverage: ", "  ".join(summary))
 	print("missing: %d  -> %s" % [missing.size(), out_rel])
