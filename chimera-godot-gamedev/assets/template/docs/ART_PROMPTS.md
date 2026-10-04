@@ -25,7 +25,7 @@
 2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, full body of a creature in its plain base form, side view facing right, neutral idle pose, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole silhouette, whole body visible and filling most of the frame with a small margin, the lowest point of the body near the bottom edge, no weapons, no accessories, no extra organs, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a lean humanoid figure, bald head, simple wrapped cloth, both arms hanging. Surface materials: symmetric rounded rectangular forms, stitched leather, rough cloth and riveted iron details. No glowing or colored areas at all; strictly grayscale.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
 
 ### 2. `body_cluster` — 菌簇骨架（菌族本体）
 - 保存为：`art_inbox/body_cluster.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯白　｜　模式：灰度（游戏内自动上色，只有发光处用鲜绿）
@@ -36,7 +36,7 @@
 2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, full body of a creature in its plain base form, side view facing right, neutral idle pose, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole silhouette, whole body visible and filling most of the frame with a small margin, the lowest point of the body near the bottom edge, no weapons, no accessories, no extra organs, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a walking mushroom: thick pale stem body and a wide round cap, one small bulb at the base. Surface materials: swollen rounded fungal flesh, soft spongy texture, fine fibrous thread details. No glowing or colored areas at all; strictly grayscale.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
 
 ### 3. `body_hexapod` — 六足骨架（虫族本体）
 - 保存为：`art_inbox/body_hexapod.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯白　｜　模式：灰度（游戏内自动上色，只有发光处用鲜绿）
@@ -47,7 +47,7 @@
 2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, full body of a creature in its plain base form, side view facing right, neutral idle pose, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole silhouette, whole body visible and filling most of the frame with a small margin, the lowest point of the body near the bottom edge, no weapons, no accessories, no extra organs, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a six-legged beetle-like insect with abdomen, thorax, small head and two antennae. Surface materials: segmented glossy chitin plates with small sharp spikes. No glowing or colored areas at all; strictly grayscale.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
 
 ### 4. `part_banner` — 背负战旗（人族部件）
 - 保存为：`art_inbox/part_banner.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯白　｜　模式：灰度（游戏内自动上色，只有发光处用鲜绿）
@@ -88,7 +88,7 @@
 - 提示词：
 
 ```text
-2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, a single isolated creature part shown on its own, not attached to any body, side view facing right, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole shape, clean readable silhouette, centered and filling most of the frame with a small margin, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a cluster of bulging faceted compound insect eyes, seen from the side, no head. Surface materials: segmented glossy chitin plates with small sharp spikes. Only the eye facets glow in a bright saturated green; everything else stays strictly grayscale.
+2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, a single isolated creature part shown on its own, not attached to any body, side view facing right, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole shape, clean readable silhouette, centered and filling most of the frame with a small margin, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a cluster of bulging faceted compound insect eyes, seen from the side, no head. Surface materials: segmented glossy chitin plates with small sharp spikes. Only a small glint at the center of each facet glow in a bright saturated green; everything else stays strictly grayscale.
 ```
 
 - 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
@@ -132,7 +132,7 @@
 - 提示词：
 
 ```text
-2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, a single isolated creature part shown on its own, not attached to any body, side view facing right, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole shape, clean readable silhouette, centered and filling most of the frame with a small margin, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a single translucent bulbous venom gland sac with veins, the organ alone. Surface materials: segmented glossy chitin plates with small sharp spikes. Only the liquid inside the sac glow in a bright saturated green; everything else stays strictly grayscale.
+2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, a single isolated creature part shown on its own, not attached to any body, side view facing right, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole shape, clean readable silhouette, centered and filling most of the frame with a small margin, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a single translucent bulbous venom gland sac with veins, the organ alone. Surface materials: segmented glossy chitin plates with small sharp spikes. Only the small pool of liquid in the lower half of the sac glow in a bright saturated green; everything else stays strictly grayscale.
 ```
 
 - 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
@@ -231,10 +231,10 @@
 - 提示词：
 
 ```text
-2D side-view game battle background, dark biological fantasy, painterly, muted desaturated colors, horizon in the upper third, wide calm flat ground band across the middle and lower half where creatures will stand, darker and low-contrast in the center, atmospheric depth, no characters, no creatures, no text, no UI, no border. Scene: a rotting toxic swamp: dead twisted trees, glowing green fungus, murky water pools, hanging moss, sickly green fog.
+2D side-view game battle background, dark biological fantasy, painterly, muted desaturated colors, horizon in the upper third, wide calm flat empty ground band across the middle and lower half left open for gameplay, darker and low-contrast in the center, atmospheric depth, empty uninhabited landscape, no text, no UI, no border. Scene: a rotting toxic swamp: dead twisted trees, glowing green fungus, murky water pools, hanging moss, sickly green fog.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry`
+- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry, characters, creatures, animals, people, monsters, UI`
 
 ### 21. `icon_energy` — 能量
 - 保存为：`art_inbox/icon_energy.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -244,7 +244,7 @@
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a round nucleus orb with a small orbit ring.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 22. `icon_map_battle` — 地图·战斗
 - 保存为：`art_inbox/icon_map_battle.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -254,7 +254,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: two crossed claws.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 23. `icon_map_boss` — 地图·Boss
 - 保存为：`art_inbox/icon_map_boss.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -264,7 +264,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a jagged crown.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 24. `icon_map_elite` — 地图·精英
 - 保存为：`art_inbox/icon_map_elite.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -274,7 +274,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a horned beast skull.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 25. `icon_map_event` — 地图·事件
 - 保存为：`art_inbox/icon_map_event.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -284,7 +284,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a question mark made of vines.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 26. `icon_map_habitat` — 地图·栖息地
 - 保存为：`art_inbox/icon_map_habitat.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -294,7 +294,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a nest with eggs.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 27. `icon_map_market` — 地图·黑市
 - 保存为：`art_inbox/icon_map_market.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -304,7 +304,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a balance scale.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 28. `icon_map_mutation` — 地图·异变池
 - 保存为：`art_inbox/icon_map_mutation.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -314,7 +314,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a bubbling cauldron.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 29. `icon_map_ruin` — 地图·遗迹融合台
 - 保存为：`art_inbox/icon_map_ruin.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -324,7 +324,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a DNA double helix over an altar.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 30. `icon_stat_armor` — 数值·护甲
 - 保存为：`art_inbox/icon_stat_armor.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -334,7 +334,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a chitin shield plate.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 31. `icon_stat_atk` — 数值·攻击
 - 保存为：`art_inbox/icon_stat_atk.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -344,7 +344,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a single curved fang.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 32. `icon_stat_hp` — 数值·生命
 - 保存为：`art_inbox/icon_stat_hp.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -354,7 +354,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: an anatomical heart.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 33. `icon_stat_spd` — 数值·速度
 - 保存为：`art_inbox/icon_stat_spd.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -364,7 +364,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: an insect wing.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 34. `icon_status_infect` — 状态·感染
 - 保存为：`art_inbox/icon_status_infect.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -374,7 +374,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a cluster of five round spores.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 35. `icon_status_poison` — 状态·毒
 - 保存为：`art_inbox/icon_status_poison.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -384,7 +384,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a single venom droplet.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 36. `icon_status_regen` — 状态·再生
 - 保存为：`art_inbox/icon_status_regen.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -394,7 +394,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a rounded plus cross made of living tissue.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 37. `icon_status_stun` — 状态·眩晕
 - 保存为：`art_inbox/icon_status_stun.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -404,7 +404,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a spinning four-pointed star with motion arcs.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 38. `icon_status_vulnerable` — 状态·易伤
 - 保存为：`art_inbox/icon_status_vulnerable.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -414,7 +414,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a cracked broken shield.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 39. `card_back` — 卡背
 - 保存为：`art_inbox/card_back.png`　｜　比例 5:7（建议 1024×1434）　｜　背景：画面本身　｜　模式：彩色原样
@@ -424,7 +424,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 dark biological fantasy game UI element, aged parchment, bone and dark chitin, ink line details, flat front view, no text. full-bleed card back design filling the whole image edge to edge, symmetric emblem of a DNA helix entwined with a chitin spiral on dark parchment, no rounded corners, no table, no shadow.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry`
+- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, numbers, handwriting, watermark, signature, logo, characters, creatures, blurry`
 
 ### 40. `card_frame` — 卡牌边框
 - 保存为：`art_inbox/card_frame.png`　｜　比例 5:7（建议 1024×1434）　｜　背景：纯白　｜　模式：彩色，去背景
@@ -434,7 +434,7 @@ dark biological fantasy game UI element, aged parchment, bone and dark chitin, i
 dark biological fantasy game UI element, aged parchment, bone and dark chitin, ink line details, flat front view, no text. an ornate vertical trading card frame made of bone and dark chitin, a thick dark outline around its outer edge and around each window; one large empty art window in the middle of the card, from about 12% to 62% of the card height so that it covers the exact center of the image, filled with flat pure white; below it a smaller text box filled with light aged parchment (not white); plain flat pure white background outside the frame.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry`
+- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, numbers, handwriting, watermark, signature, logo, characters, creatures, blurry`
 
 ## P2 · 其次（M3–M5）
 
@@ -447,7 +447,7 @@ dark biological fantasy game UI element, aged parchment, bone and dark chitin, i
 2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, full body of a creature in its plain base form, side view facing right, neutral idle pose, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole silhouette, whole body visible and filling most of the frame with a small margin, the lowest point of the body near the bottom edge, no weapons, no accessories, no extra organs, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a floating crystal golem: faceted diamond torso, small gem head, shard arms, a single shard floating below instead of legs. Surface materials: faceted geometric crystal, sharp angles, glassy translucent planes. No glowing or colored areas at all; strictly grayscale.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
 
 ### 42. `body_floater` — 漂浮骨架（幽体本体）
 - 保存为：`art_inbox/body_floater.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯白　｜　模式：灰度（游戏内自动上色，只有发光处用鲜绿）
@@ -458,7 +458,7 @@ dark biological fantasy game UI element, aged parchment, bone and dark chitin, i
 2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, full body of a creature in its plain base form, side view facing right, neutral idle pose, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole silhouette, whole body visible and filling most of the frame with a small margin, the lowest point of the body near the bottom edge, no weapons, no accessories, no extra organs, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a floating hooded ghost with a teardrop body and a long wispy tail curling below, two hollow dark eye holes. Surface materials: pale misty ectoplasm with softly frayed edges, still enclosed by the dark outline. No glowing or colored areas at all; strictly grayscale.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
 
 ### 43. `body_quadruped` — 四足骨架（兽族本体）
 - 保存为：`art_inbox/body_quadruped.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯白　｜　模式：灰度（游戏内自动上色，只有发光处用鲜绿）
@@ -469,7 +469,7 @@ dark biological fantasy game UI element, aged parchment, bone and dark chitin, i
 2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, full body of a creature in its plain base form, side view facing right, neutral idle pose, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole silhouette, whole body visible and filling most of the frame with a small margin, the lowest point of the body near the bottom edge, no weapons, no accessories, no extra organs, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a four-legged predator beast like a wolf, long tail, head facing right. Surface materials: rough bone, horn and coarse fur textures. No glowing or colored areas at all; strictly grayscale.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
 
 ### 44. `part_claw` — 利爪（兽族部件）
 - 保存为：`art_inbox/part_claw.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯白　｜　模式：灰度（游戏内自动上色，只有发光处用鲜绿）
@@ -510,7 +510,7 @@ dark biological fantasy game UI element, aged parchment, bone and dark chitin, i
 - 提示词：
 
 ```text
-2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, a single isolated creature part shown on its own, not attached to any body, side view facing right, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole shape, clean readable silhouette, centered and filling most of the frame with a small margin, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a cluster of four sharp crystal shards of different heights growing upward from one shared base at the bottom. Surface materials: faceted geometric crystal, sharp angles, glassy translucent planes. Only the inner glow of the shards glow in a bright saturated green; everything else stays strictly grayscale.
+2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, a single isolated creature part shown on its own, not attached to any body, side view facing right, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole shape, clean readable silhouette, centered and filling most of the frame with a small margin, plain flat pure white background, no ground, no cast shadow, no text, no labels. Subject: a cluster of four sharp crystal shards of different heights growing upward from one shared base at the bottom. Surface materials: faceted geometric crystal, sharp angles, glassy translucent planes. Only a thin glowing line along the center of each shard glow in a bright saturated green; everything else stays strictly grayscale.
 ```
 
 - 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
@@ -587,10 +587,10 @@ dark biological fantasy game UI element, aged parchment, bone and dark chitin, i
 - 提示词：
 
 ```text
-2D side-view game battle background, dark biological fantasy, painterly, muted desaturated colors, horizon in the upper third, wide calm flat ground band across the middle and lower half where creatures will stand, darker and low-contrast in the center, atmospheric depth, no characters, no creatures, no text, no UI, no border. Scene: a frozen glacier plateau: blue ice cliffs, crystal formations jutting from snow, pale cold sky, frost mist.
+2D side-view game battle background, dark biological fantasy, painterly, muted desaturated colors, horizon in the upper third, wide calm flat empty ground band across the middle and lower half left open for gameplay, darker and low-contrast in the center, atmospheric depth, empty uninhabited landscape, no text, no UI, no border. Scene: a frozen glacier plateau: blue ice cliffs, crystal formations jutting from snow, pale cold sky, frost mist.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry`
+- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry, characters, creatures, animals, people, monsters, UI`
 
 ### 55. `bg_hive` — 战斗背景·巢穴深处
 - 保存为：`art_inbox/bg_hive.png`　｜　比例 16:9（建议 1920×1080）　｜　背景：画面本身　｜　模式：彩色原样
@@ -598,10 +598,10 @@ dark biological fantasy game UI element, aged parchment, bone and dark chitin, i
 - 提示词：
 
 ```text
-2D side-view game battle background, dark biological fantasy, painterly, muted desaturated colors, horizon in the upper third, wide calm flat ground band across the middle and lower half where creatures will stand, darker and low-contrast in the center, atmospheric depth, no characters, no creatures, no text, no UI, no border. Scene: the depths of a giant insect hive: organic resin walls, honeycomb chambers, faint violet ghost lights, dripping secretions.
+2D side-view game battle background, dark biological fantasy, painterly, muted desaturated colors, horizon in the upper third, wide calm flat empty ground band across the middle and lower half left open for gameplay, darker and low-contrast in the center, atmospheric depth, empty uninhabited landscape, no text, no UI, no border. Scene: the depths of a giant insect hive: organic resin walls, honeycomb chambers, faint violet ghost lights, dripping secretions.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry`
+- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry, characters, creatures, animals, people, monsters, UI`
 
 ### 56. `icon_emblem_beast` — 族徽·兽族
 - 保存为：`art_inbox/icon_emblem_beast.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -611,7 +611,7 @@ dark biological fantasy game UI element, aged parchment, bone and dark chitin, i
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a wolf paw print.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 57. `icon_emblem_crystal` — 族徽·晶族
 - 保存为：`art_inbox/icon_emblem_crystal.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -621,7 +621,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a faceted crystal shard.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 58. `icon_emblem_fungal` — 族徽·菌族
 - 保存为：`art_inbox/icon_emblem_fungal.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -631,17 +631,17 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a mushroom.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 59. `icon_emblem_human` — 族徽·人族
 - 保存为：`art_inbox/icon_emblem_human.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
 - 提示词：
 
 ```text
-flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: an open hand holding a spear.
+flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a raised fist gripping an upright spear.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 60. `icon_emblem_insect` — 族徽·虫族
 - 保存为：`art_inbox/icon_emblem_insect.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -651,7 +651,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a beetle seen from above.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 61. `icon_emblem_wraith` — 族徽·幽体
 - 保存为：`art_inbox/icon_emblem_wraith.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -661,7 +661,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a hooded ghost mask.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 62. `icon_slot_back` — 插槽·背
 - 保存为：`art_inbox/icon_slot_back.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -671,7 +671,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a spine with dorsal spikes.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 63. `icon_slot_core` — 插槽·核
 - 保存为：`art_inbox/icon_slot_core.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -681,7 +681,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a cell with a nucleus.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 64. `icon_slot_head` — 插槽·头
 - 保存为：`art_inbox/icon_slot_head.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -691,7 +691,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a creature skull seen from the side.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 65. `icon_slot_limb` — 插槽·肢
 - 保存为：`art_inbox/icon_slot_limb.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -701,7 +701,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a bent jointed limb.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 66. `icon_slot_skin` — 插槽·皮
 - 保存为：`art_inbox/icon_slot_skin.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -711,7 +711,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a patch of scales.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 67. `title_art` — 标题画面主视觉
 - 保存为：`art_inbox/title_art.png`　｜　比例 16:9（建议 1920×1080）　｜　背景：画面本身　｜　模式：彩色原样
@@ -731,7 +731,7 @@ dark biological fantasy illustration, ink outlines with painterly color, muted e
 dark biological fantasy game UI element, aged parchment, bone and dark chitin, ink line details, flat front view, no text. a rectangular game button plate made of dark chitin with a thin bone rim, filling the whole image edge to edge with square corners, empty center.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry`
+- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, numbers, handwriting, watermark, signature, logo, characters, creatures, blurry`
 
 ### 69. `ui_panel` — 界面面板（九宫格）
 - 保存为：`art_inbox/ui_panel.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：画面本身　｜　模式：彩色原样
@@ -741,7 +741,7 @@ dark biological fantasy game UI element, aged parchment, bone and dark chitin, i
 dark biological fantasy game UI element, aged parchment, bone and dark chitin, ink line details, flat front view, no text. a square dark parchment panel filling the whole image edge to edge, an even bone-and-ink border of constant width on all four sides, plain empty center, square corners.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry`
+- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, numbers, handwriting, watermark, signature, logo, characters, creatures, blurry`
 
 ### 70. `boss_rotbrood_matriarch` — 腐巢母皇（Boss 立绘）
 - 保存为：`art_inbox/boss_rotbrood_matriarch.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯白　｜　模式：彩色，去背景
@@ -749,10 +749,10 @@ dark biological fantasy game UI element, aged parchment, bone and dark chitin, i
 - 提示词：
 
 ```text
-dark biological fantasy illustration, ink outlines with painterly color, muted earthy tones with bioluminescent accents, readable silhouette, no text, no handwriting, no page or paper border, no watermark. Full body side view facing left, isolated, thick closed dark outline around the whole silhouette, plain flat pure white background, no ground, no cast shadow. Subject: a colossal fungal-insect matriarch: a bloated mushroom-capped body, insect legs, translucent egg sacs on her back with larvae inside, spore puffs rising from her cap, menacing but regal.
+dark biological fantasy illustration, ink outlines with painterly color, muted earthy tones with bioluminescent accents, readable silhouette, no text, no handwriting, no page or paper border, no watermark. Full body side view facing left, isolated, thick closed dark outline around the whole silhouette, plain flat pure white background, no ground, no cast shadow. Subject: a colossal fungal-insect matriarch: a bloated mushroom-capped body, insect legs, dark-shelled egg sacs on her back, small glowing spore dots speckling her cap, menacing but regal, no loose particles or floating specks.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry`
+- 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry, ground, floor, cast shadow, drop shadow, scenery, background details, extra creatures, smoke, clouds, loose particles, floating specks`
 
 ### 71. `cardart_card_analyze` — 卡图·解析标记
 - 保存为：`art_inbox/cardart_card_analyze.png`　｜　比例 4:3（建议 1024×768）　｜　背景：画面本身　｜　模式：彩色原样
@@ -760,7 +760,7 @@ dark biological fantasy illustration, ink outlines with painterly color, muted e
 - 提示词：
 
 ```text
-dark biological fantasy illustration, ink outlines with painterly color, muted earthy tones with bioluminescent accents, readable silhouette, no text, no handwriting, no page or paper border, no watermark. Full-bleed illustration only, no card frame, no border, no title bar, no text box, landscape composition. Subject: a scanning beam revealing hidden organs inside a creature, anatomical diagram style.
+dark biological fantasy illustration, ink outlines with painterly color, muted earthy tones with bioluminescent accents, readable silhouette, no text, no handwriting, no page or paper border, no watermark. Full-bleed illustration only, no card frame, no border, no title bar, no text box, landscape composition. Subject: a creature bathed in a pale scanning beam that makes its body glow semi-transparent, revealing its hidden organs inside like an x-ray.
 ```
 
 - 反向提示词：`photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry`
@@ -852,7 +852,7 @@ dark biological fantasy illustration, ink outlines with painterly color, muted e
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a liquid droplet.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 80. `icon_fx_slash` — 特效·斩击
 - 保存为：`art_inbox/icon_fx_slash.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -862,7 +862,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a curved slash streak.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 81. `icon_fx_spark` — 特效·火花
 - 保存为：`art_inbox/icon_fx_spark.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -872,7 +872,7 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a four-pointed spark.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`
 
 ### 82. `icon_fx_spore` — 特效·孢子粒
 - 保存为：`art_inbox/icon_fx_spore.png`　｜　比例 1:1（建议 1024×1024）　｜　背景：纯黑　｜　模式：白色剪影图标
@@ -882,4 +882,4 @@ flat game UI icon, one bold simple solid white silhouette symbol, centered, chun
 flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text. Symbol: a soft round spore particle.
 ```
 
-- 反向提示词：`photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline`
+- 反向提示词：`photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry`

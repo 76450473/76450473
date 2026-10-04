@@ -79,7 +79,7 @@
 
 - 资产规格和提示词：`data/art_manifest.json`（唯一真相源）。完整清单是推导出来的，用 `tools/art_audit.gd` 查看。
 - 用户把图放进 `art_inbox/`，`tools/import_art.gd` 负责抠图、裁边和灰度化，输出到 `art/parts/<kind>.png`、`art/bodies/<plan>.png` 等位置，并生成同名的 sidecar `.json`（pivot、scale、offset、sockets……）。
-- **灰度加发光色**：部件和骨架画成灰度图，高饱和的区域（提示词里要求画成鲜绿）会被当作发光强调色。运行时 `part_palette.gdshader` 把明暗映射到宿主的 dark→base→light 配色，强调区映射到元素色，然后叠加基因材质层。**所以同一张部件图能适配任何宿主。**
+- **灰度加发光色**：部件和骨架画成灰度图，高饱和的区域（提示词里要求画成鲜绿）会被当作发光强调色。运行时 `part_palette.gdshader` 把明暗映射到 dark→base→light 配色：骨架用宿主的种族配色，部件用来源种族的配色再混入 25% 宿主底色（§6）。强调区映射到元素色，最后叠加基因材质层。**所以同一张部件图能适配任何宿主，同时还认得出它的来源种族。**
 - `ArtLibrary` 找到图就用 Sprite2D 显示，找不到就回退到程序化绘制。可以一张一张地替换。
 - 骨架图存在时，部件挂点用这张骨架图 sidecar 里的 `sockets` 坐标（没有写的挂点用默认值）。
 - 后续可以把肢体拆成 `upper` 和 `lower` 两张图，以支持骨骼动画（M5）。

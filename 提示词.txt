@@ -77,10 +77,11 @@ macOS / Linux：
 - 桌面版：打开 Code，选择这个文件夹。
 - 终端：先 cd 到这个文件夹，再输入 claude。
 Claude 运行脚本时会请求权限，选"允许，以后不再询问"会省事很多。
-（可选）想让 git 提交记录里显示你的名字，就在 PowerShell 执行一次：
+（可选）想让 git 提交记录里显示你的名字，在第七步之前，在 PowerShell 执行一次：
     git config --global user.name "你的名字"
     git config --global user.email "你的邮箱"
-不设置也能正常开发，项目会自动用默认身份提交。
+不设置也能正常开发：项目会自动用默认身份"Chimera Dev"提交。
+如果项目已经建好了才想改，就在游戏文件夹里（不带 --global）再执行一次这两句。
 
 
 第七步：发送一句话提示词（复制下面这一整行）

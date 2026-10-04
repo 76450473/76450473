@@ -127,12 +127,17 @@ func _write(name: String, bytes: PackedByteArray) -> bool:
 
 ## Appends this pack's credit line(s) so the newest line is last; keeps older lines as history.
 func _merge_credit(bytes: PackedByteArray) -> void:
-	var text := bytes.get_string_from_utf8().replace("\r", "").strip_edges()
-	if text.begins_with("﻿"):
-		text = text.substr(1)
-	if text.contains("�") or text == "":
+	var raw := bytes.get_string_from_utf8().replace("\r", "").strip_edges()
+	if raw.begins_with("\uFEFF"):
+		raw = raw.substr(1)
+	var lines := PackedStringArray()
+	for l in raw.split("\n"):
+		if l.strip_edges() != "":
+			lines.append(l.strip_edges())
+	var text := "；".join(lines)  # one line per pack, so the newest pack is always the last line
+	if text.contains("\uFFFD") or text == "":
 		print("  ! credits.txt 不是 UTF-8 编码（或是空的）：请用记事本打开 → 另存为 → 编码选 UTF-8")
-		return
+		text = "AI 生成（credits.txt 编码不是 UTF-8，工具待补）"
 	var out := _inbox.path_join("credits.txt")
 	var old := FileAccess.get_file_as_string(out).strip_edges() if FileAccess.file_exists(out) else ""
 	var f := FileAccess.open(out, FileAccess.WRITE)

@@ -89,7 +89,7 @@ bash SKILL_DIR/scripts/godot_check.sh . --balance
    - 导入了多少张，各类资产的覆盖率（P1、P2、P3）
    - **需要重做的图**，附上改好的完整提示词
    - 还缺的 P1 资产，列前 10 项
-   - 两张截图的路径
+   - 4 张截图的路径（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`main.png`）
 4. 然后直接开始 M1，不要等美术，缺的图会用占位美术代替。
 
 ## 4. 架构速览（细节见 `references/systems-spec.md`）

@@ -34,13 +34,19 @@ if [ $has_art = 1 ]; then
 else
   echo "no art pack found (placeholder art will be used)"
   bash "$HERE/godot_check.sh" . --shot screenshots/art_gallery.png --scene res://scenes/art_gallery.tscn || status=$?
+  bash "$HERE/screenshot.sh" . res://scenes/art_parts.tscn screenshots/art_parts.png
+  bash "$HERE/screenshot.sh" . res://scenes/art_images.tscn screenshots/art_images.png
   bash "$HERE/screenshot.sh" . res://scenes/main.tscn screenshots/main.png
+  echo "next: Read screenshots/art_gallery.png, art_parts.png, art_images.png and main.png"
 fi
 if [ ! -d .git ]; then
   git init -q
   # repo-local identity only if the user has none, so later commits never fail on a fresh machine
-  git config user.name >/dev/null 2>&1 || git config user.name "${GIT_AUTHOR_NAME:-Chimera Dev}"
-  git config user.email >/dev/null 2>&1 || git config user.email "${GIT_AUTHOR_EMAIL:-chimera@localhost}"
+  if ! git config user.name >/dev/null 2>&1 || ! git config user.email >/dev/null 2>&1; then
+    git config user.name >/dev/null 2>&1 || git config user.name "${GIT_AUTHOR_NAME:-Chimera Dev}"
+    git config user.email >/dev/null 2>&1 || git config user.email "${GIT_AUTHOR_EMAIL:-chimera@localhost}"
+    echo "git: no identity configured -> using repo-local '$(git config user.name) <$(git config user.email)>'; the user can run git config user.name/user.email in this folder to change it"
+  fi
   git add -A
   git commit -qm "chore: scaffold Chimera Epoch from skill template (M0)" && echo "git: initial commit created"
 fi

@@ -11,6 +11,7 @@ extends SceneTree
 ## Afterwards run `godot --headless --path . --import` so Godot registers the new PNGs.
 
 const EXTS := ["png", "jpg", "jpeg", "webp", "jfif"]
+const UNSUPPORTED := ["avif", "heic", "heif", "gif", "bmp", "tif", "tiff", "psd"]
 const KEEP_KEYS := ["offset", "rotation", "scale_mult", "sockets", "note"]
 
 
@@ -26,6 +27,9 @@ func _initialize() -> void:
 	var failed: PackedStringArray = []
 	var files := DirAccess.get_files_at(inbox)
 	for f in files:
+		if UNSUPPORTED.has(f.get_extension().to_lower()):
+			failed.append("%s: 格式不支持（%s），请导出为 PNG" % [f, f.get_extension()])
+			continue
 		if not EXTS.has(f.get_extension().to_lower()):
 			continue
 		var id := _match_id(f.get_basename(), entries)
@@ -49,8 +53,9 @@ func _initialize() -> void:
 			var out_png := ProjectSettings.globalize_path(entry.path)
 			DirAccess.make_dir_recursive_absolute(out_png.get_base_dir())
 			out_img.save_png(out_png)
-			_write_sidecar(out_png.get_basename() + ".json", entry, res, f, credit)
-			_append_credit(entry.path.trim_prefix("res://"), credit)
+			var file_credit := _previous_credit(out_png.get_basename() + ".json", f, credit)
+			_write_sidecar(out_png.get_basename() + ".json", entry, res, f, file_credit)
+			_append_credit(entry.path.trim_prefix("res://"), file_credit)
 			var done := inbox.path_join("_done")
 			DirAccess.make_dir_recursive_absolute(done)
 			DirAccess.rename_absolute(inbox.path_join(f), done.path_join(f))
@@ -125,6 +130,16 @@ func _read_credit(inbox: String) -> String:
 		print("  ! credits.txt 不是 UTF-8 编码，读不出来：请用记事本打开 → 另存为 → 编码选 UTF-8，再提供一次")
 		return fallback
 	return last if last != "" else fallback
+
+
+## Re-importing the SAME original keeps the credit it was first imported with (a newer pack
+## made with another tool must not re-credit older art).
+func _previous_credit(meta_path: String, source: String, fallback: String) -> String:
+	if FileAccess.file_exists(meta_path):
+		var old: Variant = JSON.parse_string(FileAccess.get_file_as_string(meta_path))
+		if old is Dictionary and str((old as Dictionary).get("source", "")) == source and (old as Dictionary).has("credit"):
+			return str(old.credit)
+	return fallback
 
 
 func _write_sidecar(path: String, entry: Dictionary, res: Dictionary, source: String, credit: String) -> void:

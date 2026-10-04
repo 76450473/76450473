@@ -64,7 +64,7 @@ static func build(db: GameData) -> Array:
 			"ratio": "1:1", "bg": "纯白", "priority": 1 if early.has(race) else 2,
 			"prompt": "%s. Subject: %s. Surface materials: %s. %s" % [style.get("body", ""), b.get("subject", plan),
 				race_art.get(race, ""), style.get("no_accent_clause", "")],
-			"negative": style.get("negative", ""), "used_by": [db.races.get(race, {}).get("name", race)],
+			"negative": style.get("negative_body", style.get("negative", "")), "used_by": [db.races.get(race, {}).get("name", race)],
 			"anchor": "bottom_center", "body_fit": b.get("fit", "height"), "size": float(b.get("size", 130)),
 		})
 
@@ -77,7 +77,7 @@ static func build(db: GameData) -> Array:
 			"path": "res://art/bg/%s.png" % bid, "mode": "color", "canvas": [1600, 900], "fit": "cover",
 			"ratio": "16:9", "bg": "画面本身", "priority": 1 if first_biome else 2,
 			"prompt": "%s. Scene: %s." % [style.get("background", ""), ba.get("subject", bid)],
-			"negative": style.get("negative_color_ok", ""), "used_by": [db.biomes[bid].get("name", bid)],
+			"negative": style.get("negative_background", style.get("negative_color_ok", "")), "used_by": [db.biomes[bid].get("name", bid)],
 		})
 		first_biome = false
 
@@ -90,7 +90,7 @@ static func build(db: GameData) -> Array:
 			"path": "res://art/icons/%s.png" % iid, "mode": "mono", "canvas": [128, 128], "fit": "fit",
 			"ratio": "1:1", "bg": "纯黑", "priority": int(ic.get("priority", 2)),
 			"prompt": "%s. Symbol: %s." % [style.get("icon", ""), ic.get("subject", iid)],
-			"negative": style.get("negative", ""), "used_by": [], "anchor": "center",
+			"negative": style.get("negative_icon", style.get("negative", "")), "used_by": [], "anchor": "center",
 		})
 
 	# --- boss illustrations (cutout) -------------------------------------------
@@ -102,7 +102,7 @@ static func build(db: GameData) -> Array:
 			"ratio": "1:1", "bg": "纯白", "priority": 2,
 			"prompt": "%s. Full body side view facing left, isolated, thick closed dark outline around the whole silhouette, plain flat pure white background, no ground, no cast shadow. Subject: %s." % [
 				style.get("illustration", ""), ba2.get("subject", boss_id)],
-			"negative": style.get("negative_color_ok", ""), "used_by": [db.bosses[boss_id].get("name", boss_id)],
+			"negative": style.get("negative_boss", style.get("negative_color_ok", "")), "used_by": [db.bosses[boss_id].get("name", boss_id)],
 			"anchor": "bottom_center",
 		})
 
@@ -123,7 +123,7 @@ static func build(db: GameData) -> Array:
 		e["category"] = "ui"
 		e["bg"] = "纯白" if e.get("mode", "") == "cutout" else "画面本身"
 		e["prompt"] = "%s. %s." % [style.get(e.get("style", "ui"), ""), e.get("subject", "")]
-		e["negative"] = style.get("negative_color_ok", "")
+		e["negative"] = e.get("negative", style.get("negative_ui" if str(e.get("style", "ui")) == "ui" else "negative_color_ok", ""))
 		e["used_by"] = []
 		out.append(e)
 

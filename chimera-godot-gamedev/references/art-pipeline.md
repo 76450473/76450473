@@ -32,7 +32,7 @@ Claude 自己不能生成图片。分工如下：
 | `tools/import_art.gd` | 把 `art_inbox/` 里的图片处理后放进 `art/`，写 sidecar json，在 CREDITS.md 登记，原图移到 `art_inbox/_done/` |
 | `src/art/art_importer.gd` | 纯图像处理（有测试）：泛洪去背景、羽化、裁边、灰度化（保留饱和的发光色）、单色图标、fit / cover 缩放、计算锚点 |
 | `src/art/art_library.gd` | 运行时查找资产。查不到返回 `{}`，调用方据此回退到程序化美术 |
-| `src/shaders/part_palette.gdshader` | 把灰度图映射成宿主的配色（dark→base→light 渐变），饱和区域映射为元素强调色，再叠加基因材质层 |
+| `src/shaders/part_palette.gdshader` | 把灰度图映射成一套配色（dark→base→light 渐变）：骨架用宿主的种族配色，部件用来源种族的配色再混入 25% 宿主底色（见 visual-system §6）；饱和区域映射为元素强调色；最后叠加基因材质层 |
 | `scenes/art_gallery.tscn`、`art_parts.tscn`、`art_images.tscn` | 美术检查台共三页：①骨架加挂点十字、各族展示、全部图标；②全部部件，每个部件单独装在一只生物身上；③背景、标题、界面、卡框、卡背、Boss、卡图 |
 
 ## 2. 资产类型与模式
@@ -72,16 +72,12 @@ Claude 自己不能生成图片。分工如下：
    - 这一步会完成解压、处理、注册、统计缺失、全量检查，截 4 张图，并把每张图的警告打印出来（警告的含义见 §7）。
    - 4 张图是 `screenshots/art_gallery.png`、`art_parts.png`、`art_images.png` 和 `main.png`。
 2. **处理剩下的图片**，脚本最后会分两类提示：
-   - 以 `?` 开头：文件名不认识。**用 Read 逐张打开看**，判断它是哪个资产，`mv` 改成正确的 id，然后重跑 `import_assets.sh`。实在判断不了就问用户。
+   - 以 `?` 开头：文件名不认识。**用 Read 逐张打开看**，判断它是哪个资产，在 `art_inbox/` 里 `mv` 改成正确的 id，然后**不带资产包参数**重跑 `import_assets.sh <项目>`（带上参数会重新解压整个包，又把旧文件名带回来）。实在判断不了就问用户。
    - 以 `x` 开头：文件名没问题，但图片读不出来（可能损坏，或者是 avif、heic 这类格式）。请用户重新导出为 PNG。
 3. （可选）只想预演、不落盘时：`godot --headless --path . --script res://tools/import_art.gd -- --dry`。
 4. **逐张看处理结果**：用 Read 打开 `art/...png`，按 §5 的标准检查。
-5. **截图检查**：
-   ```
-   bash SKILL_DIR/scripts/godot_check.sh . --shot screenshots/art_gallery.png --scene res://scenes/art_gallery.tscn
-   ```
-   用 Read 看截图，再截一张主场景对比。
-6. **对齐**：部件错位或者大小不对，就按 §6 修改 sidecar json，然后**重新截图**确认，直到通过为止。
+5. **截图检查**：第 1 步已经截好 4 张图（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`main.png`）。用 Read 看截图。三页检查台都要看：第 1 页是骨架和图标，第 2 页是全部部件，第 3 页是背景、界面、Boss、卡图。最后再对比主场景。
+6. **对齐**：部件错位或者大小不对，就按 §6 修改 sidecar json，然后**重新截图**确认，直到通过为止。最简单的方法是重跑 `bash SKILL_DIR/scripts/import_assets.sh <项目>`（不带资产包参数）：没有新图时，它也会重新截 4 张图。只想重截某一页时，用 `bash SKILL_DIR/scripts/screenshot.sh <项目> res://scenes/art_parts.tscn screenshots/art_parts.png`（第 1、3 页对应 art_gallery.tscn、art_images.tscn）。
 7. **跑全部检查**：`godot_check.sh`。截图是用来看画面效果的，测试是用来确认没有坏掉的，两者都要做。
 8. **重新生成缺失清单**：`godot --headless --path . --script res://tools/art_audit.gd`。
 9. **汇报**（中文）：

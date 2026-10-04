@@ -4,14 +4,19 @@
     "part": "2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, a single isolated creature part shown on its own, not attached to any body, side view facing right, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole shape, clean readable silhouette, centered and filling most of the frame with a small margin, plain flat pure white background, no ground, no cast shadow, no text, no labels",
     "body": "2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, full body of a creature in its plain base form, side view facing right, neutral idle pose, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole silhouette, whole body visible and filling most of the frame with a small margin, the lowest point of the body near the bottom edge, no weapons, no accessories, no extra organs, plain flat pure white background, no ground, no cast shadow, no text, no labels",
     "icon": "flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text",
-    "background": "2D side-view game battle background, dark biological fantasy, painterly, muted desaturated colors, horizon in the upper third, wide calm flat ground band across the middle and lower half where creatures will stand, darker and low-contrast in the center, atmospheric depth, no characters, no creatures, no text, no UI, no border",
+    "background": "2D side-view game battle background, dark biological fantasy, painterly, muted desaturated colors, horizon in the upper third, wide calm flat empty ground band across the middle and lower half left open for gameplay, darker and low-contrast in the center, atmospheric depth, empty uninhabited landscape, no text, no UI, no border",
     "illustration": "dark biological fantasy illustration, ink outlines with painterly color, muted earthy tones with bioluminescent accents, readable silhouette, no text, no handwriting, no page or paper border, no watermark",
     "ui": "dark biological fantasy game UI element, aged parchment, bone and dark chitin, ink line details, flat front view, no text",
     "negative": "photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline",
     "negative_color_ok": "photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry",
     "accent_clause": "Only {accent} glow in a bright saturated green; everything else stays strictly grayscale.",
     "no_accent_clause": "No glowing or colored areas at all; strictly grayscale.",
-    "style_cn": "见《美术资产清单与提示词.txt》第四节：按类别选用的中文风格锁定"
+    "style_cn": "见《美术资产清单与提示词.txt》第四节：按类别选用的中文风格锁定",
+    "negative_body": "photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline",
+    "negative_icon": "photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry",
+    "negative_ui": "photo, photorealistic, 3d render, gore, text, letters, numbers, handwriting, watermark, signature, logo, characters, creatures, blurry",
+    "negative_background": "photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry, characters, creatures, animals, people, monsters, UI",
+    "negative_boss": "photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry, ground, floor, cast shadow, drop shadow, scenery, background details, extra creatures, smoke, clouds, loose particles, floating specks"
   },
   "race_art": {
     "human": "symmetric rounded rectangular forms, stitched leather, rough cloth and riveted iron details",
@@ -68,7 +73,7 @@
       "socket": "eye",
       "anchor": "center",
       "height": 16,
-      "accent": "the eye facets"
+      "accent": "a small glint at the center of each facet"
     },
     "shell_plate": {
       "cn": "背甲壳片",
@@ -84,7 +89,7 @@
       "socket": "core",
       "anchor": "center",
       "height": 20,
-      "accent": "the liquid inside the sac"
+      "accent": "the small pool of liquid in the lower half of the sac"
     },
     "spray_nozzle": {
       "cn": "喷射器官",
@@ -188,7 +193,7 @@
       "socket": "back",
       "anchor": "bottom_center",
       "height": 30,
-      "accent": "the inner glow of the shards"
+      "accent": "a thin glowing line along the center of each shard"
     },
     "prism": {
       "cn": "折射棱镜",
@@ -368,7 +373,7 @@
     },
     "emblem_human": {
       "cn": "族徽·人族",
-      "subject": "an open hand holding a spear",
+      "subject": "a raised fist gripping an upright spear",
       "priority": 2
     },
     "emblem_insect": {
@@ -538,7 +543,7 @@
   "boss_art": {
     "rotbrood_matriarch": {
       "cn": "腐巢母皇（Boss 立绘）",
-      "subject": "a colossal fungal-insect matriarch: a bloated mushroom-capped body, insect legs, translucent egg sacs on her back with larvae inside, spore puffs rising from her cap, menacing but regal"
+      "subject": "a colossal fungal-insect matriarch: a bloated mushroom-capped body, insect legs, dark-shelled egg sacs on her back, small glowing spore dots speckling her cap, menacing but regal, no loose particles or floating specks"
     }
   },
   "card_art": {
@@ -568,7 +573,7 @@
     },
     "card_analyze": {
       "cn": "解析标记",
-      "subject": "a scanning beam revealing hidden organs inside a creature, anatomical diagram style"
+      "subject": "a creature bathed in a pale scanning beam that makes its body glow semi-transparent, revealing its hidden organs inside like an x-ray"
     },
     "card_brood": {
       "cn": "催化孵化",
