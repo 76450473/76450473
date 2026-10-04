@@ -13,10 +13,8 @@ export_credentials.cfg
 /*.zip
 /提示词.txt
 /美术资产清单与提示词.txt
-# API keys and the art workshop (old single-folder layout) never go into git
-/[Gg][Pp][Tt][Aa][Pp][Ii]*
-.env
-/美术资产/
+/GPT项目指令.txt
+/GPT使用说明.txt
 # OS junk and per-user Claude Code permissions
 .DS_Store
 Thumbs.db

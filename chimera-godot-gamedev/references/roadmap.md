@@ -3,7 +3,7 @@
 通用验收（每个里程碑都要满足）：`godot_check.sh` 输出 ALL CHECKS PASSED；新增的 sim 逻辑都有测试；画面相关的改动有截图并且你亲自看过；PROGRESS.md 已更新；已 git commit。
 
 ## M0 地基（模板已完成）
-`setup_workspace.sh .` 一条命令建出工作区：`美术资产/`（美术车间）+ `游戏/`（复制模板 → 全量检查 → 截图 → git init）→ 自动导入用户已有的美术资产包 → 报告美术模式（有 GPTapi.txt 时是 GPT 工作室，见 art-studio.md）。
+`new_project.sh .` 一条命令建出项目：复制模板 → 自动导入用户的美术资产包（如果有）→ 全量检查 → 截图（检查台四页加主场景）→ git init。
 模板自带：数据校验、确定性战斗、融合、敌人生成、程序化生物、材质 shader、美术管线（清单、解压、导入、上色、检查台）、全套测试、平衡模拟、截图工具、CI。
 **验收**：
 - `godot_check.sh` 全绿

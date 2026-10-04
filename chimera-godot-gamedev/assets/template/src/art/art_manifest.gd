@@ -215,6 +215,29 @@ static func to_text(entries: Array) -> String:
 	return "\n".join(lines)
 
 
+## A short request the user pastes into their ChatGPT project (which already holds the full list
+## 《美术资产清单与提示词.txt》): file name + list number 【n】 + name + why (missing / redo reason).
+## all_entries: the full ordered list (numbering = to_text order); wanted: entries to request;
+## reasons: {asset_id: "重做原因"} (absent = 缺失).
+static func to_gpt_request(all_entries: Array, wanted: Array, reasons: Dictionary) -> String:
+	var number := {}
+	for i in all_entries.size():
+		number[(all_entries[i] as Dictionary).id] = i + 1
+	var lines := PackedStringArray([
+		"【补图请求】来自 Claude（《奇美拉纪元》）",
+		"请按项目指令和《美术资产清单与提示词.txt》生产下面这些资产：每项先自检，再请我确认。文件名必须和下面完全一致。",
+		""])
+	var n := 0
+	for e: Dictionary in wanted:
+		n += 1
+		var why := str(reasons.get(e.id, ""))
+		lines.append("%d. 【%d】%s.png　%s　—— %s" % [n, int(number.get(e.id, 0)), e.id, e.cn,
+			("重做：" + why) if why != "" else "缺失"])
+	lines.append("")
+	lines.append("（共 %d 项。全部确认后，把图片按上面的文件名保存，打包成 zip 发给 Claude。）" % n)
+	return "\n".join(lines)
+
+
 const MODE_CN := {"palette": "灰度（游戏内自动上色，只有发光处用鲜绿）", "mono": "白色剪影图标",
 	"color": "彩色原样", "cutout": "彩色，去背景"}
 

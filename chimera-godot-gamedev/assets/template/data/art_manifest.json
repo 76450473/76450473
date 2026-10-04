@@ -1,5 +1,5 @@
 {
-  "_doc": "美术资产清单 = 唯一真相源。tools/art_audit.gd 据此列出缺失资产并生成提示词；tools/import_art.gd 据此把 art_inbox/ 里的图片处理成游戏资产；tools/art_studio.gd（GPT 工作室）据此生成。美术方向：二次元 × 仙侠立绘 × 哥特未来（见 references/visual-system.md §1）。所有角色都是成年人。新增基因部件/骨架/生态区/状态/卡牌时必须在这里补规格，test_data 会检查。mode: cutout=保留原色并去背景（角色立绘和配饰部件用这个）；color=保留原色不去背景；mono=白色剪影图标（运行时着色）；palette=灰度绘制+运行时按种族上色（旧的怪物风格，保留兼容）。bodies.*.subject = 我方种族角色（多数是女性），bodies.*.enemy_subject = 敌方反派版本（更高大、更强、明显的反派画风）。",
+  "_doc": "美术资产清单 = 唯一真相源。tools/art_audit.gd 据此列出缺失资产并生成提示词；tools/import_art.gd 据此把 art_inbox/ 里的图片处理成游戏资产；《美术资产清单与提示词.txt》和 GPT 生产指令也从这里生成。美术方向：二次元 × 仙侠立绘 × 哥特未来（见 references/visual-system.md §1）。所有角色都是成年人。新增基因部件/骨架/生态区/状态/卡牌时必须在这里补规格，test_data 会检查。mode: cutout=保留原色并去背景（角色立绘和配饰部件用这个）；color=保留原色不去背景；mono=白色剪影图标（运行时着色）；palette=灰度绘制+运行时按种族上色（旧的怪物风格，保留兼容）。bodies.*.subject = 我方种族角色（多数是女性），bodies.*.enemy_subject = 敌方反派版本（更高大、更强、明显的反派画风）。",
   "anchor_batch": [
     "body_biped",
     "body_hexapod",

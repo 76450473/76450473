@@ -6,7 +6,7 @@
 #   bash import_assets.sh <project_dir> [pack.zip|folder ...]
 # Pack paths may be absolute or relative to the folder you run this from.
 # With no pack arguments it auto-detects inside <project_dir> (top level only):
-#   *.zip files (skill zips are skipped), folders whose name contains art/asset/image/img/pic/
+#   *.zip files (the skill zip and the 给Claude/给GPT bundles are skipped), folders whose name contains art/asset/image/img/pic/
 #   美术/资产/素材/图片/图像 and hold images, and loose images (also images dropped straight into art/). Processed packs move to art_inbox/_packs/ so a later
 #   run never imports them twice.
 set -u
@@ -38,7 +38,7 @@ quiet() {
 bash "$HERE/prepare_root.sh" .
 if [ ${#packs[@]} -eq 0 ]; then
   while IFS= read -r -d '' z; do
-    case "$(basename "$z")" in chimera-godot-gamedev*) continue ;; esac
+    case "$(basename "$z" | tr 'A-Z' 'a-z')" in chimera-godot-gamedev*|给claude*|给gpt*) continue ;; esac
     packs+=("$z")
   done < <(find "$ROOT" -maxdepth 1 -type f -iname '*.zip' -print0 2>/dev/null)
   while IFS= read -r -d '' d; do

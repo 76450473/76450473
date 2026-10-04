@@ -181,3 +181,22 @@ func test_enemy_specs_use_villain_art() -> void:
 	check_eq(ArtLibrary.body_for(vg).get("tag", ""), "hero", "no villain art -> enemies fall back to the hero art")
 	ArtLibrary.clear()
 
+
+func test_gpt_request_lists_numbers_and_reasons() -> void:
+	var entries := ArtManifest.build(db)
+	var by_id := ArtManifest.by_id(entries)
+	var req := ArtManifest.to_gpt_request(entries, [by_id["part_sac"], by_id["body_biped"]], {"part_sac": "背景有阴影"})
+	var n_sac := entries.find(by_id["part_sac"]) + 1
+	check(req.contains("【%d】part_sac.png" % n_sac), "item number matches the list numbering")
+	check(req.contains("重做：背景有阴影"), "redo reason shown")
+	check(req.contains("body_biped.png") and req.contains("缺失"), "missing item shown")
+	check(req.contains("共 2 项"), "count")
+
+
+func test_anchor_batch_ids_exist() -> void:
+	var by_id := ArtManifest.by_id(ArtManifest.build(db))
+	var anchors: Array = db.art.get("anchor_batch", [])
+	check_eq(anchors.size(), 7, "7 style anchors (incl. one villain)")
+	for id: String in anchors:
+		check(by_id.has(id), "anchor %s is a real asset" % id)
+
