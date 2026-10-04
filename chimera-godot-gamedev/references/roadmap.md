@@ -3,8 +3,12 @@
 通用验收（每个里程碑都要满足）：`godot_check.sh` 输出 ALL CHECKS PASSED；新增的 sim 逻辑都有测试；画面相关的改动有截图并且你亲自看过；PROGRESS.md 已更新；已 git commit。
 
 ## M0 地基（模板已完成）
-`new_project.sh` 一条命令建出项目。数据校验、确定性战斗、融合、敌人生成、程序化生物、材质 shader、33 项测试、平衡模拟、截图工具、CI 全部就绪。
-**验收**：全绿；截图 `screenshots/m0.png` 中 6 个演示单位的血统一眼可辨。
+`new_project.sh .` 一条命令建出项目：复制模板 → 自动导入用户的美术资产包（如果有）→ 全量检查 → 截图 → git init。
+模板自带：数据校验、确定性战斗、融合、敌人生成、程序化生物、材质 shader、美术管线（清单、解压、导入、上色、检查台）、全套测试、平衡模拟、截图工具、CI。
+**验收**：
+- `godot_check.sh` 全绿
+- 截图 `screenshots/main.png`（基因实验室）、`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`（美术检查台三页）都已亲眼看过，血统一眼可辨
+- 用户有资产包时：已按 art-pipeline §4 质检，并汇报了需要重做和缺失的资产
 
 ## M1 一场可玩的战斗
 - `scenes/battle.tscn` + `src/view/battle_view.gd`：2×3 对 2×3 的棋盘（坐标见 visual-system §10），用 CreatureView 当棋子，敌方 `facing = -1`。

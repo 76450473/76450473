@@ -168,6 +168,10 @@ func _validate_art(errs: PackedStringArray) -> void:
 				errs.append("art_manifest: parts.%s unknown anchor %s" % [kind, spec.get("anchor")])
 			if str(spec.get("subject", "")) == "":
 				errs.append("art_manifest: parts.%s has no subject" % kind)
+	var words: Dictionary = species_names.get("part_word", {})
+	for kind: String in Defs.PART_KINDS:
+		if not words.has(kind):
+			errs.append("fusion.json: species_names.part_word missing %s" % kind)
 	for plan: String in Defs.BODY_PLANS:
 		if not (art.get("bodies", {}) as Dictionary).has(plan):
 			errs.append("art_manifest: missing bodies.%s" % plan)

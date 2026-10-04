@@ -15,9 +15,12 @@ func _initialize() -> void:
 func _walk(dir: String) -> PackedStringArray:
 	var out: PackedStringArray = []
 	for d in DirAccess.get_directories_at(dir):
-		if d.begins_with("."):
+		var sub := dir.path_join(d)
+		# skip hidden dirs, Godot-ignored dirs and nested projects (e.g. an unzipped skill folder)
+		if d.begins_with(".") or FileAccess.file_exists(sub.path_join(".gdignore")) \
+				or FileAccess.file_exists(sub.path_join("project.godot")):
 			continue
-		out.append_array(_walk(dir.path_join(d)))
+		out.append_array(_walk(sub))
 	for f in DirAccess.get_files_at(dir):
 		if f.ends_with(".gd"):
 			out.append(dir.path_join(f))

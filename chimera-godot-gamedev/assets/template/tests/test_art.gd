@@ -23,7 +23,7 @@ func test_manifest_covers_all_content() -> void:
 
 func test_part_prompts_carry_race_style_and_accent() -> void:
 	var e: Dictionary = ArtManifest.by_id(ArtManifest.build(db))["part_eye_compound"]
-	check(str(e.prompt).contains("insectoid"), "insect shape language in prompt")
+	check(str(e.prompt).contains("chitin"), "insect surface materials in prompt")
 	check(str(e.prompt).contains("bright saturated green"), "accent clause present")
 	check_eq(int(e.priority), 1, "playable-race part is P1")
 
@@ -117,3 +117,30 @@ func test_manifest_mode_override() -> void:
 	var e: Dictionary = ArtManifest.by_id(ArtManifest.build(db))["part_spear"]
 	check_eq(e.mode, "cutout", "per-part mode override respected")
 	db.art = saved
+
+
+func test_importer_matches_messy_file_names() -> void:
+	var script: GDScript = load("res://tools/import_art.gd")
+	var tool: Object = script.new()
+	var entries := ArtManifest.by_id(ArtManifest.build(db))
+	for raw: String in ["part_sac.png", "part_sac.png.png", "sac (2).png", "part_sac - 副本.png", "part_sac copy.png",
+			"PART_SAC_v2.png", "part_sac - ╕▒▒╛.png", "part_sac_final.png"]:
+		check_eq(tool.call("_match_id", raw.get_basename(), entries), "part_sac", "match '%s'" % raw)
+	check_eq(tool.call("_match_id", "random_upload", entries), "", "unknown stays unknown")
+	tool.free()
+
+
+func test_mono_icon_with_transparent_background() -> void:
+	var img := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	img.fill(Color(1, 1, 1, 0))  # transparent pixels stored as white, like many exporters
+	img.fill_rect(Rect2i(16, 16, 32, 32), Color(1, 1, 1, 1))
+	var res := ArtImporter.process(img, {"mode": "mono", "canvas": [32, 32]})
+	check(not res.has("error"), "transparent icon imports")
+	var out: Image = res.image
+	check(out.get_pixel(16, 16).a > 0.95, "symbol stays opaque")
+
+
+func test_part_word_covers_all_part_kinds() -> void:
+	var words: Dictionary = db.species_names.get("part_word", {})
+	for kind: String in Defs.PART_KINDS:
+		check(words.has(kind), "fusion.json part_word has %s" % kind)

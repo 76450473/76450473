@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Scaffold a new Chimera Epoch project from the skill's verified template, import any art
-# pack the user placed in the target folder, run all checks, and make the first commit.
+# pack the user placed in the target folder, run all checks, take the QA screenshots and
+# make the first commit.
 #   bash new_project.sh <target_dir>        (use "." to build inside the current folder)
 # Refuses to overwrite a directory that already contains project.godot.
 set -eu
@@ -14,24 +15,33 @@ mkdir -p "$TARGET"
 cp -R "$TEMPLATE/." "$TARGET/"
 cd "$TARGET"
 echo "scaffolded into $(pwd)"
+bash "$HERE/prepare_root.sh" .
 status=0
 has_art=0
 for f in ./*; do
-  case "$(printf '%s' "$f" | tr 'A-Z' 'a-z')" in
-    *chimera-godot-gamedev*) ;;
-    *.zip|*.png|*.jpg|*.jpeg|*.webp) has_art=1 ;;
-    *art*|*asset*|*美术*|*资产*|*素材*) [ -d "$f" ] && [ "$(basename "$f")" != art_inbox ] && has_art=1 ;;
+  [ -e "$f" ] || continue
+  [ -d "$f" ] && [ -f "$f/.gdignore" ] && continue
+  case "$(printf '%s' "$(basename "$f")" | tr 'A-Z' 'a-z')" in
+    chimera-godot-gamedev*) ;;
+    *.zip|*.png|*.jpg|*.jpeg|*.webp|*.jfif) has_art=1 ;;
+    art_inbox) ;;
+    *art*|*asset*|*美术*|*资产*|*素材*) [ -d "$f" ] && has_art=1 ;;
   esac
 done
 if [ $has_art = 1 ]; then
   echo "art pack detected -> importing"
   bash "$HERE/import_assets.sh" . || status=$?
 else
-  bash "$HERE/godot_check.sh" . || status=$?
+  echo "no art pack found (placeholder art will be used)"
+  bash "$HERE/godot_check.sh" . --shot screenshots/art_gallery.png --scene res://scenes/art_gallery.tscn || status=$?
+  bash "$HERE/screenshot.sh" . res://scenes/main.tscn screenshots/main.png
 fi
 if [ ! -d .git ]; then
-  git init -q && git add -A
-  git -c user.name="${GIT_AUTHOR_NAME:-chimera}" -c user.email="${GIT_AUTHOR_EMAIL:-chimera@localhost}" \
-    commit -qm "chore: scaffold Chimera Epoch from skill template (M0)" && echo "git: initial commit created"
+  git init -q
+  # repo-local identity only if the user has none, so later commits never fail on a fresh machine
+  git config user.name >/dev/null 2>&1 || git config user.name "${GIT_AUTHOR_NAME:-Chimera Dev}"
+  git config user.email >/dev/null 2>&1 || git config user.email "${GIT_AUTHOR_EMAIL:-chimera@localhost}"
+  git add -A
+  git commit -qm "chore: scaffold Chimera Epoch from skill template (M0)" && echo "git: initial commit created"
 fi
 exit $status

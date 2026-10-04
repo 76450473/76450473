@@ -11,6 +11,8 @@ export_credentials.cfg
 /reports/
 # packs / skill archives dropped into the project root are never committed
 /*.zip
+/提示词.txt
+/美术资产清单与提示词.txt
 # raw user uploads (processed results live in art/ and ARE committed)
 /art_inbox/*
 !/art_inbox/README.txt

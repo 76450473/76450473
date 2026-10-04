@@ -47,11 +47,11 @@ static func build(db: GameData) -> Array:
 			"cn": "%s（%s部件）" % [spec.get("cn", kind), db.races.get(race, {}).get("name", "通用")],
 			"path": "res://art/parts/%s.png" % kind, "mode": spec.get("mode", "palette"), "canvas": [256, 256], "fit": "fit",
 			"ratio": "1:1", "bg": "纯白", "priority": 3 if u.genes.is_empty() else (1 if early.has(race) else 2),
-			"prompt": "%s. Subject: %s. Shape language of this race: %s. %s" % [style.get("part", ""),
+			"prompt": "%s. Subject: %s. Surface materials: %s. %s" % [style.get("part", ""),
 				spec.get("subject", kind), race_art.get(race, "creature"), clause],
 			"negative": style.get("negative", ""), "used_by": u.genes,
 			"socket": spec.get("socket", "core"), "anchor": spec.get("anchor", "center"),
-			"height": float(spec.get("height", 20)), "accent": accent,
+			"height": float(spec.get("height", 20)), "accent": accent, "hollow": bool(spec.get("hollow", false)),
 		})
 
 	# --- bodies (palette mode) ----------------------------------------------
@@ -62,7 +62,7 @@ static func build(db: GameData) -> Array:
 			"id": "body_" + plan, "category": "body", "kind": plan, "cn": b.get("cn", plan),
 			"path": "res://art/bodies/%s.png" % plan, "mode": b.get("mode", "palette"), "canvas": [512, 512], "fit": "fit",
 			"ratio": "1:1", "bg": "纯白", "priority": 1 if early.has(race) else 2,
-			"prompt": "%s. Subject: %s. Shape language of this race: %s. %s" % [style.get("body", ""), b.get("subject", plan),
+			"prompt": "%s. Subject: %s. Surface materials: %s. %s" % [style.get("body", ""), b.get("subject", plan),
 				race_art.get(race, ""), style.get("no_accent_clause", "")],
 			"negative": style.get("negative", ""), "used_by": [db.races.get(race, {}).get("name", race)],
 			"anchor": "bottom_center", "body_fit": b.get("fit", "height"), "size": float(b.get("size", 130)),
@@ -100,7 +100,7 @@ static func build(db: GameData) -> Array:
 			"id": "boss_" + boss_id, "category": "boss", "cn": ba2.get("cn", boss_id),
 			"path": "res://art/boss/%s.png" % boss_id, "mode": "cutout", "canvas": [768, 768], "fit": "fit",
 			"ratio": "1:1", "bg": "纯白", "priority": 2,
-			"prompt": "%s. Full body side view facing left, isolated, plain flat pure white background. Subject: %s." % [
+			"prompt": "%s. Full body side view facing left, isolated, thick closed dark outline around the whole silhouette, plain flat pure white background, no ground, no cast shadow. Subject: %s." % [
 				style.get("illustration", ""), ba2.get("subject", boss_id)],
 			"negative": style.get("negative_color_ok", ""), "used_by": [db.bosses[boss_id].get("name", boss_id)],
 			"anchor": "bottom_center",
@@ -113,7 +113,7 @@ static func build(db: GameData) -> Array:
 			"id": "cardart_" + cid, "category": "card_art", "cn": "卡图·%s" % ca.get("cn", cid),
 			"path": "res://art/cards/%s.png" % cid, "mode": "color", "canvas": [512, 384], "fit": "cover",
 			"ratio": "4:3", "bg": "画面本身", "priority": 2,
-			"prompt": "%s. Card illustration, landscape composition. Subject: %s." % [style.get("illustration", ""), ca.get("subject", cid)],
+			"prompt": "%s. Full-bleed illustration only, no card frame, no border, no title bar, no text box, landscape composition. Subject: %s." % [style.get("illustration", ""), ca.get("subject", cid)],
 			"negative": style.get("negative_color_ok", ""), "used_by": [db.cards[cid].get("name", cid)],
 		})
 

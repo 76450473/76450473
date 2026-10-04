@@ -2,12 +2,15 @@ extends SceneTree
 ## Imports user-made images from art_inbox/ into art/ (references/art-pipeline.md).
 ##   godot --headless --path . --script res://tools/import_art.gd          (import)
 ##   godot --headless --path . --script res://tools/import_art.gd -- --dry (report only)
-## File name = asset id from docs/ART_TODO.md (part_eye_compound.png). Prefixes and copy
-## suffixes are tolerated ("eye_compound (2).png"). Unknown names are listed, never touched.
+## File name = asset id from docs/ART_TODO.md (part_eye_compound.png). Tolerated: missing
+## prefixes, copy suffixes ("eye_compound (2).png", "… - 副本.png", "… copy.png") and doubled
+## extensions from Windows' hidden-extension renames ("part_sac.png.png"). The real format is
+## detected from the file bytes, so a WebP/JPEG saved under a .png name still loads.
+## Unknown names are listed, never touched. Last line: "summary: imported=N unknown=N failed=N".
 ## Re-importing keeps hand-tuned sidecar keys (offset, rotation, scale_mult, sockets).
 ## Afterwards run `godot --headless --path . --import` so Godot registers the new PNGs.
 
-const EXTS := ["png", "jpg", "jpeg", "webp"]
+const EXTS := ["png", "jpg", "jpeg", "webp", "jfif"]
 const KEEP_KEYS := ["offset", "rotation", "scale_mult", "sockets", "note"]
 
 
@@ -30,9 +33,9 @@ func _initialize() -> void:
 			unknown.append(f)
 			continue
 		var entry: Dictionary = entries[id]
-		var img := Image.load_from_file(inbox.path_join(f))
+		var img := _load_image(inbox.path_join(f))
 		if img == null or img.is_empty():
-			failed.append("%s: 无法读取图片" % f)
+			failed.append("%s: 文件名正确，但图片内容读不出来（可能损坏或格式不支持）：请重新导出为 PNG" % f)
 			continue
 		var res := ArtImporter.process(img, entry)
 		if res.has("error"):
@@ -60,34 +63,68 @@ func _initialize() -> void:
 		print("  ? 不认识的文件名：%s —— 请改成 docs/ART_TODO.md 里的资产 id（例如 part_eye_compound.png）" % u)
 	for e in failed:
 		print("  x " + e)
+	print("summary: imported=%d unknown=%d failed=%d" % [imported, unknown.size(), failed.size()])
 	if imported > 0:
 		print("next: godot --headless --path . --import ; then screenshot res://scenes/art_gallery.tscn")
 	quit(0)
 
 
 func _match_id(name: String, entries: Dictionary) -> String:
-	var n := name.to_lower().strip_edges().replace(" ", "_").replace("-", "_")
-	var re := RegEx.create_from_string("^(.*?)(?:_*\\(\\d+\\)|_v\\d+|_\\d+)$")
+	var n := name.to_lower().strip_edges()
+	while EXTS.has(n.get_extension()):  # "part_sac.png" (+ hidden ".png") -> "part_sac"
+		n = n.get_basename()
+	n = n.replace(" ", "_").replace("-", "_").replace("　", "_")
+	var re := RegEx.create_from_string("^(.*?)_*(?:\\(\\d+\\)|v\\d+|\\d+|(?:copy|副本|拷贝)(?:_*\\(?\\d+\\)?)?)$")
 	var candidates := [n]
 	var m := re.search(n)
 	if m != null:
-		candidates.append(m.get_string(1))
+		candidates.append(m.get_string(1).rstrip("_"))
 	for c: String in candidates.duplicate():
 		for prefix: String in ["part_", "body_", "bg_", "icon_", "boss_", "cardart_"]:
 			candidates.append(prefix + c)
 	for c: String in candidates:
 		if entries.has(c):
 			return c
-	return ""
+	# last resort: the longest asset id that the name starts with, followed by "_"
+	# ("part_spear_final", "part_spear___<garbled GBK 副本>") -> part_spear
+	var best := ""
+	for id: String in entries:
+		for c: String in [n, "part_" + n, "icon_" + n]:
+			if c.begins_with(id + "_") and id.length() > best.length():
+				best = id
+	return best
 
 
+## Picks the decoder from the file signature, not the extension.
+func _load_image(path: String) -> Image:
+	var bytes := FileAccess.get_file_as_bytes(path)
+	if bytes.size() < 12:
+		return null
+	var img := Image.new()
+	var err := ERR_FILE_UNRECOGNIZED
+	if bytes[0] == 0x89 and bytes[1] == 0x50 and bytes[2] == 0x4E and bytes[3] == 0x47:
+		err = img.load_png_from_buffer(bytes)
+	elif bytes[0] == 0xFF and bytes[1] == 0xD8:
+		err = img.load_jpg_from_buffer(bytes)
+	elif bytes.slice(0, 4).get_string_from_ascii() == "RIFF" and bytes.slice(8, 12).get_string_from_ascii() == "WEBP":
+		err = img.load_webp_from_buffer(bytes)
+	return img if err == OK else null
+
+
+## The NEWEST credit line wins (unpack_assets.gd puts the latest pack's line last).
 func _read_credit(inbox: String) -> String:
 	var p := inbox.path_join("credits.txt")
-	if FileAccess.file_exists(p):
-		for line in FileAccess.get_file_as_string(p).split("\n"):
-			if line.strip_edges() != "":
-				return line.strip_edges()
-	return "AI 生成（未注明工具，请补 art_inbox/credits.txt）"
+	var fallback := "AI 生成（未注明工具，请补 credits.txt）"
+	if not FileAccess.file_exists(p):
+		return fallback
+	var last := ""
+	for line in FileAccess.get_file_as_string(p).split("\n"):
+		if line.strip_edges() != "":
+			last = line.strip_edges()
+	if last.contains("\uFFFD"):
+		print("  ! credits.txt 不是 UTF-8 编码，读不出来：请用记事本打开 → 另存为 → 编码选 UTF-8，再提供一次")
+		return fallback
+	return last if last != "" else fallback
 
 
 func _write_sidecar(path: String, entry: Dictionary, res: Dictionary, source: String, credit: String) -> void:

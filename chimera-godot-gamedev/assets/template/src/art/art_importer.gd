@@ -192,12 +192,17 @@ static func mono_from_luminance(img: Image) -> void:
 	var w := img.get_width()
 	var h := img.get_height()
 	var data := img.get_data()
+	# Transparent PNG (tool exported with alpha): the shape IS the alpha channel.
+	var clear_bg := data[3] < 128 and data[(w - 1) * 4 + 3] < 128 and data[((h - 1) * w) * 4 + 3] < 128 \
+		and data[(w * h - 1) * 4 + 3] < 128
 	var dark_bg := _corner_color(data, w, h).get_luminance() < 0.5
 	for i in w * h:
 		var o := i * 4
 		var lum := (0.299 * data[o] + 0.587 * data[o + 1] + 0.114 * data[o + 2]) / 255.0
 		var a := lum if dark_bg else 1.0 - lum
 		a = clampf((a - 0.2) / 0.6, 0.0, 1.0) * data[o + 3] / 255.0
+		if clear_bg:
+			a = data[o + 3] / 255.0
 		data[o] = 255
 		data[o + 1] = 255
 		data[o + 2] = 255

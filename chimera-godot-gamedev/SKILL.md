@@ -28,8 +28,8 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 
 1. **定位项目**
    - 当前目录或用户给的路径里有 `project.godot`，且 `config/name` 含 "Chimera"：这是续作，进入第 2 步。
-   - 没有项目，并且当前目录基本是空的（只有美术资产包、图片、txt 说明或 skill 压缩包）：**直接在当前目录新建**（`new_project.sh .`），见第 3 节。
-   - 没有项目，但当前目录里有别的东西：在 `./chimera-epoch` 新建，然后把资产包路径作为参数传给 `import_assets.sh`。
+   - 没有项目，并且当前目录基本是空的（只有美术资产包、图片、txt 说明、skill 压缩包或解压后的 skill 文件夹）：**直接在当前目录新建**（`new_project.sh .`），见第 3 节。skill 文件夹会被自动排除（`prepare_root.sh`），不会冲突，也不会被提交。
+   - 没有项目，但当前目录里有别的东西：在 `./chimera-epoch` 新建，然后在当前目录执行 `import_assets.sh ./chimera-epoch ./资产包.zip`（资产包路径相对于当前目录，或者用绝对路径）。
 2. **读记忆**：读 `docs/PROGRESS.md`（进度、下一步、已知问题）和 `docs/DECISIONS.md`（已做的决定，不要推翻）。
 3. **找引擎**：运行 `GODOT=$(bash SKILL_DIR/scripts/find_godot.sh)`。
    - 找不到：按 `references/godot-workflow.md` §1 指导用户安装 Godot 4.7.x，然后停下来等用户。没有引擎时写出的代码一律标注"未验证"。
@@ -72,9 +72,9 @@ bash SKILL_DIR/scripts/godot_check.sh . --balance
 3. 注册到 Godot
 4. 统计缺失情况
 5. 运行全量检查
-6. 截两张图：`screenshots/art_gallery.png` 和 `screenshots/main.png`
+6. 截 4 张图：美术检查台三页（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`）和基因实验室（`screenshots/main.png`）。没有资产包时也会截图，只是显示占位美术。
 
-资产包会被移到 `art_inbox/_packs/`，不会重复导入。
+资产包会被移到 `art_inbox/_packs/`，不会重复导入。新项目会设置仓库级的 git 身份（只在用户没有配置时），所以后续的 commit 不会失败。
 
 模板已经包含：
 - 内容：6 个种族、13 个单位模板、28 个基因、8 张战术卡、3 个生态区、6 个精英协同、1 个 Boss、3 个隐藏配方
@@ -83,7 +83,7 @@ bash SKILL_DIR/scripts/godot_check.sh . --balance
 - 工具：完整的单元测试、平衡模拟、截图工具、GitHub Actions CI
 
 **M0 完成时必须做的事**：
-1. 用 Read 打开两张截图（美术检查台和基因实验室）。
+1. 用 Read 打开 4 张截图（检查台三页加基因实验室）。
 2. 按 art-pipeline §4、§5 逐项质检：文件名不认识的图片，要看图后改名，再重跑 `import_assets.sh`；错位的部件改 sidecar json，改完重新截图。
 3. 向用户汇报：
    - 导入了多少张，各类资产的覆盖率（P1、P2、P3）
@@ -133,8 +133,8 @@ autoload：Data（Data.db）、Rng（运行期随机流）
 
 - **美术**（`visual-system.md` 和 `art-pipeline.md`）：
   - 用户负责出图，你负责导入、适配和质检。
-  - 部件和骨架用灰度图，由 `part_palette` shader 按宿主的种族配色上色，跨种族拼接因此能自动协调。
-  - 每次导入后都要截美术检查台（`scenes/art_gallery.tscn`）亲眼看；对齐问题只改 sidecar json，不改代码。
+  - 部件和骨架用灰度图，由 `part_palette` shader 上色：骨架用宿主的种族配色；部件保留来源种族的颜色，再混入 25% 的宿主底色，所以既认得出来源又协调。这是设计如此。
+  - 每次导入后，美术检查台三页都要截图并亲眼看；对齐问题只改 sidecar json，不改代码。
   - 用户说"导入美术"、"我上传了图"、"缺什么图"时，严格按 art-pipeline §4 执行。
   - 汇报时必须列出：需要重做的图（附改好的完整提示词）、还缺的 P1 资产。
   - 新增部件、骨架、生态区、卡牌、Boss 时，同步在 `data/art_manifest.json` 里加条目（test_data 会检查）。
