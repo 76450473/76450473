@@ -14,6 +14,8 @@ extends Node2D
 
 const LAYER_SHADER := preload("res://src/shaders/gene_layers.gdshader")
 const PALETTE_SHADER := preload("res://src/shaders/part_palette.gdshader")
+## Gene material layers on full-colour illustrated art are toned down so faces stay clean.
+const CUTOUT_LAYER_STRENGTH := 0.35
 const FRONT_SLOT_ORDER := ["skin", "core", "head", "limb"]
 
 var vg: Dictionary = {}
@@ -105,7 +107,9 @@ func _make_sprite(art: Dictionary, base: Color, dark: Color, accent: Color, laye
 	mat.set_shader_parameter("base_color", base)
 	mat.set_shader_parameter("dark_color", dark)
 	mat.set_shader_parameter("accent_color", accent)
-	mat.set_shader_parameter("palette_map", str(art.get("mode", "palette")) == "palette")
+	var painted := str(art.get("mode", "palette")) != "palette"  # full-colour illustration (cutout)
+	mat.set_shader_parameter("palette_map", not painted)
+	mat.set_shader_parameter("layer_strength", CUTOUT_LAYER_STRENGTH if painted else 1.0)
 	mat.set_shader_parameter("alpha_mult", 1.0 if k >= 1.0 else 0.9)
 	for layer: String in Defs.LAYERS:
 		if layer != "":

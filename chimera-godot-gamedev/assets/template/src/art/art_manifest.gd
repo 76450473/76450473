@@ -66,6 +66,7 @@ static func build(db: GameData) -> Array:
 				race_art.get(race, ""), style.get("no_accent_clause", "")],
 			"negative": style.get("negative_body", style.get("negative", "")), "used_by": [db.races.get(race, {}).get("name", race)],
 			"anchor": "bottom_center", "body_fit": b.get("fit", "height"), "size": float(b.get("size", 130)),
+			"sockets": b.get("sockets", m.get("default_body_sockets", {})),
 		})
 
 	# --- biome backgrounds (color) -------------------------------------------

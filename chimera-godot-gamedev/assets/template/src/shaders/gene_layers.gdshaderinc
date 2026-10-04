@@ -16,6 +16,9 @@ uniform vec4 ether_tint : source_color = vec4(0.55, 0.95, 0.9, 1.0);
 uniform vec4 rot_tint : source_color = vec4(0.27, 0.31, 0.12, 1.0);
 uniform float pattern_scale = 0.09;
 uniform float seed = 0.0;
+// How strongly the layers show: 1 on procedural / grayscale art, lower on full-colour
+// illustrated art (anime character sheets) so faces and costumes stay readable.
+uniform float layer_strength : hint_range(0.0, 1.0) = 1.0;
 
 float gl_hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -52,7 +55,8 @@ vec2 gl_cells(vec2 p) {
 	return vec2(sqrt(d1), sqrt(d2));
 }
 
-vec4 apply_gene_layers(vec4 c, vec2 lp, float t) {
+vec4 apply_gene_layers(vec4 c_in, vec2 lp, float t) {
+	vec4 c = c_in;
 	float lum = dot(c.rgb, vec3(0.299, 0.587, 0.114));
 	float body = step(0.18, lum) * step(0.05, c.a);
 	vec2 p = lp * pattern_scale + vec2(seed);
@@ -89,5 +93,5 @@ vec4 apply_gene_layers(vec4 c, vec2 lp, float t) {
 		float blot = smoothstep(0.52, 0.68, gl_noise(p * 1.3 + 21.0));
 		c.rgb = mix(c.rgb, rot_tint.rgb, blot * rot * body * 0.8);
 	}
-	return c;
+	return mix(c_in, c, layer_strength);
 }

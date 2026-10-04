@@ -195,6 +195,10 @@ func _write_sidecar(path: String, entry: Dictionary, res: Dictionary, source: St
 	var pivot: Vector2 = res.pivot
 	meta["id"] = entry.id
 	meta["mode"] = entry.mode
+	# a body's part sockets start from the manifest defaults (humanoid standee layout); hand-tuned
+	# "sockets" from an earlier import are kept (KEEP_KEYS)
+	if str(entry.get("category", "")) == "body" and not meta.has("sockets") and not (entry.get("sockets", {}) as Dictionary).is_empty():
+		meta["sockets"] = entry.sockets
 	meta["pivot"] = [snappedf(pivot.x, 0.5), snappedf(pivot.y, 0.5)]
 	meta["scale"] = snappedf(ArtImporter.display_scale(entry, img.get_size()), 0.0001)
 	meta["size"] = [img.get_width(), img.get_height()]
