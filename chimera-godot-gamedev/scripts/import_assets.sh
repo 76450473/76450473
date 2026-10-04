@@ -6,8 +6,8 @@
 #   bash import_assets.sh <project_dir> [pack.zip|folder ...]
 # Pack paths may be absolute or relative to the folder you run this from.
 # With no pack arguments it auto-detects inside <project_dir> (top level only):
-#   *.zip files (skill zips are skipped), folders whose name contains art/asset/美术/资产/素材
-#   and hold images, and loose images. Processed packs move to art_inbox/_packs/ so a later
+#   *.zip files (skill zips are skipped), folders whose name contains art/asset/image/img/pic/
+#   美术/资产/素材/图片/图像 and hold images, and loose images (also images dropped straight into art/). Processed packs move to art_inbox/_packs/ so a later
 #   run never imports them twice.
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -24,7 +24,7 @@ cd "$PROJ" || exit 1
 [ -f project.godot ] || { echo "no project.godot in $PROJ"; exit 1; }
 ROOT="$(pwd)"
 winpath() { if command -v cygpath >/dev/null 2>&1; then cygpath -m "$1"; else printf '%s' "$1"; fi; }
-is_img() { case "$(printf '%s' "$1" | tr 'A-Z' 'a-z')" in *.png|*.jpg|*.jpeg|*.webp|*.jfif|*.avif|*.heic|*.heif|*.gif|*.bmp|*.tif|*.tiff) return 0 ;; esac; return 1; }
+is_img() { case "$(printf '%s' "$1" | tr 'A-Z' 'a-z')" in *.png|*.jpg|*.jpeg|*.webp|*.jfif|*.avif|*.heic|*.heif|*.gif|*.bmp|*.tif|*.tiff|*.psd) return 0 ;; esac; return 1; }
 # Godot prints one "Unicode parsing error" (+ an "at:" line) per bad byte of a GBK zip entry
 # name, many times per entry. Collapse that noise into a single count.
 quiet() {
@@ -44,15 +44,23 @@ if [ ${#packs[@]} -eq 0 ]; then
   while IFS= read -r -d '' d; do
     case "$(basename "$d")" in art|art_inbox|.godot|chimera-godot-gamedev*) continue ;; esac
     [ -f "$d/.gdignore" ] && continue
-    if find "$d" -maxdepth 4 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.jfif' -o -iname '*.avif' -o -iname '*.heic' -o -iname '*.heif' -o -iname '*.gif' -o -iname '*.bmp' -o -iname '*.tif' -o -iname '*.tiff' \) 2>/dev/null | grep -q .; then
+    # never swallow a real project folder (scripts/scenes/resources inside = game content)
+    find "$d" -maxdepth 4 -type f \( -name '*.gd' -o -name '*.tscn' -o -name '*.tres' -o -name '*.gdshader' \) 2>/dev/null | grep -q . && continue
+    if find "$d" -maxdepth 4 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.jfif' -o -iname '*.avif' -o -iname '*.heic' -o -iname '*.heif' -o -iname '*.gif' -o -iname '*.bmp' -o -iname '*.tif' -o -iname '*.tiff' -o -iname '*.psd' \) 2>/dev/null | grep -q .; then
       packs+=("$d")
     fi
-  done < <(find "$ROOT" -mindepth 1 -maxdepth 1 -type d \( -iname '*art*' -o -iname '*asset*' -o -name '*美术*' -o -name '*资产*' -o -name '*素材*' \) -print0 2>/dev/null)
+  done < <(find "$ROOT" -mindepth 1 -maxdepth 1 -type d \( -iname '*art*' -o -iname '*asset*' -o -iname '*image*' -o -iname '*img*' -o -iname '*pic*' -o -name '*美术*' -o -name '*资产*' -o -name '*素材*' -o -name '*图片*' -o -name '*图像*' \) -print0 2>/dev/null)
 fi
+
+mkdir -p art_inbox
+loose=0
+while IFS= read -r -d '' f; do
+  if is_img "$f"; then mv "$f" art_inbox/ && rm -f "$f.import" && loose=$((loose + 1)); fi
+done < <(find "$ROOT" "$ROOT/art" -maxdepth 1 -type f -print0 2>/dev/null)
+[ $loose -gt 0 ] && echo "== moved $loose loose image(s) into art_inbox/"
 
 echo "== register project classes"
 "$GODOT" --headless --path . --import >/dev/null 2>&1
-mkdir -p art_inbox
 
 if [ ${#packs[@]} -gt 0 ]; then
   echo "== unpack ${#packs[@]} pack(s)"
@@ -61,12 +69,6 @@ if [ ${#packs[@]} -gt 0 ]; then
   unpack_out="$("$GODOT" --headless --path . --script res://tools/unpack_assets.gd -- "${args[@]}" 2>&1 | quiet)"
   printf '%s\n' "$unpack_out"
 fi
-loose=0
-while IFS= read -r -d '' f; do
-  if is_img "$f"; then mv "$f" art_inbox/ && loose=$((loose + 1)); fi
-done < <(find "$ROOT" -maxdepth 1 -type f -print0 2>/dev/null)
-[ $loose -gt 0 ] && echo "== moved $loose loose image(s) into art_inbox/"
-
 summary=""
 pending=0
 while IFS= read -r -d '' f; do is_img "$f" && pending=$((pending + 1)); done < <(find art_inbox -maxdepth 1 -type f -print0)
@@ -99,7 +101,8 @@ echo "== art coverage"
 unknown=$(printf '%s' "$summary" | sed -n 's/.*unknown=\([0-9]*\).*/\1/p')
 failed=$(printf '%s' "$summary" | sed -n 's/.*failed=\([0-9]*\).*/\1/p')
 [ "${unknown:-0}" != "0" ] && echo "!! $unknown image(s) have unknown names (lines starting with '?'): Read each, rename to an asset id inside art_inbox/, then rerun WITHOUT pack arguments: bash \"$HERE/import_assets.sh\" \"$ROOT\""
-[ "${failed:-0}" != "0" ] && echo "!! $failed image(s) could not be used (lines starting with 'x': unreadable or unsupported format such as avif/heic): ask the user to re-export them as PNG"
+[ "${failed:-0}" != "0" ] && echo "!! $failed image(s) could not be used (lines starting with 'x': unreadable or unsupported format such as avif/heic; parked in art_inbox/_failed/): ask the user to re-export them as PNG"
+grep -q "未注明工具\|工具待补" CREDITS.md 2>/dev/null && echo "!! some art in CREDITS.md has no tool/license ('未注明工具' or '工具待补'): ask the user for one UTF-8 line in art_inbox/credits.txt (tool/model + license), then re-import those images"
 printf '%s\n' "${unpack_out:-}" | grep -q "credits.txt 不是 UTF-8" && echo "!! credits.txt was not UTF-8: tell the user to re-save it as UTF-8 (these images are credited as '工具待补')"
 printf '%s\n' "${unpack_out:-}" | grep -q "跳过不支持的图片格式" && echo "!! some files in the pack were skipped (unsupported format, see '! 跳过' lines): ask the user for PNG versions"
 

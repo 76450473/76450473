@@ -35,9 +35,9 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
    - 找不到：按 `references/godot-workflow.md` §1 指导用户安装 Godot 4.7.x，然后停下来等用户。没有引擎时写出的代码一律标注"未验证"。
    - Windows 上要使用 `*_console.exe`，普通版 exe 不会把输出打到终端。
 4. **检查美术资产**：出现以下任一情况，都说明用户带来了新素材：
-   - 项目根目录里有 zip 或图片文件夹（名字含 art、asset、美术、资产、素材）
+   - 项目根目录里有 zip 或图片文件夹（名字含 art、asset、image、img、pic、美术、资产、素材、图片、图像）
    - 项目根目录里有零散的图片
-   - `art_inbox/` 里有图片（README.txt 和 credits.txt 不算）
+   - `art_inbox/` 顶层有图片（README.txt、credits.txt 和 `_done/`、`_failed/`、`_packs/` 子文件夹都不算）
 
    这时先跑 `bash SKILL_DIR/scripts/import_assets.sh <项目>`，再按 art-pipeline §4 质检，然后再继续开发。
 5. **可选的 MCP**：如果会话里有 `mcp__godot__*` 之类的 Godot MCP 工具，可以用来启动编辑器、查看调试输出。但验收永远以 CLI 的 `godot_check.sh` 为准（见 `references/godot-workflow.md` §2）。

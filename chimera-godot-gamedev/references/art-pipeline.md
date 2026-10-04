@@ -29,7 +29,7 @@ Claude 自己不能生成图片。分工如下：
 | `tools/unpack_assets.gd` | 用 Godot 的 ZIPReader 解压资产包（不依赖 unzip），也支持文件夹：把图片和 credits.txt 平铺放进 `art_inbox/`；会跳过 `__MACOSX` 目录、隐藏文件，以及内含 SKILL.md 的 zip |
 | `scripts/import_assets.sh`（skill 自带） | **一键导入**：自动发现资产包 → 解压 → 导入 → 注册 → 统计缺失 → 全量检查 → 截 4 张图（检查台三页加主场景）→ 把资产包移到 `art_inbox/_packs/`（重名时自动加编号） |
 | `scripts/prepare_root.sh`（skill 自带） | 项目根目录里如果有解压后的 skill 文件夹（或其他含 project.godot 的文件夹），给它加 `.gdignore`，并写进 `.gitignore`，避免类名冲突、避免被提交 |
-| `tools/import_art.gd` | 把 `art_inbox/` 里的图片处理后放进 `art/`，写 sidecar json，在 CREDITS.md 登记，原图移到 `art_inbox/_done/` |
+| `tools/import_art.gd` | 把 `art_inbox/` 里的图片处理后放进 `art/`，写 sidecar json，在 CREDITS.md 登记，原图移到 `art_inbox/_done/`；用不了的原图（avif 等格式、损坏）移到 `art_inbox/_failed/` |
 | `src/art/art_importer.gd` | 纯图像处理（有测试）：泛洪去背景、羽化、裁边、灰度化（保留饱和的发光色）、单色图标、fit / cover 缩放、计算锚点 |
 | `src/art/art_library.gd` | 运行时查找资产。查不到返回 `{}`，调用方据此回退到程序化美术 |
 | `src/shaders/part_palette.gdshader` | 把灰度图映射成一套配色（dark→base→light 渐变）：骨架用宿主的种族配色，部件用来源种族的配色再混入 25% 宿主底色（见 visual-system §6）；饱和区域映射为元素强调色；最后叠加基因材质层 |
@@ -73,7 +73,7 @@ Claude 自己不能生成图片。分工如下：
    - 4 张图是 `screenshots/art_gallery.png`、`art_parts.png`、`art_images.png` 和 `main.png`。
 2. **处理剩下的图片**，脚本最后会分两类提示：
    - 以 `?` 开头：文件名不认识。**用 Read 逐张打开看**，判断它是哪个资产，在 `art_inbox/` 里 `mv` 改成正确的 id，然后**不带资产包参数**重跑 `import_assets.sh <项目>`（带上参数会重新解压整个包，又把旧文件名带回来）。实在判断不了就问用户。
-   - 以 `x` 开头：文件名没问题，但图片读不出来（可能损坏，或者是 avif、heic 这类格式）。请用户重新导出为 PNG。
+   - 以 `x` 开头：图片用不了（格式不支持，如 avif、heic、gif、psd；或者文件损坏）。原图已移到 `art_inbox/_failed/`，以后不会重复报。请用户重新导出为 PNG，放进 `art_inbox/` 或新的资产包。
 3. （可选）只想预演、不落盘时：`godot --headless --path . --script res://tools/import_art.gd -- --dry`。
 4. **逐张看处理结果**：用 Read 打开 `art/...png`，按 §5 的标准检查。
 5. **截图检查**：第 1 步已经截好 4 张图（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`main.png`）。用 Read 看截图。三页检查台都要看：第 1 页是骨架和图标，第 2 页是全部部件，第 3 页是背景、界面、Boss、卡图。最后再对比主场景。
@@ -85,7 +85,7 @@ Claude 自己不能生成图片。分工如下：
    - **需要重做的**（原因加修改后的提示词）
    - 还缺的 P1 资产，列前 5–10 项，附上 `docs/ART_TODO.md` 的位置
    - 下一批建议生成什么
-10. 在 PROGRESS.md 的"美术资产"一节更新进度，然后 git commit（提交 `art/`、`CREDITS.md`、`docs/ART_TODO.md`；`art_inbox/` 已被 gitignore）。
+10. 在 PROGRESS.md 的"美术资产"一节更新进度，然后 git commit（提交 `art/`、`CREDITS.md`、`docs/ART_TODO.md`、`docs/ART_PROMPTS.md`、`docs/ART_PROMPTS.txt`；`art_inbox/` 已被 gitignore）。
 
 ## 5. 质检：看图与看截图
 
@@ -106,7 +106,7 @@ Claude 自己不能生成图片。分工如下：
 
 ## 6. 对齐与微调（sidecar json）
 
-每张图旁边都有一个同名的 `.json`。导入工具会写入 `pivot`、`scale`、`size`、`source`、`credit`。
+每张图旁边都有一个同名的 `.json`。导入工具会写入 `pivot`、`scale`、`size`、`source`、`source_md5`、`credit`。同一张原图（md5 相同）重新导入时保留第一次的 credit；换了新图，或者原来的 credit 是"未注明工具"/"工具待补"，就改用当前 credits.txt 的最后一行。
 
 **如何重新导入**：把原图从 `art_inbox/_done/<文件名>` 移回 `art_inbox/`，然后重跑 `import_assets.sh`。
 
@@ -143,7 +143,7 @@ Claude 自己不能生成图片。分工如下：
 
 ## 9. 授权与入库
 
-- `import_art.gd` 会把 credits.txt 里的那一行写进 CREDITS.md。没有 credits.txt 时会写"未注明工具"，**这时要提醒用户补上**。
+- `import_art.gd` 会把 `art_inbox/credits.txt` 的**最后一行**写进 CREDITS.md（每个资产包的 credits.txt 会追加成新的一行；新包没带 credits.txt 时沿用上一行）。从来没有 credits.txt 时写"未注明工具"，编码不对时写"工具待补"；`import_assets.sh` 会打出 `!!` 提示，**这时要提醒用户补上**，补好后把那些原图从 `_done/` 移回 `art_inbox/` 重新导入。
 - AI 生成图片的授权以工具的服务条款为准。提醒用户确认自己的订阅允许商用或开源分发。
 - 入库的是 `art/` 里处理后的文件，原图（`art_inbox/`）不进 git。
 - 素材默认采用 CC BY-SA 4.0（见 open-source.md）。

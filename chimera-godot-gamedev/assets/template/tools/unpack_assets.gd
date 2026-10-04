@@ -82,7 +82,7 @@ func _from_folder(dir: String) -> void:
 		elif UNSUPPORTED.has(f.get_extension().to_lower()):
 			_skipped.append(f)
 	for d in DirAccess.get_directories_at(dir):
-		if not d.begins_with(".") and d != "__MACOSX" and d != "_done" and d != "_packs":
+		if not d.begins_with(".") and d != "__MACOSX" and d != "_done" and d != "_packs" and d != "_failed":
 			_from_folder(dir.path_join(d))
 	if n > 0:
 		print("%s/: %d file(s)" % [dir.get_file(), n])

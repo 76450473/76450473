@@ -6,7 +6,7 @@ extends SceneTree
 ## prefixes, copy suffixes ("eye_compound (2).png", "… - 副本.png", "… copy.png") and doubled
 ## extensions from Windows' hidden-extension renames ("part_sac.png.png"). The real format is
 ## detected from the file bytes, so a WebP/JPEG saved under a .png name still loads.
-## Unknown names are listed, never touched. Last line: "summary: imported=N unknown=N failed=N".
+## Unknown names are listed, never touched; unusable files move to art_inbox/_failed/. Last line: "summary: imported=N unknown=N failed=N".
 ## Re-importing keeps hand-tuned sidecar keys (offset, rotation, scale_mult, sockets).
 ## Afterwards run `godot --headless --path . --import` so Godot registers the new PNGs.
 
@@ -29,6 +29,7 @@ func _initialize() -> void:
 	for f in files:
 		if UNSUPPORTED.has(f.get_extension().to_lower()):
 			failed.append("%s: 格式不支持（%s），请导出为 PNG" % [f, f.get_extension()])
+			_park(inbox, f, dry)
 			continue
 		if not EXTS.has(f.get_extension().to_lower()):
 			continue
@@ -40,10 +41,12 @@ func _initialize() -> void:
 		var img := _load_image(inbox.path_join(f))
 		if img == null or img.is_empty():
 			failed.append("%s: 文件名正确，但图片内容读不出来（可能损坏或格式不支持）：请重新导出为 PNG" % f)
+			_park(inbox, f, dry)
 			continue
 		var res := ArtImporter.process(img, entry)
 		if res.has("error"):
 			failed.append("%s: %s" % [f, res.error])
+			_park(inbox, f, dry)
 			continue
 		var out_img: Image = res.image
 		var line := "ok  %-26s -> %s  %dx%d" % [f, entry.path.trim_prefix("res://"), out_img.get_width(), out_img.get_height()]
@@ -70,10 +73,22 @@ func _initialize() -> void:
 		print("  ? 不认识的文件名：%s —— 请改成 docs/ART_TODO.md 里的资产 id（例如 part_eye_compound.png）" % u)
 	for e in failed:
 		print("  x " + e)
+	if not failed.is_empty() and not dry:
+		print("    （用不了的原图已移到 art_inbox/_failed/，换成 PNG 后重新放进 art_inbox/ 即可）")
 	print("summary: imported=%d unknown=%d failed=%d" % [imported, unknown.size(), failed.size()])
 	if imported > 0:
 		print("next: godot --headless --path . --import ; then screenshot res://scenes/art_gallery.tscn")
 	quit(0)
+
+
+## Unusable originals go to art_inbox/_failed/ so later runs (and the per-session art check)
+## do not report them again; the user's PNG replacement is then picked up normally.
+func _park(inbox: String, f: String, dry: bool) -> void:
+	if dry:
+		return
+	var dir := inbox.path_join("_failed")
+	DirAccess.make_dir_recursive_absolute(dir)
+	DirAccess.rename_absolute(inbox.path_join(f), dir.path_join(f))
 
 
 func _match_id(name: String, entries: Dictionary) -> String:

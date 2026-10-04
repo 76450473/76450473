@@ -58,5 +58,5 @@ func _write(rel: String, text: String) -> void:
 	var path := ProjectSettings.globalize_path("res://" + rel)
 	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var f := FileAccess.open(path, FileAccess.WRITE)
-	f.store_string(text)
+	f.store_string(text if text.ends_with("\n") else text + "\n")
 	f.close()
