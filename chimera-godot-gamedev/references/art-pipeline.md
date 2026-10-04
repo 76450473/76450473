@@ -1,8 +1,10 @@
-# 美术协作管线：用户生成图片 → Claude 导入与适配
+# 美术协作管线：图片 → Claude 导入与适配
 
-Claude 自己不能生成图片。分工如下：
-- **用户**：按提示词用 AI 生图工具出图。通常是**开局就把全部图片打包成一个 zip 资产包**，放进项目文件夹；之后补图时，可以再给一个新的 zip，或者直接把图片放进 `art_inbox/`。
-- **Claude**：抠图、裁边、灰度化、缩放、计算挂点、对齐插槽、截图检查。告诉用户哪些图要重做、还缺什么，并给出提示词。
+图片有两个来源，进游戏之后走的是同一条导入管线（本文件）：
+- **GPT 美术工作室**：工作区里有 `GPTapi.txt` 时，Claude 调用 OpenAI 生成，自己先初审，用户复审通过后再 `sync` 进来。生成和审核见 `art-studio.md`。
+- **用户手动出图**：按提示词用任意 AI 生图工具出图，打成 zip 资产包放进工作区（和 `游戏/` 同一层）；或者把图片直接放进 `美术资产/已通过/`（文件名用资产 id）、`游戏/art_inbox/`。
+
+Claude 负责抠图、裁边、灰度化、缩放、计算挂点、对齐插槽、截图检查，并告诉用户哪些图要重做、还缺什么，附上提示词。
 
 缺失的资产永远回退到程序化占位美术，所以**任何时候游戏都能运行**，美术可以一张一张地补。
 
@@ -27,6 +29,7 @@ Claude 自己不能生成图片。分工如下：
 | `src/art/art_manifest.gd` | 把 manifest 和游戏数据（基因部件、骨架、生态区、卡牌、Boss）**推导**成完整的资产列表，共 82 项；能输出 Markdown 格式的提示词书 |
 | `tools/art_audit.gd` | 每次运行都重新生成三份文件：`docs/ART_TODO.md`（缺失资产 + 提示词）、`docs/ART_PROMPTS.md`（全部资产）、`docs/ART_PROMPTS.txt`（纯文本版，可直接发给用户）。加 `-- p1` 只看 P1 缺口 |
 | `tools/unpack_assets.gd` | 用 Godot 的 ZIPReader 解压资产包（不依赖 unzip），也支持文件夹：把图片和 credits.txt 平铺放进 `art_inbox/`；会跳过 `__MACOSX` 目录、隐藏文件，以及内含 SKILL.md 的 zip |
+| `scripts/art_studio.sh` + `tools/art_studio.gd`（skill 自带） | GPT 工作室：生成、初审结果应用、试装、审核页面、复审结果应用；`sync` 把 `美术资产/已通过/` 和工作区里的资产包导入游戏（见 art-studio.md） |
 | `scripts/import_assets.sh`（skill 自带） | **一键导入**：自动发现资产包 → 解压 → 导入 → 注册 → 统计缺失 → 全量检查 → 截 4 张图（检查台三页加主场景）→ 把资产包移到 `art_inbox/_packs/`（重名时自动加编号） |
 | `scripts/prepare_root.sh`（skill 自带） | 项目根目录里如果有解压后的 skill 文件夹（或其他含 project.godot 的文件夹），给它加 `.gdignore`，并写进 `.gitignore`，避免类名冲突、避免被提交 |
 | `tools/import_art.gd` | 把 `art_inbox/` 里的图片处理后放进 `art/`，写 sidecar json，在 CREDITS.md 登记，原图移到 `art_inbox/_done/`；用不了的原图（avif 等格式、损坏）移到 `art_inbox/_failed/` |
@@ -54,21 +57,23 @@ Claude 自己不能生成图片。分工如下：
 
 ## 3. 用户的流程（Claude 要用中文向用户解释成这样）
 
-**开局一次性带齐（推荐）**
+**GPT 模式**：用户只需要把 Key 放进工作区的 `GPTapi.txt`，之后在审核页面上点"通过 / 不要"（见 art-studio.md）。
+
+**手动模式，开局一次性带齐**
 1. 按《美术资产清单与提示词.txt》生成图片，每张按清单里的文件名保存（例如 `part_eye_compound.png`）。
    Windows 要先在资源管理器里打开"显示文件扩展名"，避免存成 `.png.png`。即使存错了，导入工具也能识别。
 2. 把所有图片和一个 `credits.txt`（UTF-8 编码，写一行：用的工具或模型，以及授权）放进一个**英文名**的文件夹（例如 `art_pack`），压缩成 zip，zip 本身可以叫 `美术资产包.zip`。zip 里有子文件夹也没关系。
-3. 新建一个空文件夹，把 zip 放进去，在这个文件夹里启动 Claude Code，发送提示词。
+3. 新建一个工作区文件夹，把 zip 放进去，在这个文件夹里启动 Claude Code，发送提示词。
 
 **之后补图**
-- 再给一个新的 zip，或者直接把图片放进 `art_inbox/`，然后说"导入美术"。
+- 再把一个新的 zip 放进工作区，或者把图片放进 `美术资产/已通过/`，然后说"导入美术"（Claude 运行 `art_studio.sh . sync`）。
 - 名字写错也没关系，Claude 会看图帮忙改名。
 
 ## 4. Claude 的"导入美术"流程（必须按这个顺序做）
 
-1. **一键导入**：`bash SKILL_DIR/scripts/import_assets.sh <项目>`。
-   - 资产包在项目外面时，把路径作为参数传进去：`import_assets.sh <项目> <资产包.zip>`。
-   - 新建项目时 `new_project.sh` 会自动调用它。
+1. **一键导入**：标准工作区用 `bash SKILL_DIR/scripts/art_studio.sh . sync`。它会收集 `美术资产/已通过/` 里的新图，以及工作区里的 zip、图片文件夹和零散图片，然后调用 `import_assets.sh 游戏`。
+   - 直接调用也可以：`bash SKILL_DIR/scripts/import_assets.sh <项目> [资产包.zip ...]`。资产包在项目外面时，把路径作为参数传进去。
+   - 新建工作区时，`setup_workspace.sh` 会自动执行 sync。
    - 这一步会完成解压、处理、注册、统计缺失、全量检查，截 4 张图，并把每张图的警告打印出来（警告的含义见 §7）。
    - 4 张图是 `screenshots/art_gallery.png`、`art_parts.png`、`art_images.png` 和 `main.png`。
 2. **处理剩下的图片**，脚本最后会分两类提示：

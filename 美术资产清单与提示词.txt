@@ -2,7 +2,13 @@
 ==================================================
 
 这份文件说明：要生成哪些图、每张图叫什么名字、用什么提示词，以及做完后怎么打包。
-全部做完后，把图片打包成一个 zip，和 skill、《提示词.txt》一起交给 Claude 就行。
+
+【先看这里】用 GPT 自动生成的话（工作区里放了 GPTapi.txt），这份清单不需要你动手：
+Claude 会按这里的提示词自动生成，先替你初审，再请你在审核页面上复审（点"通过 / 不要"）。
+这时这份文件只是参考：一共有哪些图、每张用在哪里、用的什么提示词，都可以来这里查。
+下面的步骤是给"自己出图"准备的。两种方式也可以混用：你自己做的图，Claude 就不再重复生成。
+
+自己出图时：全部做完后，把图片打包成一个 zip，和 skill、《提示词.txt》一起交给 Claude 就行。
 
 做不完也没关系：缺的图游戏会用程序画的占位图代替，照样能开发、能玩。
 建议至少把 P1 的 40 张做完，游戏前期的画面基本都靠这一批。
@@ -21,7 +27,7 @@
        你用的工具或模型，以及授权。例如：Midjourney v7，付费订阅可商用
    用记事本保存时，"另存为"里的编码选 UTF-8。
 4. 右键这个文件夹，压缩成 zip。zip 文件本身可以叫"美术资产包.zip"。
-5. 按《提示词.txt》的步骤，把 zip 放进游戏项目文件夹，然后启动 Claude。
+5. 按《提示词.txt》的步骤，把 zip 放进工作区文件夹，然后启动 Claude。
    Claude 会自动解压、抠图、按种族上色、对齐，然后截图给你看效果。
    不满意的图，它会告诉你原因，并给出改好的提示词。
 
@@ -48,6 +54,7 @@
 
 三、定调批：先做这 6 张，验证风格和流程
 --------------------------------------
+（GPT 模式下，Claude 第一批就自动生成这 6 张，给你复审。通过后，后面的图会自动参考它们的画风。）
 （可选，但强烈推荐）先生成一张风格参考图，它不用放进资产包：
   提示词：
   character lineup sheet of six creature species for a 2D game, dark biological fantasy, dark naturalist illustration style, a humanoid, a beetle-like insect, a walking mushroom, a wolf-like beast, a floating crystal golem and a hooded ghost, all side view facing right, monochrome grayscale value painting, flat cel shading with one soft highlight, thick uniform near-black outlines, plain flat pure white background, evenly spaced, no ground, no shadow, no text

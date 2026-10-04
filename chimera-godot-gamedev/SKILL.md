@@ -1,6 +1,6 @@
 ---
 name: chimera-godot-gamedev
-description: Build, continue, test, balance and ship the open-source Godot 4.7 game "Chimera Epoch / 奇美拉纪元". It is a gene-evolution roguelike with semi-auto tactics. The player picks a progenitor race, goes on expeditions, defeats other races and bosses to loot genes, tactic cards and units, then fuses genes into new species, builds and wins the run. Use when the user asks to create, continue, playtest, balance, re-art or publish this game, or mentions 基因融合 / 种族进化 / 肉鸽 Build / 奇美拉 / Godot 基因游戏. Ships a verified project template (data-driven sim, fusion, enemy generator, procedural creature visuals, tests, balance simulator, screenshot tool, CI), the design doc, exact system specs, a milestone roadmap and a headless Godot workflow. Also use it when the user provides an art pack (zip or folder of images), uploads art or asks what art is missing (美术资产包 / 导入美术 / 缺什么图 / 美术提示词). The user generates the images from the provided prompts, and Claude unpacks, imports, recolors, aligns and checks them.
+description: Build, continue, test, balance and ship the open-source Godot 4.7 game "Chimera Epoch / 奇美拉纪元", a gene-evolution roguelike with semi-auto tactics (pick a progenitor race, defeat other races and bosses to loot genes, cards and units, fuse genes into new species and builds). Use when the user asks to create, continue, playtest, balance, re-art or publish this game, or mentions 基因融合 / 种族进化 / 肉鸽 Build / 奇美拉 / Godot 基因游戏. Ships a verified project template (data-driven sim, fusion, enemy generator, procedural creature visuals, tests, balance simulator, screenshot tool, CI), the design doc, system specs, a milestone roadmap and a headless Godot workflow. Also use it for the game's art: an art studio that generates images with the user's OpenAI key (GPTapi.txt), has Claude pre-screen the candidates and the user approve them on a review page, and imports art packs the user made (美术资产包 / 导入美术 / 缺什么图 / GPT 生图 / 复审美术).
 ---
 
 # Chimera Epoch：Godot 游戏开发 Skill
@@ -18,28 +18,26 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 5. **基因是行为，不是数值。** 新基因要用"触发器-动作-目标"DSL 表达**玩法**，纯加数值的基因只能是少数。
 6. **一次只做一个里程碑**（见 `references/roadmap.md`）。不要提前做后面里程碑的系统，范围蔓延是这个项目最大的风险。
 7. **对外动作先问用户。** 推送远程仓库、发布到 itch.io/Steam、使用付费或授权不明的素材、确定署名和许可证持有人，都要先征得同意。本地的 git commit 可以自主进行。
-8. **你不能生成图片，美术由用户提供。** 用户通常在开局就带来一个**美术资产包**（zip 或图片文件夹，放在项目文件夹里）。缺少的美术绝不能阻塞开发，程序化占位美术会自动顶上。你的职责有四件：
-   - 导入资产包：`scripts/import_assets.sh`
-   - 按 `references/art-pipeline.md` §4 逐张质检、对齐
-   - 用 `tools/art_audit.gd` 告诉用户还缺什么、哪些要重做，并附上可直接复制的提示词
-   - 新增内容时，同步更新美术清单
+8. **美术有两个来源，缺图永远不阻塞开发**（程序化占位美术会自动顶上）：
+   - **GPT 美术工作室**（工作区里有 `GPTapi.txt`）：用 `scripts/art_studio.sh` 调用 OpenAI 生成候选 → 你先初审 → 用户在审核页面复审 → 只有通过的图才进游戏。严格按 `references/art-studio.md` 执行。**绝不打开 GPTapi.txt，也不复述 Key；每次生成前先把费用告诉用户。**
+   - **手动**：用户自己出图（zip、图片文件夹，或放进 `美术资产/已通过/`）→ `art_studio.sh . sync` 导入 → 按 `references/art-pipeline.md` §4 逐张质检、对齐。
+   - 两种模式下都要：用 `tools/art_audit.gd` 告诉用户还缺什么；新增内容时同步更新美术清单。
 
 ## 1. 每次会话开始（必做，按顺序）
 
-1. **定位项目**
-   - 当前目录或用户给的路径里有 `project.godot`，且 `config/name` 含 "Chimera"：这是续作，进入第 2 步。
-   - 没有项目，并且当前目录基本是空的（只有美术资产包、图片、txt 说明、skill 压缩包或解压后的 skill 文件夹）：**直接在当前目录新建**（`new_project.sh .`），见第 3 节。skill 文件夹会被自动排除（`prepare_root.sh`），不会冲突，也不会被提交。
-   - 没有项目，但当前目录里有别的东西：在 `./chimera-epoch` 新建，然后在当前目录执行 `import_assets.sh ./chimera-epoch ./资产包.zip`（资产包路径相对于当前目录，或者用绝对路径）。
+1. **定位工作区和项目**（当前目录就是工作区）
+   - 有 `游戏/project.godot`：标准布局，项目在 `游戏/`。下文的 `<项目>` 都指 `游戏`，美术车间是 `美术资产/`。
+   - 当前目录自己有 `project.godot`，且 `config/name` 含 "Chimera"：旧的单文件夹布局，`<项目>` 就是 `.`。
+   - 都没有：这是新开局。运行 `bash SKILL_DIR/scripts/setup_workspace.sh .`（见第 3 节），它会建好 `美术资产/` 和 `游戏/`，导入工作区里已有的美术，并报告美术模式。工作区里的 txt、skill 压缩包和解压后的 skill 文件夹都不会被导入，也不会进 git。
 2. **读记忆**：读 `docs/PROGRESS.md`（进度、下一步、已知问题）和 `docs/DECISIONS.md`（已做的决定，不要推翻）。
 3. **找引擎**：运行 `GODOT=$(bash SKILL_DIR/scripts/find_godot.sh)`。
    - 找不到：按 `references/godot-workflow.md` §1 指导用户安装 Godot 4.7.x，然后停下来等用户。没有引擎时写出的代码一律标注"未验证"。
    - Windows 上要使用 `*_console.exe`，普通版 exe 不会把输出打到终端。
-4. **检查美术资产**：出现以下任一情况，都说明用户带来了新素材：
-   - 项目根目录里有 zip 或图片文件夹（名字含 art、asset、image、img、pic、美术、资产、素材、图片、图像）
-   - 项目根目录里有零散的图片
-   - `art_inbox/` 顶层有图片（README.txt、credits.txt 和 `_done/`、`_failed/`、`_packs/` 子文件夹都不算）
-
-   这时先跑 `bash SKILL_DIR/scripts/import_assets.sh <项目>`，再按 art-pipeline §4 质检，然后再继续开发。
+4. **检查美术**：运行 `bash SKILL_DIR/scripts/art_studio.sh . status`，按输出的 `next:` 行处理，然后再继续开发。常见情况：
+   - `result_file=yes`（用户已经提交复审）→ `user-apply` → `sync`
+   - `candidates>0`（候选/ 里有图）→ 你来初审（art-studio §4）
+   - `unsynced>0`，或者工作区里有新的 zip、图片文件夹、零散图片 → `sync`（再按 art-pipeline §4 质检）
+   - `<项目>/art_inbox/` 顶层有图片 → `bash SKILL_DIR/scripts/import_assets.sh <项目>`
 5. **可选的 MCP**：如果会话里有 `mcp__godot__*` 之类的 Godot MCP 工具，可以用来启动编辑器、查看调试输出。但验收永远以 CLI 的 `godot_check.sh` 为准（见 `references/godot-workflow.md` §2）。
 6. 用一两句中文告诉用户：现在在哪个里程碑、这次准备做什么。然后直接开始，不要停下来等确认（除非触发了原则 7）。
 
@@ -62,11 +60,11 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 ## 3. 新项目（M0 引导）
 
 ```bash
-bash SKILL_DIR/scripts/new_project.sh .        # 复制已验证模板 → 有资产包就自动导入 → 全量检查 → 截图 → git init
-bash SKILL_DIR/scripts/godot_check.sh . --balance
+bash SKILL_DIR/scripts/setup_workspace.sh .    # 美术资产/ + 游戏/（复制已验证模板 → 全量检查 → 截图 → git init）→ 导入已有美术 → 报告美术模式（有 Key 时顺便免费检查 Key）
+bash SKILL_DIR/scripts/godot_check.sh 游戏 --balance
 ```
 
-`new_project.sh` 发现资产包时，会自动调用 `import_assets.sh`，依次完成：
+`setup_workspace.sh` 内部调用 `new_project.sh 游戏` 和 `art_studio.sh . sync`。工作区里有资产包时，后者会调用 `import_assets.sh`，依次完成：
 1. 用 Godot 自带的 ZIPReader 解压（Windows 不需要装 unzip）
 2. 抠图、裁边、转灰度
 3. 注册到 Godot
@@ -74,7 +72,7 @@ bash SKILL_DIR/scripts/godot_check.sh . --balance
 5. 运行全量检查
 6. 截 4 张图：美术检查台三页（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`）和基因实验室（`screenshots/main.png`）。没有资产包时也会截图，只是显示占位美术。
 
-资产包会被移到 `art_inbox/_packs/`，不会重复导入。新项目会设置仓库级的 git 身份（只在用户没有配置时），所以后续的 commit 不会失败。
+导入过的包会被移进 `美术资产/_已导入的包/`，不会重复导入。新项目会设置仓库级的 git 身份（只在用户没有配置时），所以后续的 commit 不会失败。
 
 模板已经包含：
 - 内容：6 个种族、13 个单位模板、28 个基因、8 张战术卡、3 个生态区、6 个精英协同、1 个 Boss、3 个隐藏配方
@@ -83,14 +81,14 @@ bash SKILL_DIR/scripts/godot_check.sh . --balance
 - 工具：完整的单元测试、平衡模拟、截图工具、GitHub Actions CI
 
 **M0 完成时必须做的事**：
-1. 用 Read 打开 4 张截图（检查台三页加基因实验室）。
-2. 按 art-pipeline §4、§5 逐项质检：文件名不认识的图片，要看图后改名，再重跑 `import_assets.sh`；错位的部件改 sidecar json，改完重新截图。
-3. 向用户汇报：
-   - 导入了多少张，各类资产的覆盖率（P1、P2、P3）
-   - **需要重做的图**，附上改好的完整提示词
-   - 还缺的 P1 资产，列前 10 项
-   - 4 张截图的路径（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`main.png`）
-4. 然后直接开始 M1，不要等美术，缺的图会用占位美术代替。
+1. 用 Read 打开 4 张截图（`游戏/screenshots/` 里的检查台三页加基因实验室）。
+2. 用户带了自己的美术：按 art-pipeline §4、§5 逐项质检。文件名不认识的图，看图后在 `游戏/art_inbox/` 里改名，再重跑 `import_assets.sh 游戏`；错位的部件改 sidecar json，改完重新截图。
+3. **有 GPTapi.txt（GPT 模式）**：`setup_workspace.sh` 的输出里有 Key 检查结果。接着跑 `art_studio.sh . plan anchor`，把定调批（6 张）的费用告诉用户，用户同意后按 art-studio §2 生成 → 初审 → 试装 → `serve`。用户复审期间不要等，直接开始 M1。
+4. 向用户汇报：
+   - 美术模式（GPT / 手动），已有资产的覆盖率（P1、P2、P3）
+   - 手动模式下：**需要重做的图**（附改好的完整提示词）、还缺的 P1 资产（列前 10 项）
+   - 4 张截图的路径
+5. 然后直接开始 M1，不要等美术，缺的图会用占位美术代替。
 
 ## 4. 架构速览（细节见 `references/systems-spec.md`）
 
@@ -132,10 +130,11 @@ autoload：Data（Data.db）、Rng（运行期随机流）
 ## 7. 美术、平衡与开源（各自的 reference 是详细规范）
 
 - **美术**（`visual-system.md` 和 `art-pipeline.md`）：
-  - 用户负责出图，你负责导入、适配和质检。
+  - GPT 模式下由你生成并初审，用户只做复审；手动模式下用户出图。导入、适配和质检都是你的事。
+  - 耗时的命令要用 run_in_background：`art_studio.sh . serve` 必须如此，超过 5 项的 `gen` 也要这样跑。
   - 部件和骨架用灰度图，由 `part_palette` shader 上色：骨架用宿主的种族配色；部件保留来源种族的颜色，再混入 25% 的宿主底色，所以既认得出来源又协调。这是设计如此。
   - 每次导入后，美术检查台三页都要截图并亲眼看；对齐问题只改 sidecar json，不改代码。
-  - 用户说"导入美术"、"我上传了图"、"缺什么图"时，严格按 art-pipeline §4 执行。
+  - 用户说"导入美术"、"我上传了图"、"缺什么图"时，严格按 art-pipeline §4 执行；说"生成美术"、"复审好了"、"继续出图"时，按 art-studio §2 执行。
   - 汇报时必须列出：需要重做的图（附改好的完整提示词）、还缺的 P1 资产。
   - 新增部件、骨架、生态区、卡牌、Boss 时，同步在 `data/art_manifest.json` 里加条目（test_data 会检查）。
 - **平衡与随机**（`balance-and-rng.md`）：每次改数值都要跑 balance_sim，按目标区间调整。调参优先改 amount，其次 trigger/target，最后才是 stats。随机原则是"输入随机、输出确定"：随机的是给玩家的选项，选项的结果是确定的。
@@ -149,6 +148,7 @@ autoload：Data（Data.db）、Rng（运行期随机流）
 | `references/systems-spec.md` | 改战斗、基因、融合、敌人、存档、数据格式时（以它为准） |
 | `references/roadmap.md` | 每次会话开始时确认里程碑；拆任务；判断里程碑是否完成 |
 | `references/visual-system.md` | 做任何画面、UI、动画、卡面时 |
+| `references/art-studio.md` | 工作区有 GPTapi.txt；生成、初审、复审、同步美术；处理 OpenAI 报错和费用 |
 | `references/art-pipeline.md` | 用户上传了图片或者问缺什么图；导入、对齐、质检；新增内容需要同步美术清单时 |
 | `references/balance-and-rng.md` | 改数值、奖励、地图生成、难度时 |
 | `references/godot-workflow.md` | 安装或连接 Godot、命令行用法、MCP、GDScript 坑、导出、排错 |

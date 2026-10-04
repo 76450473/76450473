@@ -23,7 +23,8 @@ M0 地基（模板自带，已验证）→ 下一步：M1 可玩的一场战斗
 
 ## 美术资产
 - 进度见 `tools/art_audit.gd` 输出（当前 P1 0/40 · P2 0/38 · P3 0/4），缺失清单与提示词在 docs/ART_TODO.md
-- 用户的美术资产包（zip 或文件夹）放在项目根目录，或者图片放进 art_inbox/，执行 skill 的 scripts/import_assets.sh 后按 references/art-pipeline.md §4 质检
+- GPT 模式（工作区有 GPTapi.txt）：skill 的 scripts/art_studio.sh 生成 → Claude 初审 → 用户复审 → sync，见 references/art-studio.md
+- 手动模式：资产包（zip 或文件夹）放在工作区，或者图片放进 美术资产/已通过/，执行 art_studio.sh . sync 后按 references/art-pipeline.md §4 质检
 
 ## 已知问题 / 技术债
 - 平衡（godot_check --balance，n=400，seed=1）→ M3 首个调参任务：

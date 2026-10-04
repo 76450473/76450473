@@ -22,6 +22,7 @@ func _initialize() -> void:
 	var inbox := ProjectSettings.globalize_path("res://art_inbox")
 	DirAccess.make_dir_recursive_absolute(inbox)
 	var credit := _read_credit(inbox)
+	var per_file := _per_file_credits(inbox)
 	var imported := 0
 	var unknown: PackedStringArray = []
 	var failed: PackedStringArray = []
@@ -57,7 +58,7 @@ func _initialize() -> void:
 			DirAccess.make_dir_recursive_absolute(out_png.get_base_dir())
 			out_img.save_png(out_png)
 			var md5 := FileAccess.get_md5(inbox.path_join(f))
-			var file_credit := _previous_credit(out_png.get_basename() + ".json", md5, credit)
+			var file_credit := _previous_credit(out_png.get_basename() + ".json", md5, str(per_file.get(f, credit)))
 			_write_sidecar(out_png.get_basename() + ".json", entry, res, f, file_credit)
 			_set_sidecar_key(out_png.get_basename() + ".json", "source_md5", md5)
 			_append_credit(entry.path.trim_prefix("res://"), file_credit)
@@ -131,6 +132,16 @@ func _load_image(path: String) -> Image:
 	elif bytes.slice(0, 4).get_string_from_ascii() == "RIFF" and bytes.slice(8, 12).get_string_from_ascii() == "WEBP":
 		err = img.load_webp_from_buffer(bytes)
 	return img if err == OK else null
+
+
+## art_studio.gd writes art_inbox/credits.json {file name: credit} for the images it syncs from the
+## workspace (GPT-made vs. the user's own); those per-file entries beat credits.txt.
+func _per_file_credits(inbox: String) -> Dictionary:
+	var p := inbox.path_join("credits.json")
+	if not FileAccess.file_exists(p):
+		return {}
+	var v: Variant = JSON.parse_string(FileAccess.get_file_as_string(p))
+	return v if v is Dictionary else {}
 
 
 ## The NEWEST credit line wins (unpack_assets.gd puts the latest pack's line last).
