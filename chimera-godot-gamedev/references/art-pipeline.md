@@ -25,7 +25,7 @@ Claude 自己不能生成图片，本项目也不调用任何生图 API。分工
 |---|---|
 | `data/art_manifest.json` | 唯一的真相源。定义风格锁定提示词、各族形状语言、每个部件、骨架、图标和背景的主体描述、挂点、锚点、显示高度 |
 | `src/art/art_manifest.gd` | 把 manifest 和游戏数据（基因部件、骨架、生态区、卡牌、Boss）**推导**成完整的资产列表，共 88 项（含 6 个敌方反派骨架）；能输出 Markdown 格式的提示词书 |
-| `tools/art_audit.gd` | 每次运行都重新生成四份文件：`docs/ART_TODO.md`（缺失资产 + 提示词）、`docs/ART_PROMPTS.md`（全部资产）、`docs/ART_PROMPTS.txt`（纯文本版，就是《美术资产清单与提示词.txt》第七节）、`docs/ART_REQUEST_GPT.txt`（缺失部分的补图请求，用户粘贴到 ChatGPT 项目里）。加 `-- p1` 只看 P1 缺口 |
+| `tools/art_audit.gd` | 每次运行都重新生成四份文件：`docs/ART_TODO.md`（缺失资产 + 提示词）、`docs/ART_PROMPTS.md`（全部资产）、`docs/ART_PROMPTS.txt`（纯文本版，就是《美术资产清单与提示词.txt》第七节）、`docs/ART_REQUEST_GPT.txt`（缺失部分的补图请求，用户粘贴到 ChatGPT 项目里）。加 `-- p1` 只看 P1 缺口；换风格后加 `-- restyle`，补图请求列出全部资产（§8） |
 | `tools/unpack_assets.gd` | 用 Godot 的 ZIPReader 解压资产包（不依赖 unzip），也支持文件夹：把图片和 credits.txt 平铺放进 `art_inbox/`；会跳过 `__MACOSX` 目录、隐藏文件，以及内含 SKILL.md 的 zip |
 | `scripts/import_assets.sh`（skill 自带） | **一键导入**：自动发现资产包 → 解压 → 导入 → 注册 → 统计缺失 → 全量检查 → 截 5 张图（检查台四页加主场景）→ 把资产包移到 `art_inbox/_packs/`（重名时自动加编号） |
 | `scripts/prepare_root.sh`（skill 自带） | 项目根目录里如果有解压后的 skill 文件夹（或其他含 project.godot 的文件夹），给它加 `.gdignore`，并写进 `.gitignore`，避免类名冲突、避免被提交 |
@@ -86,7 +86,9 @@ Claude 自己不能生成图片，本项目也不调用任何生图 API。分工
    - **需要重做的**和原因
    - 还缺多少项（P1、P2、P3）
    - **一段补图请求**（§7 的格式），让用户整段复制到 ChatGPT 项目里：缺失的取 `docs/ART_REQUEST_GPT.txt`，再加上要重做的。缺得很多时，建议先补 P1。
-   - 用户还在 ChatGPT 里按顺序生产（交来的是定调批、P1 或"分批"的一部分）时，不要把几十项缺失都塞进补图请求：补图请求只写**要重做的**；缺失的告诉用户"在 GPT 里说『继续』接着做就行"，完整的缺失请求留在 `docs/ART_REQUEST_GPT.txt`，等主线做完再用。
+   - 用户还在 ChatGPT 里按顺序生产（交来的是定调批、P1 或"分批"的一部分）时，不要把几十项缺失都塞进补图请求：补图请求只写**要重做的**；缺失的告诉用户"在 GPT 里发『继续』和最后的接力码接着做就行"，完整的缺失请求留在 `docs/ART_REQUEST_GPT.txt`，等主线做完再用。**例外**：清单刚变过（§8，用户的旧接力码作废了）时，补图请求要包含全部缺失项。
+   - 用户还一张图都没做过（没有资产包）时，不给补图请求：让用户按《GPT使用说明.txt》建好 ChatGPT 项目，发"开始"。
+   - 提醒用户：补好的图也要复制进他的 art_pack 覆盖旧图，否则以后整包再交来时旧图会盖回去。导入后发现以前重做过的图又变回了旧图（截图里的老毛病又出现），先问用户是不是把旧的 art_pack 整包又交了一次。
 10. 在 PROGRESS.md 的"美术资产"一节更新进度，然后 git commit（提交 `art/`、`CREDITS.md`、`docs/ART_TODO.md`、`docs/ART_PROMPTS.md`、`docs/ART_PROMPTS.txt`、`docs/ART_REQUEST_GPT.txt`；`art_inbox/` 已被 gitignore）。
 
 ## 5. 质检：看图与看截图
@@ -165,7 +167,7 @@ Claude 自己不能生成图片，本项目也不调用任何生图 API。分工
 - 新骨架、新生态区、新卡牌、新 Boss 也同理：在 manifest 对应的节里加一条。
 - 加完后跑 `art_audit.gd`。新的缺失项会带着提示词出现在 `docs/ART_TODO.md` 里，也会进 `docs/ART_REQUEST_GPT.txt`。
 - **清单一变（新增条目、换风格、改提示词），用户 ChatGPT 项目里的旧清单就过时了**，编号也可能整体后移。汇报时告诉用户：把游戏文件夹里的 `docs/ART_PROMPTS.txt` 上传到 ChatGPT 项目的文件里（项目指令规定：项目里有 ART_PROMPTS.txt 时，逐项提示词和编号以它为准，只按文件名查；以后再更新就删掉旧的再传），以前存的接力码作废，然后再贴补图请求。ART_PROMPTS.txt 开头写着总数、定调批和风格参考图提示词（`style.reference_sheet`）。
-- **换风格时**还要同步改 `style.reference_sheet`（风格参考图提示词），并在补图请求第二行后面加一句："风格已更换：旧的风格参考图和已通过的旧图都不要再参照，先按 ART_PROMPTS.txt 开头重新出风格参考图和定调批，请我确认后再做下面的项。"
+- **换风格时**还要同步改 `style.reference_sheet`（风格参考图提示词），然后运行 `godot --headless --path . --script res://tools/art_audit.gd -- restyle`：这时 `docs/ART_REQUEST_GPT.txt` 会列出**全部**资产（"重做：风格已更换"，旧图虽然还在也要重做），第三行带"风格已更换"的说明，GPT 会先重新定调再逐项重做。把这一段和 ART_PROMPTS.txt 一起交给用户。注意之后任何不带 `restyle` 的 art_audit（包括 `import_assets.sh`、`godot_check.sh` 里自动跑的）都会把这个文件改回只列缺失项，所以要在交给用户之前最后跑一次。
 
 ## 9. 授权与入库
 

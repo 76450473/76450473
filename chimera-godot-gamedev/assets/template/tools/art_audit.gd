@@ -5,6 +5,7 @@ extends SceneTree
 ##   docs/ART_TODO.md (missing only) · docs/ART_PROMPTS.md (every asset) · docs/ART_PROMPTS.txt (every asset, plain text)
 ##   docs/ART_REQUEST_GPT.txt (missing only, a short request the user pastes into their ChatGPT project)
 ##   ... -- p1   -> ART_TODO.md and ART_REQUEST_GPT.txt limited to priority 1   (legacy "-- full" / "-- txt" are accepted and ignored)
+##   ... -- restyle -> after a style change: ART_REQUEST_GPT.txt asks for EVERY asset ("重做：风格已更换")
 ## The list is derived from game data, so new genes/biomes/cards show up here automatically.
 
 const INTRO := """怎么用：
@@ -23,6 +24,7 @@ const INTRO := """怎么用：
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	var only_p1 := args.has("p1")
+	var restyle := args.has("restyle")
 	var db := GameData.load_default()
 	var entries := ArtManifest.build(db)
 	var counts := {}
@@ -45,7 +47,13 @@ func _initialize() -> void:
 	_write("docs/ART_TODO.md", ArtManifest.to_markdown(missing, "缺失的美术资产（%d 项）" % missing.size(), intro))
 	_write("docs/ART_PROMPTS.md", ArtManifest.to_markdown(entries, "美术资产提示词（全部 %d 项）" % entries.size(), intro))
 	_write("docs/ART_PROMPTS.txt", ArtManifest.to_text(entries, db.art))
-	_write("docs/ART_REQUEST_GPT.txt", ArtManifest.to_gpt_request(entries, missing, {}))
+	if restyle:
+		var reasons := {}
+		for e: Dictionary in entries:
+			reasons[e.id] = "风格已更换"
+		_write("docs/ART_REQUEST_GPT.txt", ArtManifest.to_gpt_request(entries, entries, reasons, ArtManifest.RESTYLE_NOTE))
+	else:
+		_write("docs/ART_REQUEST_GPT.txt", ArtManifest.to_gpt_request(entries, missing, {}))
 	var out_rel := "docs/ART_TODO.md"
 	print("art coverage: ", "  ".join(summary))
 	print("missing: %d  -> %s" % [missing.size(), out_rel])

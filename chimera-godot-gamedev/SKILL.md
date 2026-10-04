@@ -89,7 +89,7 @@ bash SKILL_DIR/scripts/godot_check.sh . --balance
    - 导入了多少张，各类资产的覆盖率（P1、P2、P3）
    - **需要重做的图**和原因
    - 还缺的资产数量
-   - 一段**补图请求**（art-pipeline §7 的格式，缺失部分直接取 `docs/ART_REQUEST_GPT.txt`），让用户复制到 ChatGPT 项目里生产。用户只交了一部分、还在 GPT 里按顺序做时，补图请求只写要重做的，缺失的让用户在 GPT 里说"继续"（art-pipeline §4 第 9 步）
+   - 一段**补图请求**（art-pipeline §7 的格式，缺失部分直接取 `docs/ART_REQUEST_GPT.txt`），让用户复制到 ChatGPT 项目里生产。用户只交了一部分、还在 GPT 里按顺序做时，补图请求只写要重做的，缺失的让用户在 GPT 里发"继续"加接力码；还没有资产包时不给补图请求，让用户按《GPT使用说明.txt》在 ChatGPT 项目里发"开始"（art-pipeline §4 第 9 步）
    - 5 张截图的路径（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`art_enemies.png`、`main.png`）
 4. 然后直接开始 M1，不要等美术，缺的图会用占位美术代替。
 

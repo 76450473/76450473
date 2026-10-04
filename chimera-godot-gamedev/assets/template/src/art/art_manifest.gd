@@ -237,15 +237,17 @@ static func to_text(entries: Array, art: Dictionary = {}) -> String:
 ## A short request the user pastes into their ChatGPT project (which already holds the full list
 ## 《美术资产清单与提示词.txt》): file name + list number 【n】 + name + why (missing / redo reason).
 ## all_entries: the full ordered list (numbering = to_text order); wanted: entries to request;
-## reasons: {asset_id: "重做原因"} (absent = 缺失).
-static func to_gpt_request(all_entries: Array, wanted: Array, reasons: Dictionary) -> String:
+## reasons: {asset_id: "重做原因"} (absent = 缺失). note: an extra line under the header (e.g. RESTYLE_NOTE).
+static func to_gpt_request(all_entries: Array, wanted: Array, reasons: Dictionary, note: String = "") -> String:
 	var number := {}
 	for i in all_entries.size():
 		number[(all_entries[i] as Dictionary).id] = i + 1
 	var lines := PackedStringArray([
 		"【补图请求】来自 Claude（《奇美拉纪元》）",
-		"请按项目指令和项目里的清单（有 ART_PROMPTS.txt 时以它为准）生产下面这些资产：每项照常自检、请我确认。文件名必须和下面完全一致。",
-		""])
+		"请按项目指令和项目里的清单（有 ART_PROMPTS.txt 时以它为准）生产下面这些资产：每项照常自检、请我确认。文件名必须和下面完全一致。"])
+	if note != "":
+		lines.append(note)
+	lines.append("")
 	var n := 0
 	for e: Dictionary in wanted:
 		n += 1
@@ -255,6 +257,10 @@ static func to_gpt_request(all_entries: Array, wanted: Array, reasons: Dictionar
 	lines.append("")
 	lines.append("（共 %d 项。全部确认后，把图片按上面的文件名保存，打包成 zip 发给 Claude。）" % n)
 	return "\n".join(lines)
+
+
+## Line GPT项目指令 §九 reacts to: redo the style reference + 定调批 once, then the listed items.
+const RESTYLE_NOTE := "风格已更换：旧的风格参考图和已通过的旧图都不要再参照，先按 ART_PROMPTS.txt 开头重新出风格参考图和定调批，请我确认后再做下面的项。"
 
 
 const MODE_CN := {"palette": "灰度（游戏内自动上色，只有发光处用鲜绿）", "mono": "白色剪影图标",

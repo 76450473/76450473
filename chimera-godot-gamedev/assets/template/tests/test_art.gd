@@ -191,6 +191,9 @@ func test_gpt_request_lists_numbers_and_reasons() -> void:
 	check(req.contains("重做：背景有阴影"), "redo reason shown")
 	check(req.contains("body_biped.png") and req.contains("缺失"), "missing item shown")
 	check(req.contains("共 2 项"), "count")
+	var restyle := ArtManifest.to_gpt_request(entries, entries, {"part_sac": "风格已更换"}, ArtManifest.RESTYLE_NOTE)
+	check(restyle.split("\n")[2].begins_with("风格已更换"), "restyle note sits right under the header")
+	check(restyle.contains("共 %d 项" % entries.size()), "restyle request lists every asset")
 
 
 func test_prompt_text_header_for_chatgpt() -> void:

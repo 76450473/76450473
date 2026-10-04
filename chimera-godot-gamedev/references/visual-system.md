@@ -91,7 +91,7 @@
 
 ## 8. AI 生成美术：风格锁定
 
-- 风格锁定文本、反向提示词、各族的形状语言、每项资产的主体描述，都写在 `data/art_manifest.json` 的 style、race_art、parts 等节里。**改风格只改这里**，然后运行 `art_audit.gd`，它会重新生成 `docs/ART_TODO.md`、`docs/ART_PROMPTS.md`、`docs/ART_PROMPTS.txt` 和 `docs/ART_REQUEST_GPT.txt`。风格参考图的提示词在 `style.reference_sheet`。
+- 风格锁定文本、反向提示词、各族的形状语言、每项资产的主体描述，都写在 `data/art_manifest.json` 的 style、race_art、parts 等节里。**改风格只改这里**（包括 `style.reference_sheet`），然后运行 `art_audit.gd -- restyle`（补图请求会列出全部资产，见 art-pipeline §8），它会重新生成 `docs/ART_TODO.md`、`docs/ART_PROMPTS.md`、`docs/ART_PROMPTS.txt` 和 `docs/ART_REQUEST_GPT.txt`。风格参考图的提示词在 `style.reference_sheet`。
 - 提示词规则：
   - 角色：3/4 侧身朝右的全身立绘，成年人，竖版 2:3；部件：单个配饰，不带人和手；纯白平底背景（真正的透明背景也行，但 ChatGPT 的"透明"常是画出来的假棋盘格，不要用），图标用纯黑平底；主体占满画面。
   - 不出现在世艺术家的名字或商业 IP。参考作品只用文字描述它的审美（例如"仙侠游戏立绘、汉服式长裙、高开衩"），不在提示词里写游戏名。
