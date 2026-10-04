@@ -42,7 +42,7 @@ ART_ASSETS.json        （可能有）用户放进来的新清单，见 SKILL.md
 
 - `phase`：`style`（选画风）→ `anchor`（定调批）→ `bulk`（批量）→ `done`。补图时临时是 `fix`，做完回到原来的阶段。
 - `items.<id>.status`：`todo` 待做 · `review` 已出图等用户审 · `redo` 要重画 · `approved` 已通过（已复制进 art_pack）· `skipped` 跳过。
-- `review`：当前审核页这一批的 `id` 和编号列表。用户还没贴回审核结果时，"继续"要先提醒他审这一批，不要开新批。
+- `review`：当前这一批的 `id` 和编号列表。**一批开始出图时就写好**（`id` 如 "第3批"，`items` 是这批的编号），出图中途被打断，下次"继续"就把这批剩下的做完再出审核页。审核页已经出了、用户还没贴回审核结果时，"继续"要先提醒他审这一批，不要开新批。
 - `candidates` 里存候选图的相对路径，`pick` 是首选的下标；`notes` 是用户和你的修改意见（英文），重画时都要用上。
 - 每出一张图 `images_generated` 加 1。每完成一项就保存一次文件。
 
@@ -60,7 +60,6 @@ Copy-Item -LiteralPath "<image_gen 给的路径>" -Destination "candidates\part_
 Copy-Item -LiteralPath "candidates\part_sac__v1.png" -Destination "art_pack\part_sac.png" -Force
 Compress-Archive -Path art_pack\* -DestinationPath outbox\art_pack.zip -Force
 Compress-Archive -LiteralPath art_pack\part_sac.png, art_pack\credits.txt -DestinationPath outbox\fix_01.zip -Force
-Start-Process .\review.html
 ```
 
 macOS / Linux：
@@ -69,8 +68,8 @@ macOS / Linux：
 mkdir -p art_pack candidates style outbox state
 cp "<image_gen 给的路径>" candidates/part_sac__v1.png
 (cd art_pack && zip -q -j ../outbox/art_pack.zip ./*)
-open review.html        # Linux: xdg-open review.html
 ```
 
 写 JSON 和 `review_data.js` 时用 UTF-8（PowerShell 5 里用 `Set-Content -Encoding UTF8`，或者直接用你的文件编辑工具）。
-打不开审核页（沙盒不让启动浏览器）时，告诉用户："请在文件夹里双击 review.html。"
+Windows 上通常没有 Python，只用 PowerShell 和你的文件工具，不要装东西。`Compress-Archive` 只压平铺的文件（不要压子文件夹）。
+不要用命令打开审核页（沙盒里打开的浏览器窗口用户看不见）：告诉用户 `review.html` 的完整路径，请他双击打开。

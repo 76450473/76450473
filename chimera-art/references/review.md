@@ -2,7 +2,7 @@
 
 ## 生成审核页
 
-审核页是工作区根目录的 `review.html`（第一次从本技能的 `assets/review.html` 复制过来，不要改它）。每一批只需要重写同目录的 `review_data.js`，然后打开 `review.html`（打开方法见 workspace.md）。
+审核页是工作区根目录的 `review.html`（第一次从本技能的 `assets/review.html` 复制过来，不要改它）。每一批只需要重写同目录的 `review_data.js`，然后请用户双击打开 `review.html`（已经开着的按 F5 刷新）。不要用命令打开浏览器。
 
 `review_data.js` 的内容（UTF-8；路径都相对于工作区根目录，用正斜杠）：
 
