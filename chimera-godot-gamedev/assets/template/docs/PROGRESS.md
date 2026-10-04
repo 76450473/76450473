@@ -23,7 +23,7 @@ M0 地基（模板自带，已验证）→ 下一步：M1 可玩的一场战斗
 2. M1：PlayerController（begin_round / play_card / resolve_round）+ 胜负界面 + 主菜单"快速战斗"入口；打包 OFL 中文字体 + ui/theme.tres
 
 ## 美术资产
-- 进度见 `tools/art_audit.gd` 输出（当前 P1 0/40 · P2 0/38 · P3 0/4），缺失清单与提示词在 docs/ART_TODO.md
+- 进度见 `tools/art_audit.gd` 输出（当前 P1 0/42 · P2 0/42 · P3 0/4），缺失清单与提示词在 docs/ART_TODO.md
 - 用户在自己的 ChatGPT 项目里生产美术（GPT 先自检、用户确认），打包成 zip 放进项目根目录（或图片放进 art_inbox/），执行 skill 的 scripts/import_assets.sh 后按 references/art-pipeline.md §4 质检；缺图和瑕疵图用补图请求（art-pipeline §7）向用户要
 
 ## 已知问题 / 技术债

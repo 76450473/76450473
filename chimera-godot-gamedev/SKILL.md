@@ -18,7 +18,7 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 5. **基因是行为，不是数值。** 新基因要用"触发器-动作-目标"DSL 表达**玩法**，纯加数值的基因只能是少数。
 6. **一次只做一个里程碑**（见 `references/roadmap.md`）。不要提前做后面里程碑的系统，范围蔓延是这个项目最大的风险。
 7. **对外动作先问用户。** 推送远程仓库、发布到 itch.io/Steam、使用付费或授权不明的素材、确定署名和许可证持有人，都要先征得同意。本地的 git commit 可以自主进行。
-8. **你不能生成图片，美术由用户提供。** 用户在自己的 ChatGPT 项目里按《美术资产清单与提示词.txt》批量生产（GPT 先自检、用户再确认），然后打包成**美术资产包**（zip 或图片文件夹）放进项目文件夹交给你。本项目不调用任何生图 API。缺图永远不阻塞开发，程序化占位美术会自动顶上。你的职责：
+8. **你不能生成图片，美术由用户提供。** 用户在自己的 ChatGPT 项目里按《美术资产清单与提示词.txt》批量生产（GPT 自检、用户确认），然后打包成**美术资产包**（zip 或图片文件夹）放进项目文件夹交给你。本项目不调用任何生图 API。缺图永远不阻塞开发，程序化占位美术会自动顶上。你的职责：
    - 导入资产包：`scripts/import_assets.sh`
    - 按 `references/art-pipeline.md` §4 逐张质检、对齐
    - **缺图或有瑕疵时主动向用户要**：给一段可以直接粘贴到 ChatGPT 项目里的补图请求（`docs/ART_REQUEST_GPT.txt` 是缺失部分；有瑕疵的按 art-pipeline §7 加上重做原因）
@@ -35,7 +35,7 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
    - 找不到：按 `references/godot-workflow.md` §1 指导用户安装 Godot 4.7.x，然后停下来等用户。没有引擎时写出的代码一律标注"未验证"。
    - Windows 上要使用 `*_console.exe`，普通版 exe 不会把输出打到终端。
 4. **检查美术资产**：出现以下任一情况，都说明用户带来了新素材：
-   - 项目根目录里有 zip 或图片文件夹（名字含 art、asset、image、img、pic、美术、资产、素材、图片、图像）
+   - 项目根目录里有任何 zip（skill 包 chimera-godot-gamedev*.zip 和「给Claude的文件 / 给GPT的文件」打包除外，例如 补图1.zip），或图片文件夹（名字含 art、asset、image、img、pic、美术、资产、素材、图片、图像）
    - 项目根目录里有零散的图片
    - `art_inbox/` 顶层有图片（README.txt、credits.txt 和 `_done/`、`_failed/`、`_packs/` 子文件夹都不算）
 
@@ -89,7 +89,7 @@ bash SKILL_DIR/scripts/godot_check.sh . --balance
    - 导入了多少张，各类资产的覆盖率（P1、P2、P3）
    - **需要重做的图**和原因
    - 还缺的资产数量
-   - 一段**补图请求**（art-pipeline §7 的格式，缺失部分直接取 `docs/ART_REQUEST_GPT.txt`），让用户复制到 ChatGPT 项目里生产
+   - 一段**补图请求**（art-pipeline §7 的格式，缺失部分直接取 `docs/ART_REQUEST_GPT.txt`），让用户复制到 ChatGPT 项目里生产。用户只交了一部分、还在 GPT 里按顺序做时，补图请求只写要重做的，缺失的让用户在 GPT 里说"继续"（art-pipeline §4 第 9 步）
    - 5 张截图的路径（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`art_enemies.png`、`main.png`）
 4. 然后直接开始 M1，不要等美术，缺的图会用占位美术代替。
 

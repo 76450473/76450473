@@ -1,7 +1,7 @@
 # 美术协作管线：用户出图 → Claude 导入与适配
 
 Claude 自己不能生成图片，本项目也不调用任何生图 API。分工如下：
-- **用户**：在自己的 ChatGPT 项目里（按《GPT使用说明.txt》设置一次），用《美术资产清单与提示词.txt》批量生产。GPT 每张先自检，用户再确认，全部通过后打包成一个 zip 资产包，放进项目文件夹。也可以用其他任何 AI 生图工具。之后补图时，可以再给一个新的 zip，或者直接把图片放进 `art_inbox/`。
+- **用户**：在自己的 ChatGPT 项目里（按《GPT使用说明.txt》设置一次），用《美术资产清单与提示词.txt》批量生产。GPT 每张自检、用户确认，全部通过后打包成一个 zip 资产包，放进项目文件夹。也可以用其他任何 AI 生图工具。之后补图时，可以再给一个新的 zip，或者直接把图片放进 `art_inbox/`。
 - **Claude**：抠图、裁边、缩放、计算挂点、对齐插槽、截图检查。告诉用户哪些图要重做、还缺什么，并给出一段**可以直接粘贴到 ChatGPT 项目里的补图请求**（§7）。
 
 缺失的资产永远回退到程序化占位美术，所以**任何时候游戏都能运行**，美术可以一张一张地补。
@@ -80,19 +80,20 @@ Claude 自己不能生成图片，本项目也不调用任何生图 API。分工
 5. **截图检查**：第 1 步已经截好 5 张图（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`art_enemies.png`、`main.png`）。用 Read 看截图。四页检查台都要看：第 1 页是我方骨架和图标，第 2 页是全部部件，第 3 页是背景、界面、Boss、卡图，第 4 页是敌方反派。最后再对比主场景。
 6. **对齐**：部件错位或者大小不对，就按 §6 修改 sidecar json，然后**重新截图**确认，直到通过为止。最简单的方法是重跑 `bash SKILL_DIR/scripts/import_assets.sh <项目>`（不带资产包参数）：没有新图时，它也会重新截 5 张图。只想重截某一页时，用 `bash SKILL_DIR/scripts/screenshot.sh <项目> res://scenes/art_parts.tscn screenshots/art_parts.png`（第 1、3、4 页对应 art_gallery.tscn、art_images.tscn、art_enemies.tscn）。
 7. **跑全部检查**：`godot_check.sh`。截图是用来看画面效果的，测试是用来确认没有坏掉的，两者都要做。
-8. **重新生成缺失清单**：`godot --headless --path . --script res://tools/art_audit.gd`（同时刷新 ART_TODO.md、ART_PROMPTS.md、ART_PROMPTS.txt）。
+8. **重新生成缺失清单**：`godot --headless --path . --script res://tools/art_audit.gd`（同时刷新 ART_TODO.md、ART_PROMPTS.md、ART_PROMPTS.txt、ART_REQUEST_GPT.txt）。加 `-- p1` 时 ART_TODO.md 和 ART_REQUEST_GPT.txt 都只列 P1；`import_assets.sh`、`godot_check.sh` 会不带 p1 重跑它，所以要给用户 P1 补图请求时，最后再跑一次 `-- p1` 再取文件。
 9. **汇报**（中文）：
    - 本次导入了哪些（附检查台截图路径）
    - **需要重做的**和原因
    - 还缺多少项（P1、P2、P3）
    - **一段补图请求**（§7 的格式），让用户整段复制到 ChatGPT 项目里：缺失的取 `docs/ART_REQUEST_GPT.txt`，再加上要重做的。缺得很多时，建议先补 P1。
+   - 用户还在 ChatGPT 里按顺序生产（交来的是定调批、P1 或"分批"的一部分）时，不要把几十项缺失都塞进补图请求：补图请求只写**要重做的**；缺失的告诉用户"在 GPT 里说『继续』接着做就行"，完整的缺失请求留在 `docs/ART_REQUEST_GPT.txt`，等主线做完再用。
 10. 在 PROGRESS.md 的"美术资产"一节更新进度，然后 git commit（提交 `art/`、`CREDITS.md`、`docs/ART_TODO.md`、`docs/ART_PROMPTS.md`、`docs/ART_PROMPTS.txt`、`docs/ART_REQUEST_GPT.txt`；`art_inbox/` 已被 gitignore）。
 
 ## 5. 质检：看图与看截图
 
 导入前看原图，以下任何一条不满足就请用户重做：
 - 主体对不对，是不是**只有一个物件**。
-- 朝向：角色立绘（我方和反派）是 3/4 侧身朝右，部件也朝右，Boss 是朝左。图标、背景、卡图、界面不要求朝向。
+- 朝向：角色立绘（我方和反派）是 3/4 侧身朝右，Boss 是朝左；部件按提示词写的方向（多数朝右，獠牙、冠饰等有自己的方向）。图标、背景、卡图、界面不要求朝向。
 - **角色立绘**：
   - 一眼是成年人（不能有低龄感），服装性感但不裸露；
   - 脸和眼睛好看，手指和四肢没有画崩；
@@ -138,15 +139,15 @@ Claude 自己不能生成图片，本项目也不调用任何生图 API。分工
 | 主体只有 N 像素，放大后会糊 | 主体在原图里占比太小 | 同上，或者用 1024 以上的分辨率生成 |
 | 彩色面积偏大 | 只在 palette（灰度）模式下出现 | 强调 `strictly grayscale`；默认的 cutout 模式不会有这个警告 |
 | 角色看起来太年轻、像小孩 | 二次元模型的常见倾向 | 在 Character 里写明 `adult woman in her mid-twenties, mature face and proportions, tall`；反向提示词里已有 child、loli、chibi |
-| 被安全系统拦截 | 服装描述太暴露 | 换成有分寸的写法：`elegant high side slit`、`off-shoulder`、`fitted corset bodice`，去掉直接描写身体的词 |
+| 被安全系统拦截 | 服装描述太暴露 | 换成更含蓄的写法（和 GPT项目指令.txt 第八节一致）：`elegant side slit`、`long elegant sleeves`、`modest elegant neckline`、`layered chiffon`，去掉直接描写身体的词 |
 | 抠图后主体被啃掉一块 | 描边不闭合 | 加 `thick closed uniform near-black outline around the whole shape` |
 | 风格和其他资产差太远 | 工具或者种子不同 | ChatGPT：新开对话，先上传 2–3 张已通过的同类图当参考；Midjourney 用 `--sref <第一张满意图的链接>`；SD 固定模型并加 IP-Adapter；即梦等工具上传参考图 |
 
-**向用户要图：补图请求**（用户把它粘贴到 ChatGPT 项目里，GPT 会照着生产，同样先自检再请用户确认）。
+**向用户要图：补图请求**（用户把它粘贴到 ChatGPT 项目里，GPT 会照着生产，同样自检加用户确认）。
 - 缺失的部分直接取 `docs/ART_REQUEST_GPT.txt`（`art_audit.gd` 每次都会重新生成），格式如下，有瑕疵要重做的按同样格式加进去，写清原因：
 ```
 【补图请求】来自 Claude（《奇美拉纪元》）
-请按项目指令和《美术资产清单与提示词.txt》生产下面这些资产：每项先自检，再请我确认。文件名必须和下面完全一致。
+请按项目指令和项目里的清单（有 ART_PROMPTS.txt 时以它为准）生产下面这些资产：每项照常自检、请我确认。文件名必须和下面完全一致。
 
 1. 【13】part_sac.png　毒液吊坠（虫族部件）　—— 重做：背景有阴影，抠图后边缘发灰；要纯白平底背景，不要阴影和地面
 2. 【47】body_floater_enemy.png　幽体反派·幽冥女帝（女）　—— 缺失
@@ -163,7 +164,8 @@ Claude 自己不能生成图片，本项目也不调用任何生图 API。分工
 - 新基因用到**新的部件种类**：先在 `Defs.PART_KINDS` 登记，再在 `CreaturePainter._draw_part` 里画程序化占位，然后在 `art_manifest.json` 的 `parts` 里写 subject、socket、anchor、height、accent，最后在 fusion.json 的 `part_word` 里补上名词。test_data 会检查 PART_KINDS、manifest 条目和 part_word 是否齐全；`_draw_part` 里的占位画法要靠截图（检查台第 2 页）确认。
 - 新骨架、新生态区、新卡牌、新 Boss 也同理：在 manifest 对应的节里加一条。
 - 加完后跑 `art_audit.gd`。新的缺失项会带着提示词出现在 `docs/ART_TODO.md` 里，也会进 `docs/ART_REQUEST_GPT.txt`。
-- **清单一变（新增条目、换风格、改提示词），用户 ChatGPT 项目里的旧清单就过时了**，编号也可能整体后移。汇报时告诉用户：把游戏文件夹里的 `docs/ART_PROMPTS.txt` 上传到 ChatGPT 项目的文件里（项目指令规定：项目里有 ART_PROMPTS.txt 时，逐项提示词和编号以它为准；以后再更新就删掉旧的再传），然后再贴补图请求。
+- **清单一变（新增条目、换风格、改提示词），用户 ChatGPT 项目里的旧清单就过时了**，编号也可能整体后移。汇报时告诉用户：把游戏文件夹里的 `docs/ART_PROMPTS.txt` 上传到 ChatGPT 项目的文件里（项目指令规定：项目里有 ART_PROMPTS.txt 时，逐项提示词和编号以它为准，只按文件名查；以后再更新就删掉旧的再传），以前存的接力码作废，然后再贴补图请求。ART_PROMPTS.txt 开头写着总数、定调批和风格参考图提示词（`style.reference_sheet`）。
+- **换风格时**还要同步改 `style.reference_sheet`（风格参考图提示词），并在补图请求第二行后面加一句："风格已更换：旧的风格参考图和已通过的旧图都不要再参照，先按 ART_PROMPTS.txt 开头重新出风格参考图和定调批，请我确认后再做下面的项。"
 
 ## 9. 授权与入库
 

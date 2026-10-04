@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Import the user's art pack(s) into a Chimera Epoch project, end to end:
 #   pack (zip / folder / loose images) -> art_inbox/ -> processed into art/ -> registered
-#   -> coverage audit (docs/ART_TODO.md) -> full godot_check -> screenshots of the 3 art QA
-#   pages + the main scene.
+#   -> coverage audit (docs/ART_TODO.md, docs/ART_REQUEST_GPT.txt) -> full godot_check
+#   -> screenshots of the 4 art QA pages + the main scene (5 PNGs).
 #   bash import_assets.sh <project_dir> [pack.zip|folder ...]
 # Pack paths may be absolute or relative to the folder you run this from.
 # With no pack arguments it auto-detects inside <project_dir> (top level only):

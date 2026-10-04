@@ -193,6 +193,16 @@ func test_gpt_request_lists_numbers_and_reasons() -> void:
 	check(req.contains("共 2 项"), "count")
 
 
+func test_prompt_text_header_for_chatgpt() -> void:
+	var entries := ArtManifest.build(db)
+	var txt := ArtManifest.to_text(entries, db.art)
+	check(txt.begins_with("《奇美拉纪元》逐项提示词（共 %d 项）" % entries.size()), "header carries the total")
+	check(txt.contains("body_hexapod_enemy.png") and txt.contains("定调批"), "header lists the style anchors")
+	check(txt.contains("character lineup sheet"), "header carries the style-reference prompt")
+	check(txt.contains("【1】") and txt.contains("【%d】" % entries.size()), "items numbered 1..N")
+	check(not ArtManifest.to_text(entries).begins_with("《"), "no header without the manifest")
+
+
 func test_anchor_batch_ids_exist() -> void:
 	var by_id := ArtManifest.by_id(ArtManifest.build(db))
 	var anchors: Array = db.art.get("anchor_batch", [])

@@ -4,11 +4,11 @@ extends SceneTree
 ## Every run rewrites ALL four files, so they never go stale after a style change or new content:
 ##   docs/ART_TODO.md (missing only) · docs/ART_PROMPTS.md (every asset) · docs/ART_PROMPTS.txt (every asset, plain text)
 ##   docs/ART_REQUEST_GPT.txt (missing only, a short request the user pastes into their ChatGPT project)
-##   ... -- p1   -> ART_TODO.md limited to priority 1   (legacy "-- full" / "-- txt" are accepted and ignored)
+##   ... -- p1   -> ART_TODO.md and ART_REQUEST_GPT.txt limited to priority 1   (legacy "-- full" / "-- txt" are accepted and ignored)
 ## The list is derived from game data, so new genes/biomes/cards show up here automatically.
 
 const INTRO := """怎么用：
-1. 推荐用 ChatGPT（网页版或桌面版）的"项目"批量生产：按《GPT使用说明.txt》设置一次，GPT 会逐项生成、先自检，再请你确认。
+1. 推荐用 ChatGPT（网页版或桌面版）的"项目"批量生产：按《GPT使用说明.txt》设置一次，GPT 会逐项生成、自检，再请你确认。
    也可以用任意 AI 生图工具（Midjourney / Stable Diffusion / 即梦 / 通义万相 …）复制下面的提示词生成：
    Midjourney 建议用二次元模型（--niji 6），末尾加 `--ar 比例 --no 反向提示词`；后续都加 `--sref 第一张满意图的链接`，保持风格统一。
    没有反向提示词栏的工具：在提示词末尾加 `Avoid: 反向提示词`。即梦、通义万相、可灵请关闭"智能扩写/提示词优化"。
@@ -44,7 +44,7 @@ func _initialize() -> void:
 	var intro := "进度：" + "　".join(summary) + "\n\n" + INTRO
 	_write("docs/ART_TODO.md", ArtManifest.to_markdown(missing, "缺失的美术资产（%d 项）" % missing.size(), intro))
 	_write("docs/ART_PROMPTS.md", ArtManifest.to_markdown(entries, "美术资产提示词（全部 %d 项）" % entries.size(), intro))
-	_write("docs/ART_PROMPTS.txt", ArtManifest.to_text(entries))
+	_write("docs/ART_PROMPTS.txt", ArtManifest.to_text(entries, db.art))
 	_write("docs/ART_REQUEST_GPT.txt", ArtManifest.to_gpt_request(entries, missing, {}))
 	var out_rel := "docs/ART_TODO.md"
 	print("art coverage: ", "  ".join(summary))

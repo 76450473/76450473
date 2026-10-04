@@ -24,7 +24,7 @@ godot --headless --path . --script res://tools/import_art.gd         # 导入 ar
 ## 美术协作
 美术由人用 AI 生图工具生成：提示词在 `docs/ART_PROMPTS.md`，缺失清单在 `docs/ART_TODO.md`。
 生成的图片放进 `art_inbox/`（或者打包成 zip，用 `tools/unpack_assets.gd` 解压），然后运行导入工具即可。缺失的资产会自动用程序化占位美术代替。
-美术检查台：`scenes/art_gallery.tscn`。
+美术检查台（四页）：`scenes/art_gallery.tscn`（我方骨架和图标）、`art_parts.tscn`（部件）、`art_images.tscn`（背景、界面、Boss、卡图）、`art_enemies.tscn`（敌方反派）。
 
 ## 目录
 ```

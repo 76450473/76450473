@@ -1,5 +1,5 @@
 {
-  "_doc": "美术资产清单 = 唯一真相源。tools/art_audit.gd 据此列出缺失资产并生成提示词；tools/import_art.gd 据此把 art_inbox/ 里的图片处理成游戏资产；《美术资产清单与提示词.txt》和 GPT 生产指令也从这里生成。美术方向：二次元 × 仙侠立绘 × 哥特未来（见 references/visual-system.md §1）。所有角色都是成年人。新增基因部件/骨架/生态区/状态/卡牌时必须在这里补规格，test_data 会检查。mode: cutout=保留原色并去背景（角色立绘和配饰部件用这个）；color=保留原色不去背景；mono=白色剪影图标（运行时着色）；palette=灰度绘制+运行时按种族上色（旧的怪物风格，保留兼容）。bodies.*.subject = 我方种族角色（多数是女性），bodies.*.enemy_subject = 敌方反派版本（更高大、更强、明显的反派画风）。",
+  "_doc": "美术资产清单 = 唯一真相源。tools/art_audit.gd 据此列出缺失资产并生成提示词；tools/import_art.gd 据此把 art_inbox/ 里的图片处理成游戏资产；docs/ART_PROMPTS.txt（=《美术资产清单与提示词.txt》第七节，开头带定调批和风格参考图提示词）也从这里生成；GPT项目指令.txt 是手写的，不从这里生成。美术方向：二次元 × 仙侠立绘 × 哥特未来（见 references/visual-system.md §1）。所有角色都是成年人。新增基因部件/骨架/生态区/状态/卡牌时必须在这里补规格，test_data 会检查。mode: cutout=保留原色并去背景（角色立绘和配饰部件用这个）；color=保留原色不去背景；mono=白色剪影图标（运行时着色）；palette=灰度绘制+运行时按种族上色（旧的怪物风格，保留兼容）。bodies.*.subject = 我方种族角色（多数是女性），bodies.*.enemy_subject = 敌方反派版本（更高大、更强、明显的反派画风）。",
   "anchor_batch": [
     "body_biped",
     "body_hexapod",
@@ -27,7 +27,8 @@
     "negative_background": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, card frame, border, characters, people, creatures, animals, monsters, UI",
     "negative_boss": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, chibi, cute, nudity, nsfw, card frame, border, ground, floor, cast shadow, drop shadow, scenery, background details, extra creatures, smoke, clouds, loose particles, floating specks",
     "enemy_body": "high-quality 2D game art in a refined Japanese anime style blended with Chinese xianxia game character illustration (elegant semi-realistic anime faces, delicate detailed eyes, glossy flowing hair strands), gothic-futurist fantasy: ornate lace, filigree and stained-glass motifs fused with sleek sci-fi elements and fine glowing circuit-like embroidery, crisp clean lineart, soft cel shading with painterly gradients and gentle rim light, rich jewel-tone palette, highly detailed costume, a full-body standing villain character portrait (game standee) of ONE adult antagonist that clearly outclasses the heroes: larger, more imposing and more powerful-looking, a sharp aggressive silhouette, a dark sinister palette with ominous glows, an intimidating stance, 3/4 view facing right, both arms lowered with empty hands, the whole figure from head to feet visible and filling most of the frame height, the feet near the bottom edge, no weapons, no props, plain flat pure white background, no ground, no cast shadow, no text, no logo",
-    "negative_enemy": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, shota, chibi, cute, super deformed, nudity, nsfw, extra fingers, deformed hands, bad anatomy, multiple characters, weapon, props, scene, background details, ground, cast shadow, frame, cropped"
+    "negative_enemy": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, shota, chibi, cute, super deformed, nudity, nsfw, extra fingers, deformed hands, bad anatomy, multiple characters, weapon, props, scene, background details, ground, cast shadow, frame, cropped",
+    "reference_sheet": "character lineup sheet of six adult anime race characters for a 2D game, refined Japanese anime style blended with Chinese xianxia game standee art, gothic-futurist fantasy, a human cultivator-knight woman in a midnight-blue hanfu-inspired dress, an insect-race woman in a crimson chitin gown with antennae, a mushroom-fairy woman with a glowing mushroom-cap hat, a wolf-beastman young man with wolf ears and tail, a crystal android woman with ice-blue crystal hair, a ghost lady in tattered black-violet veils who floats, all full body, 3/4 view facing right, evenly spaced, plain flat pure white background, no ground, no shadow, no text"
   },
   "race_art": {
     "human": "Human Sect motifs: midnight-blue and silver silk, white jade, polished steel filigree, azure glowing circuit embroidery",
@@ -250,7 +251,7 @@
   },
   "bodies": {
     "biped": {
-      "cn": "人族本体·剑修少女（女）",
+      "cn": "人族本体·剑修女侠（女）",
       "race": "human",
       "subject": "a young adult woman of the Human Sect, a graceful cultivator-knight: long black hair in a half-up bun with a white jade hairpin, calm confident gaze, a midnight-blue hanfu-inspired dress with a high side slit, an off-shoulder translucent outer robe with wide flowing sleeves and silver filigree, a fitted gothic corset bodice, thin azure glowing circuit embroidery along the hems, elegant heeled boots",
       "fit": "height",

@@ -188,8 +188,27 @@ static func to_markdown(entries: Array, title: String, intro: String) -> String:
 
 
 ## Plain-text prompt list (Notepad friendly) for the user's asset production run.
-static func to_text(entries: Array) -> String:
+## Plain-text list = section 七 of 《美术资产清单与提示词.txt》. With `art` (the manifest dict) it
+## starts with a header (total, 定调批, style-reference prompt) so that the file alone can replace
+## the user's list in their ChatGPT project after a manifest change.
+static func to_text(entries: Array, art: Dictionary = {}) -> String:
 	var lines := PackedStringArray()
+	if not art.is_empty():
+		var ids := {}
+		for e: Dictionary in entries:
+			ids[e.id] = true
+		var anchors := PackedStringArray()
+		for raw: String in art.get("anchor_batch", []):
+			if ids.has(raw):
+				anchors.append(raw + ".png")
+		lines.append("《奇美拉纪元》逐项提示词（共 %d 项）—— docs/ART_PROMPTS.txt，Claude 根据游戏数据生成" % entries.size())
+		lines.append("上传到 ChatGPT 项目后，逐项内容、编号和总数以这份为准（和《美术资产清单与提示词.txt》第七节格式相同）。")
+		lines.append("")
+		lines.append("定调批（第一次生产或换了风格时先做这几项，确认风格）：" + "、".join(anchors))
+		var sheet := str((art.get("style", {}) as Dictionary).get("reference_sheet", ""))
+		if sheet != "":
+			lines.append("风格参考图提示词（可选，不计入总数，不放进资产包；只给本体角色 body_ 和部件 part_ 参照）：")
+			lines.append(sheet)
 	var names := {1: "P1 · 必做（游戏前期就会用到，至少先做完这一批）", 2: "P2 · 推荐（中后期内容）", 3: "P3 · 可选（锦上添花）"}
 	var current := -1
 	var n := 0
@@ -225,7 +244,7 @@ static func to_gpt_request(all_entries: Array, wanted: Array, reasons: Dictionar
 		number[(all_entries[i] as Dictionary).id] = i + 1
 	var lines := PackedStringArray([
 		"【补图请求】来自 Claude（《奇美拉纪元》）",
-		"请按项目指令和《美术资产清单与提示词.txt》生产下面这些资产：每项先自检，再请我确认。文件名必须和下面完全一致。",
+		"请按项目指令和项目里的清单（有 ART_PROMPTS.txt 时以它为准）生产下面这些资产：每项照常自检、请我确认。文件名必须和下面完全一致。",
 		""])
 	var n := 0
 	for e: Dictionary in wanted:

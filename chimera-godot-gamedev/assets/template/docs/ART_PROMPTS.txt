@@ -1,10 +1,16 @@
+《奇美拉纪元》逐项提示词（共 88 项）—— docs/ART_PROMPTS.txt，Claude 根据游戏数据生成
+上传到 ChatGPT 项目后，逐项内容、编号和总数以这份为准（和《美术资产清单与提示词.txt》第七节格式相同）。
+
+定调批（第一次生产或换了风格时先做这几项，确认风格）：body_biped.png、body_hexapod.png、body_hexapod_enemy.png、part_eye_compound.png、part_sac.png、icon_status_poison.png、bg_swamp.png
+风格参考图提示词（可选，不计入总数，不放进资产包；只给本体角色 body_ 和部件 part_ 参照）：
+character lineup sheet of six adult anime race characters for a 2D game, refined Japanese anime style blended with Chinese xianxia game standee art, gothic-futurist fantasy, a human cultivator-knight woman in a midnight-blue hanfu-inspired dress, an insect-race woman in a crimson chitin gown with antennae, a mushroom-fairy woman with a glowing mushroom-cap hat, a wolf-beastman young man with wolf ears and tail, a crystal android woman with ice-blue crystal hair, a ghost lady in tattered black-violet veils who floats, all full body, 3/4 view facing right, evenly spaced, plain flat pure white background, no ground, no shadow, no text
 
 ════════════════════════════════════════════════════════
   P1 · 必做（游戏前期就会用到，至少先做完这一批）
 ════════════════════════════════════════════════════════
 
 ────────────────────────────────────────────────────────
-【1】body_biped.png　　人族本体·剑修少女（女）
+【1】body_biped.png　　人族本体·剑修女侠（女）
 比例 2:3（建议 1024×1536）｜背景：纯白｜彩色，去背景
 用在：人族
 提示词：
