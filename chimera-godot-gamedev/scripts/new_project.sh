@@ -23,7 +23,7 @@ for f in ./*; do
   [ -d "$f" ] && [ -f "$f/.gdignore" ] && continue
   case "$(printf '%s' "$(basename "$f")" | tr 'A-Z' 'a-z')" in
     chimera-godot-gamedev*) ;;
-    *.zip|*.png|*.jpg|*.jpeg|*.webp|*.jfif) has_art=1 ;;
+    *.zip|*.png|*.jpg|*.jpeg|*.webp|*.jfif|*.avif|*.heic|*.heif|*.gif|*.bmp|*.tif|*.tiff) has_art=1 ;;
     art_inbox) ;;
     *art*|*asset*|*美术*|*资产*|*素材*) [ -d "$f" ] && has_art=1 ;;
   esac

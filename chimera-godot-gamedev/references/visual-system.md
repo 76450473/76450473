@@ -86,7 +86,7 @@
 
 ## 8. AI 生成美术：风格锁定
 
-- 风格锁定文本、反向提示词、各族的形状语言、每项资产的主体描述，都写在 `data/art_manifest.json` 的 style、race_art、parts 等节里。**改风格只改这里**，然后重新生成 `docs/ART_PROMPTS.md`（运行 `art_audit.gd -- full`）。
+- 风格锁定文本、反向提示词、各族的形状语言、每项资产的主体描述，都写在 `data/art_manifest.json` 的 style、race_art、parts 等节里。**改风格只改这里**，然后运行 `art_audit.gd`，它会重新生成 `docs/ART_TODO.md`、`docs/ART_PROMPTS.md` 和 `docs/ART_PROMPTS.txt`。
 - 提示词规则：
   - 侧视朝右；单个物件；灰度；粗的闭合深色描边；纯白平底背景（图标用纯黑平底）；主体占满画面。
   - 不出现在世艺术家的名字或商业 IP。

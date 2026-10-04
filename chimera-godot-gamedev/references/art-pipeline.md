@@ -25,7 +25,7 @@ Claude 自己不能生成图片。分工如下：
 |---|---|
 | `data/art_manifest.json` | 唯一的真相源。定义风格锁定提示词、各族形状语言、每个部件、骨架、图标和背景的主体描述、挂点、锚点、显示高度 |
 | `src/art/art_manifest.gd` | 把 manifest 和游戏数据（基因部件、骨架、生态区、卡牌、Boss）**推导**成完整的资产列表，共 82 项；能输出 Markdown 格式的提示词书 |
-| `tools/art_audit.gd` | 列出缺失资产，写入 `docs/ART_TODO.md`。加 `-- full` 参数写出全部资产的 `docs/ART_PROMPTS.md`；加 `-- txt` 写出纯文本版 `docs/ART_PROMPTS.txt` |
+| `tools/art_audit.gd` | 每次运行都重新生成三份文件：`docs/ART_TODO.md`（缺失资产 + 提示词）、`docs/ART_PROMPTS.md`（全部资产）、`docs/ART_PROMPTS.txt`（纯文本版，可直接发给用户）。加 `-- p1` 只看 P1 缺口 |
 | `tools/unpack_assets.gd` | 用 Godot 的 ZIPReader 解压资产包（不依赖 unzip），也支持文件夹：把图片和 credits.txt 平铺放进 `art_inbox/`；会跳过 `__MACOSX` 目录、隐藏文件，以及内含 SKILL.md 的 zip |
 | `scripts/import_assets.sh`（skill 自带） | **一键导入**：自动发现资产包 → 解压 → 导入 → 注册 → 统计缺失 → 全量检查 → 截 4 张图（检查台三页加主场景）→ 把资产包移到 `art_inbox/_packs/`（重名时自动加编号） |
 | `scripts/prepare_root.sh`（skill 自带） | 项目根目录里如果有解压后的 skill 文件夹（或其他含 project.godot 的文件夹），给它加 `.gdignore`，并写进 `.gitignore`，避免类名冲突、避免被提交 |
@@ -79,7 +79,7 @@ Claude 自己不能生成图片。分工如下：
 5. **截图检查**：第 1 步已经截好 4 张图（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`main.png`）。用 Read 看截图。三页检查台都要看：第 1 页是骨架和图标，第 2 页是全部部件，第 3 页是背景、界面、Boss、卡图。最后再对比主场景。
 6. **对齐**：部件错位或者大小不对，就按 §6 修改 sidecar json，然后**重新截图**确认，直到通过为止。最简单的方法是重跑 `bash SKILL_DIR/scripts/import_assets.sh <项目>`（不带资产包参数）：没有新图时，它也会重新截 4 张图。只想重截某一页时，用 `bash SKILL_DIR/scripts/screenshot.sh <项目> res://scenes/art_parts.tscn screenshots/art_parts.png`（第 1、3 页对应 art_gallery.tscn、art_images.tscn）。
 7. **跑全部检查**：`godot_check.sh`。截图是用来看画面效果的，测试是用来确认没有坏掉的，两者都要做。
-8. **重新生成缺失清单**：`godot --headless --path . --script res://tools/art_audit.gd`。
+8. **重新生成缺失清单**：`godot --headless --path . --script res://tools/art_audit.gd`（同时刷新 ART_TODO.md、ART_PROMPTS.md、ART_PROMPTS.txt）。
 9. **汇报**（中文）：
    - 本次导入了哪些（附检查台截图路径）
    - **需要重做的**（原因加修改后的提示词）

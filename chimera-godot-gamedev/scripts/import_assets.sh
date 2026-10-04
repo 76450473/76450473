@@ -44,7 +44,7 @@ if [ ${#packs[@]} -eq 0 ]; then
   while IFS= read -r -d '' d; do
     case "$(basename "$d")" in art|art_inbox|.godot|chimera-godot-gamedev*) continue ;; esac
     [ -f "$d/.gdignore" ] && continue
-    if find "$d" -maxdepth 4 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.jfif' \) 2>/dev/null | grep -q .; then
+    if find "$d" -maxdepth 4 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.jfif' -o -iname '*.avif' -o -iname '*.heic' -o -iname '*.heif' -o -iname '*.gif' -o -iname '*.bmp' -o -iname '*.tif' -o -iname '*.tiff' \) 2>/dev/null | grep -q .; then
       packs+=("$d")
     fi
   done < <(find "$ROOT" -mindepth 1 -maxdepth 1 -type d \( -iname '*art*' -o -iname '*asset*' -o -name '*美术*' -o -name '*资产*' -o -name '*素材*' \) -print0 2>/dev/null)

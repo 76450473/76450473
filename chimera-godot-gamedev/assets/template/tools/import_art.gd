@@ -53,8 +53,10 @@ func _initialize() -> void:
 			var out_png := ProjectSettings.globalize_path(entry.path)
 			DirAccess.make_dir_recursive_absolute(out_png.get_base_dir())
 			out_img.save_png(out_png)
-			var file_credit := _previous_credit(out_png.get_basename() + ".json", f, credit)
+			var md5 := FileAccess.get_md5(inbox.path_join(f))
+			var file_credit := _previous_credit(out_png.get_basename() + ".json", md5, credit)
 			_write_sidecar(out_png.get_basename() + ".json", entry, res, f, file_credit)
+			_set_sidecar_key(out_png.get_basename() + ".json", "source_md5", md5)
 			_append_credit(entry.path.trim_prefix("res://"), file_credit)
 			var done := inbox.path_join("_done")
 			DirAccess.make_dir_recursive_absolute(done)
@@ -132,14 +134,27 @@ func _read_credit(inbox: String) -> String:
 	return last if last != "" else fallback
 
 
-## Re-importing the SAME original keeps the credit it was first imported with (a newer pack
-## made with another tool must not re-credit older art).
-func _previous_credit(meta_path: String, source: String, fallback: String) -> String:
+## Re-importing the very SAME image (same md5) keeps the credit it was first imported with, so a
+## newer pack made with another tool cannot re-credit older art. A redo (new image content) or a
+## placeholder credit ("工具待补" / "未注明工具") always takes the current credits line.
+func _previous_credit(meta_path: String, md5: String, fallback: String) -> String:
 	if FileAccess.file_exists(meta_path):
 		var old: Variant = JSON.parse_string(FileAccess.get_file_as_string(meta_path))
-		if old is Dictionary and str((old as Dictionary).get("source", "")) == source and (old as Dictionary).has("credit"):
-			return str(old.credit)
+		if old is Dictionary:
+			var o: Dictionary = old
+			var c := str(o.get("credit", ""))
+			if str(o.get("source_md5", "")) == md5 and c != "" and not c.contains("工具待补") and not c.contains("未注明工具"):
+				return c
 	return fallback
+
+
+func _set_sidecar_key(meta_path: String, key: String, value: Variant) -> void:
+	var meta: Variant = JSON.parse_string(FileAccess.get_file_as_string(meta_path))
+	if meta is Dictionary:
+		(meta as Dictionary)[key] = value
+		var f := FileAccess.open(meta_path, FileAccess.WRITE)
+		f.store_string(JSON.stringify(meta, "  "))
+		f.close()
 
 
 func _write_sidecar(path: String, entry: Dictionary, res: Dictionary, source: String, credit: String) -> void:

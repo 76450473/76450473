@@ -19,7 +19,7 @@ M0 地基（模板自带，已验证）→ 下一步：M1 可玩的一场战斗
 
 ## 下一步（按顺序）
 1. M1：战斗表现层 battle_view —— 2×3 棋盘、播放 CombatSim 事件、手牌/能量 UI、敌人意图显示
-2. M1：战后奖励三选一（基因 / 战术卡 / 资源），接入 Rng.stream("reward")
+2. M1：PlayerController（begin_round / play_card / resolve_round）+ 胜负界面 + 主菜单"快速战斗"入口；打包 OFL 中文字体 + ui/theme.tres
 
 ## 美术资产
 - 进度见 `tools/art_audit.gd` 输出（当前 P1 0/40 · P2 0/38 · P3 0/4），缺失清单与提示词在 docs/ART_TODO.md
