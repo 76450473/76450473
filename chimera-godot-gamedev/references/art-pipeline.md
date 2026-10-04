@@ -88,7 +88,7 @@ Claude 自己不能生成图片，本项目也不调用任何生图 API。分工
    - **一段补图请求**（§7 的格式），让用户整段复制到 Codex 里：缺失的取 `docs/ART_REQUEST.txt`，再加上要重做的。缺得很多时，建议先补 P1。
    - 用户还在 Codex 里按顺序生产（交来的是定调批、P1 或中途"打包"的一部分）时，不要把几十项缺失都塞进补图请求：补图请求只写**要重做的**；缺失的告诉用户"在 Codex 里说『$chimera-art 继续』接着做就行"，完整的缺失请求留在 `docs/ART_REQUEST.txt`，等主线做完再用。（用 ChatGPT 备用方案的用户是发"继续"加接力码；清单刚变过、他的旧接力码作废时，补图请求要包含全部缺失项。）
    - 用户还一张图都没做过（没有资产包）时，不给补图请求：让用户按《Codex使用说明.txt》装好美术技能，在美术文件夹里发"$chimera-art 开始"。
-   - 提醒用户：补好的图也要复制进他的 art_pack 覆盖旧图，否则以后整包再交来时旧图会盖回去。导入后发现以前重做过的图又变回了旧图（截图里的老毛病又出现），先问用户是不是把旧的 art_pack 整包又交了一次。
+   - 用 Codex 的用户不用自己复制：Codex 会把补好的图自动更新进它的 art_pack，交来的 fix_NN.zip 只含这次补的图。用 ChatGPT 或其他工具的用户，要提醒他把补好的图也复制进他的 art_pack 覆盖旧图，否则以后整包再交来时旧图会盖回去。导入后发现以前重做过的图又变回了旧图（截图里的老毛病又出现），先问用户是不是把旧的 art_pack 整包又交了一次。
 10. 在 PROGRESS.md 的"美术资产"一节更新进度，然后 git commit（提交 `art/`、`CREDITS.md`、`docs/ART_TODO.md`、`docs/ART_PROMPTS.md`、`docs/ART_PROMPTS.txt`、`docs/ART_ASSETS.json`、`docs/ART_REQUEST.txt`；`art_inbox/` 已被 gitignore）。
 
 ## 5. 质检：看图与看截图
@@ -141,25 +141,25 @@ Claude 自己不能生成图片，本项目也不调用任何生图 API。分工
 | 主体只有 N 像素，放大后会糊 | 主体在原图里占比太小 | 同上，或者用 1024 以上的分辨率生成 |
 | 彩色面积偏大 | 只在 palette（灰度）模式下出现 | 强调 `strictly grayscale`；默认的 cutout 模式不会有这个警告 |
 | 角色看起来太年轻、像小孩 | 二次元模型的常见倾向 | 在 Character 里写明 `adult woman in her mid-twenties, mature face and proportions, tall`；反向提示词里已有 child、loli、chibi |
-| 被安全系统拦截 | 服装描述太暴露 | 换成更含蓄的写法（和 GPT项目指令.txt 第八节一致）：`elegant side slit`、`long elegant sleeves`、`modest elegant neckline`、`layered chiffon`，去掉直接描写身体的词 |
+| 被安全系统拦截 | 服装描述太暴露 | 换成更含蓄的写法（和 Codex 美术技能 prompting.md 第 6 节、GPT项目指令.txt 第八节一致）：`elegant side slit`、`long elegant sleeves`、`modest elegant neckline`、`layered chiffon`，去掉直接描写身体的词 |
 | 抠图后主体被啃掉一块 | 描边不闭合 | 加 `thick closed uniform near-black outline around the whole shape` |
 | 风格和其他资产差太远 | 工具或者种子不同 | Codex 美术技能会自动用风格参考图和已通过的同类图做参考，补图请求里写清"参照 xxx.png 的画风"即可；ChatGPT：新开对话，先上传 2–3 张已通过的同类图当参考；Midjourney 用 `--sref <第一张满意图的链接>`；SD 固定模型并加 IP-Adapter；即梦等工具上传参考图 |
 
 **向用户要图：补图请求**（用户把它粘贴到 Codex 里，第一行 `$chimera-art` 会调用美术技能，Codex 照着补图，同样自检加用户审核；备用的 ChatGPT 项目也认这个格式）。
-- 缺失的部分直接取 `docs/ART_REQUEST.txt`（`art_audit.gd` 每次都会重新生成），格式如下，有瑕疵要重做的按同样格式加进去，写清原因：
+- 缺失的部分直接取 `docs/ART_REQUEST.txt`（`art_audit.gd` 每次都会重新生成，就是 `ArtManifest.to_request()` 的输出），格式如下。有瑕疵要重做的按同样格式加进去，写清原因。手写（例如只有重做项）时，**前两行必须原样保留**：第一行 `$chimera-art` 会调用 Codex 美术技能。
 ```
-【补图请求】来自 Claude（《奇美拉纪元》）
-请按项目指令和项目里的清单（有 ART_PROMPTS.txt 时以它为准）生产下面这些资产：每项照常自检、请我确认。文件名必须和下面完全一致。
+$chimera-art 【补图请求】来自 Claude（《奇美拉纪元》）
+请按美术技能（或 ChatGPT 项目指令）和清单生产下面这些资产，按文件名找对应的项：每项照常自检，再请我审核。文件名必须和下面完全一致。
 
 1. 【13】part_sac.png　毒液吊坠（虫族部件）　—— 重做：背景有阴影，抠图后边缘发灰；要纯白平底背景，不要阴影和地面
 2. 【47】body_floater_enemy.png　幽体反派·幽冥女帝（女）　—— 缺失
 
 （共 2 项。全部确认后，把图片按上面的文件名保存，打包成 zip 发给 Claude。）
 ```
-- 【n】是这一项在当前 manifest 里的编号（和 `docs/ART_PROMPTS.txt`、清单第七节一致）；GPT 按文件名或编号在清单里找到完整的提示词，所以文件名必须写对。
+- 【n】是这一项在当前 manifest 里的编号（和 `docs/ART_ASSETS.json`、`docs/ART_PROMPTS.txt`、清单第七节一致）；Codex 美术技能按**文件名**在它的清单里找完整的提示词，所以文件名必须写对。
 - 不要让用户写"透明背景"：ChatGPT / Codex 的图像模型常把假的灰白棋盘格画进图里，抠图会失败。一律要纯白平底（图标是纯黑平底）。
-- 重做原因要具体，能直接指导改图（"头太小，头部要占身高的七分之一"），并按上表把修改要点写进原因里；需要大改时，在原因后面附上改好的完整英文提示词。
-- 让用户把这一段整段复制给 GPT，不要拆开。
+- 重做原因要具体，能直接指导改图（"头太小，头部要占身高的七分之一"），并按上表把修改要点写进原因里；需要大改时，在原因后面附上改好的完整英文提示词（Codex 会用它代替清单里的提示词）。想让它参照某张已通过的图，就在原因里写"参照 xxx.png 的画风"（Codex 会把那张图当参考图）。
+- 让用户在 Codex 里（项目还是他的 D:\chimera_art）点「新对话」，把这一段整段粘贴进去，不要拆开、不要删第一行。用 ChatGPT 备用方案的用户粘贴到 ChatGPT 项目里。
 
 ## 8. 新增内容时如何同步美术清单
 
@@ -167,7 +167,7 @@ Claude 自己不能生成图片，本项目也不调用任何生图 API。分工
 - 新骨架、新生态区、新卡牌、新 Boss 也同理：在 manifest 对应的节里加一条。
 - 加完后跑 `art_audit.gd`。新的缺失项会带着提示词出现在 `docs/ART_TODO.md` 里，也会进 `docs/ART_REQUEST.txt`。
 - **清单一变（新增条目、换风格、改提示词），用户那边的旧清单就过时了**，编号也可能整体后移。汇报时告诉用户：把游戏文件夹里的 `docs/ART_ASSETS.json` 复制到他的 Codex 美术文件夹（美术技能会自动换上新清单、按文件名保留进度），然后再贴补图请求。用 ChatGPT 备用方案时：把 `docs/ART_PROMPTS.txt` 上传到 ChatGPT 项目的文件里（项目指令规定：项目里有 ART_PROMPTS.txt 时，逐项提示词和编号以它为准，只按文件名查；以后再更新就删掉旧的再传），以前存的接力码作废，然后再贴补图请求。ART_PROMPTS.txt 开头写着总数、定调批和风格参考图提示词（`style.reference_sheet`）。
-- **换风格时**还要同步改 `style.reference_sheet`（风格参考图提示词），然后运行 `godot --headless --path . --script res://tools/art_audit.gd -- restyle`：这时 `docs/ART_REQUEST.txt` 会列出**全部**资产（"重做：风格已更换"，旧图虽然还在也要重做），第三行带"风格已更换"的说明，GPT 会先重新定调再逐项重做。把这一段和 `docs/ART_ASSETS.json`（Codex 用；ChatGPT 备用方案用 ART_PROMPTS.txt）一起交给用户。注意之后任何不带 `restyle` 的 art_audit（包括 `import_assets.sh`、`godot_check.sh` 里自动跑的）都会把这个文件改回只列缺失项，所以要在交给用户之前最后跑一次。
+- **换风格时**还要同步改 `style.reference_sheet`（风格参考图提示词），然后运行 `godot --headless --path . --script res://tools/art_audit.gd -- restyle`：这时 `docs/ART_REQUEST.txt` 会列出**全部**资产（"重做：风格已更换"，旧图虽然还在也要重做），第三行带"风格已更换"的说明，Codex 会先重新选画风、做定调批，再逐项重做。把这一段和 `docs/ART_ASSETS.json`（Codex 用；ChatGPT 备用方案用 ART_PROMPTS.txt）一起交给用户。注意之后任何不带 `restyle` 的 art_audit（包括 `import_assets.sh`、`godot_check.sh` 里自动跑的）都会把这个文件改回只列缺失项，所以要在交给用户之前最后跑一次。
 
 ## 9. 授权与入库
 

@@ -1,4 +1,4 @@
-# 出图规则
+﻿# 出图规则
 
 ## 1. 拼提示词
 
@@ -18,7 +18,8 @@
 ## 2. 尺寸和背景
 
 - `image_gen` 不能设置尺寸和比例（工具只有 prompt、transparent_background、referenced_image_paths、num_last_images_to_include 四个参数），所以**在提示词最前面写构图**：
-  - 2:3、5:7 → `Tall portrait image (2:3), full body vertical composition.`
+  - 2:3 → `Tall portrait image (2:3), full body vertical composition.`
+  - 5:7（`card_back`、`card_frame`）→ `Tall portrait card image (5:7), flat front view, the whole card filling the frame.`
   - 1:1 → `Square image (1:1), subject centered.`
   - 16:9 → `Wide landscape image (16:9).`　4:3 → `Landscape image (4:3).`
   - 3:1（`ui_button`）→ `Very wide horizontal image; draw the button plate as a wide 3:1 strip across the middle half of the height, with the top and bottom quarters filled with the same flat color as the plate.`
@@ -45,9 +46,12 @@
 `Image 1 is a STYLE REFERENCE only: match its art style, line quality, shading and coloring. Do not copy its characters, pose or composition. Create the new subject described below.`
 （两张时再写 `Image 2 is also a style reference.`）
 
-带参考图的调用在 Windows 上有已知问题：**最多 2 张**（3 张以上常报网络错误）；有时会卡住很久。规则：
-- 一次带参考图的调用超过 5 分钟没结果、或报错 → 这一项改成不带参考图重出（风格方向句照加），并在 `progress.json` 里记 `"refs_broken": true`，这次会话后面都不带参考图。用户下次说"继续"时再试一次。
+带参考图的调用在 Windows 上有已知问题：**最多 2 张**（3 张以上常报网络错误）；有时会卡住十几分钟，你在调用期间没法自己停下。规则：
+- 每次带参考图出图**之前**，在 progress.json 写 `pending_ref_call` = 这一项的 id，并用 `Get-Date` 记下开始时间；出完马上清空。
+- 下一轮发现 `pending_ref_call` 还在（上次卡住、用户点了停止），或者这次调用用了 3 分钟以上，或者报错 → 记 `refs_broken: true` 和日期，这一项改成不带参考图重出。
+- `refs_broken` 为 true 时都不带参考图；过了一天、或者用户说"带参考图试试"时，再试一次。
 - 不带参考图时，靠第 1 节第 2 句的风格方向保持统一，自检时更仔细地对比画风。
+- 只用**当前画风下**通过的图当参考（换过风格后，旧画风的图不能当参考）。补图请求里写了"参照 xxx.png"的，就用 art_pack 里那张。
 
 参考哪几张：
 

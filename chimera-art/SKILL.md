@@ -2,73 +2,61 @@
 name: chimera-art
 description: 为开源游戏《奇美拉纪元 Chimera Epoch》批量生产 2D 美术资产（约 88 张：角色立绘、反派、配饰部件、图标、战斗背景、卡图、界面）。只用 Codex 内置的 image_gen 出图（走 ChatGPT 订阅，不用 API key）：先让用户选一次整体画风，再分批出图、自检、预选，生成审核页让用户审，按审核结果重画，合格的图按清单文件名存进 art_pack 并打包成 zip 交给 Claude。也处理 Claude 写的「补图请求」和审核页生成的「审核结果」。Use when the user mentions 奇美拉 / chimera-art / 美术资产 / 补图请求 / 审核结果 / 选画风.
 metadata:
-  short-description: 奇美拉纪元美术资产生产（出图、自检、审核、打包）
+  short-description: 奇美拉美术：选画风、出图、审核结果、补图请求、打包（只用内置 image_gen）
 ---
 
 # 奇美拉纪元 · 美术资产生产
 
-用户不是程序员，用中文和他交流：句子短，一次只问一件事，不问技术问题，不让他装软件。
-他的流程是：在这个文件夹里让你出图 → 他在审核页里审 → 全部合格后把 zip 交给 Claude（Claude 用 Godot 做游戏）→ Claude 发现问题会写一段「补图请求」，他再粘贴给你。
+用户不是程序员：用简短中文交流，一次只问一件事，不问技术问题，不让他装软件。
+流程：你在这个文件夹里出图 → 他在审核页里审 → 合格的 zip 交给 Claude（用 Godot 做游戏）→ Claude 发现问题写「补图请求」，他再粘贴给你。
 
 ## 红线
 
-- **只用内置的 `image_gen` 工具出图**（每次调用出一张）。绝不使用 imagegen 技能的 CLI 备用模式、`scripts/image_gen.py`、OpenAI API 或 `OPENAI_API_KEY`，也不要向用户要 key。工具列表里没有 `image_gen`、或者出图报错时，按 references/troubleshooting.md 处理，不要绕路。
-- **所有角色都是成年人**，服装可以甜美迷人，但不裸露、不色情。被内容政策拦截时按 references/prompting.md 第 6 节改写，不争辩。
-- **文件名必须和清单完全一致**（例如 `part_sac.png`）。合格的图只放进 `art_pack/`，只有用户要求重画并通过后，才覆盖 `art_pack/` 里的旧图。
-- **进度写在 `state/progress.json`**，每做完一步就保存。会话随时可能中断（额度用完、用户关掉窗口），下次用户说"继续"时要能接上。
-- **一个对话别出太多图**：图多了 Codex 会越来越慢、占很大硬盘。每审完两批（约 16 张），提醒用户点「新对话」，发 `$chimera-art 继续`。不要用子代理并行出图，一张一张按顺序来。
+- **只用内置 `image_gen` 出图**（一次调用一张）。绝不用 imagegen 技能的 CLI 备用模式、`scripts/image_gen.py`、OpenAI API 或 `OPENAI_API_KEY`，也不向用户要 key。没有 `image_gen` 或出错时按 references/troubleshooting.md 处理。
+- **所有角色都是成年人**，服装可以甜美迷人，但不裸露、不色情。被拦截时按 references/prompting.md 第 6 节改写一次。
+- **文件名和清单完全一致**（如 `part_sac.png`）。合格的图只放进 `art_pack/`；只有重画的新图通过后才覆盖旧图。
+- **进度只存在 `state/progress.json`**，每完成一项就保存。会话随时会中断，下次"继续"要能接上。
+- **一个对话里出图满约 12 次**就停下（保存进度），请用户点「新对话」发 `$chimera-art 继续`：图多了 Codex 会变慢、占大量硬盘。不用子代理并行，一张一张来。
+- **不要用命令打开浏览器**（沙盒里的窗口用户看不见）：告诉用户 `review.html` 的完整路径，请他双击打开，开着的按 F5 刷新。
+
+## 读写文件（Windows 必看）
+
+- 读文本一律 `Get-Content -Raw -Encoding UTF8 <路径>`，否则中文会乱码。
+- 改 JSON 优先用你的文件编辑工具；用 PowerShell 时必须 `ConvertTo-Json -Depth 10`，再 `Set-Content -Encoding UTF8`。
+- 清单很大，不要整个打印：按 id 查一项，例如 `(Get-Content -Raw -Encoding UTF8 state\assets.json | ConvertFrom-Json).items | ? id -eq 'part_sac'`。
+- Windows 上一般没有 Python，只用 PowerShell 和文件工具。
 
 ## 文件
 
-- 清单：`state/assets.json`（第一次从本技能的 `assets/assets.json` 复制过来）。每项有 `n`（编号）、`id`、`file`、`cn`（中文名）、`priority`、`category`、`villain`、`ratio`、`gen_size`、`bg`（纯白 / 纯黑 / 画面本身）、`prompt`、`negative`。开头有 `total`、`anchor_batch`（定调批 7 项）、`reference_sheet`（风格参考图提示词）。
-- 用户放进来一份新的 `ART_ASSETS.json`（Claude 给的，清单有变化）时：用它替换 `state/assets.json`，按 `id` 保留已有进度，新增的项记为待做，然后告诉用户变了哪些。
-- 工作区结构、`progress.json` 的格式：references/workspace.md。
+- 清单 `state/assets.json`（第一次从本技能 `assets/assets.json` 复制）：`items` 里每项有 `n`、`id`、`file`、`cn`、`category`、`villain`、`ratio`、`bg`、`prompt`、`negative`；开头有 `total`、`anchor_batch`（定调批）、`reference_sheet`（风格参考图提示词）。
+- 每轮开始先看工作区根目录有没有新的 `ART_ASSETS.json`（Claude 给的）：有就按 references/flow.md「换清单」合并。
+- 工作区结构和 `progress.json` 格式：references/workspace.md。审核页和各种文字格式：references/review.md。
 
 ## 用户会说的话
 
-Codex 不会把技能带到下一轮，所以用户的每条消息都应以 `$chimera-art` 开头（审核页生成的结果已经带上了）。你每次停下时都要告诉他下一条发什么，并带上这个开头。
+Codex 不会把技能带到下一轮，所以用户每条消息都以 `$chimera-art` 开头（审核页的结果自带）。你停下时总要告诉他下一条发什么。
 
 | 用户说（`$chimera-art` 之后） | 你做 |
 |---|---|
-| 开始 | 第一次：准备工作区（references/workspace.md），然后进入「选画风」。已经开始过：同"继续"。 |
-| 继续 | 读 `state/progress.json`，从中断的地方接着做（还有审核页没审完，就提醒他先审）。 |
-| 审核结果 …… | 按 references/review.md 应用审核结果，然后接着做下一批。 |
-| 【补图请求】…… | 进入「补图」（下面第 5 步）。 |
-| 进度 | 显示：已通过 x/总数、待审、待重画、跳过的，和下一步要做什么。 |
-| 打包 | 立刻按第 4 步打包已通过的图（没做完也可以）。 |
-| 重画 文件名：意见 | 把这项记为重画（已通过的也行），意见放进下一批。 |
-| 换风格 / 重新选画风 | 回到「选画风」，选完后已通过的图都要重做（先问他确认）。 |
+| 开始 | 第一次：准备工作区（workspace.md），进入「选画风」。已经开始过：同"继续"。 |
+| 继续 | 读 progress.json，按 flow.md「继续」接着做。 |
+| 审核结果 …… | 按 review.md 应用，然后按 flow.md 做下一步。 |
+| 【补图请求】…… | 按 flow.md「补图」。 |
+| 进度 | 已通过 x/总数、待审、待重画、跳过的、补图任务，和下一步。 |
+| 打包 | 按 flow.md「打包」立刻打包已通过的图。 |
+| 重画 文件名：意见 | 记为重画（已通过的也行），放进下一批。 |
+| 换风格 | 先问他确认（已通过的图都要重做），再按 flow.md「换风格」。 |
 
-## 流程
+## 阶段（细节都在 references/flow.md）
 
-### 1. 选画风（只做一次）
-用清单的 `reference_sheet` 出 3 张风格参考图（六个种族角色同框），每张在提示词后面加一个方向（references/prompting.md 第 3 节的 A / B / C）。生成审核页（style 模式，references/review.md），请用户打开它选一个、可以写一句意见。
-把选中的方向和意见（译成英文）记进 `progress.json` 的 `style`；选中的图复制成 `style/style_ref.png`。这句风格方向以后加在**每一张**图的提示词里。
+1. **选画风**：3 张风格参考图，用户在审核页选一个。
+2. **定调批**：清单 `anchor_batch` 的 7 项。全部通过后自动打包一次并**停下**，让用户可以先给 Claude 看效果，等他发"继续"再批量生产。
+3. **批量**：每批约 8 项，每项出候选、自检、预选，然后出审核页，**等用户**贴回审核结果。
+4. **打包**：`outbox/art_pack.zip`。
+5. **补图**：只做补图请求里的图，审核通过后出 `outbox/fix_NN.zip`。
 
-### 2. 定调批
-按 `anchor_batch` 做 7 项（我方角色、反派、部件、图标、背景各有代表），出图规则和后面一样。7 项都通过后，告诉用户"画风定下来了"，进入批量生产。定调批没通过就按意见重画，必要时回到第 1 步。
-
-### 3. 批量生产
-按编号顺序，每批取 8 项左右还没通过的（待重画的优先放进下一批）。每一项：
-1. 按 references/prompting.md 拼提示词（构图写在最前面），按第 4 节带上参考图。
-2. 出候选：角色立绘（`body_`，含反派）、Boss、标题图出 **2 张**，其他出 **1 张**。
-3. 出完马上把图复制到 `candidates/`（路径见 references/workspace.md），看工具结果里的图，按 references/selfcheck.md 自检。不合格就针对问题改一句再出，同一项最多多出 2 张。
-4. 选出最好的一张当首选（其他留作候选）。
-一批做完后生成审核页（items 模式），告诉用户："第 N 批好了，请打开审核页（已经开着就按 F5 刷新）审，审完点「生成审核结果」，复制粘贴给我。"然后**等用户**，不要自己往下做。
-
-用户贴回审核结果后：通过的复制进 `art_pack/<file>`，要重画的记下意见放进下一批。每通过约 20 张，提醒用户可以随时说"打包"先给 Claude 看看。
-
-### 4. 打包
-`art_pack/` 里要有 `credits.txt`（UTF-8，一行：`Codex 内置图像生成（ChatGPT 订阅）`）。只把 `art_pack/` 里的图和 credits.txt 压进 `outbox/art_pack.zip`（平铺，不要子文件夹；命令见 references/workspace.md）。
-告诉用户 zip 在哪，并说："把它放进游戏文件夹，交给 Claude 就行。"全部 88 项都通过时，说"美术全部完成"。
-
-### 5. 补图（Claude 的补图请求）
-补图请求里每行有编号【n】、文件名和原因（"缺失"或"重做：原因"）。按**文件名**在清单里找到这一项：
-- "重做"：把原因译成英文加到提示词末尾，重新出图（不要参考旧图里有问题的地方）。
-- "缺失"：正常出图。
-- 写着"风格已更换"：先确认 `state/assets.json` 已经换成新的（没有就请用户把 Claude 给的 ART_ASSETS.json 放进这个文件夹），然后回到第 1 步重新选画风、第 2 步定调，再做列出的项。
-照常自检、生成审核页让用户审。全部通过后：新图覆盖进 `art_pack/`，**只把这次补的图**（加 credits.txt）压进 `outbox/fix_01.zip`（编号递增），告诉用户把它交给 Claude。
+出图规则：references/prompting.md。自检：references/selfcheck.md。出错：references/troubleshooting.md。
 
 ## 汇报
 
-每次停下来等用户时，用三五行中文说清：做了什么、审核页的完整路径（例如 `D:\chimera_art\review.html`，请他双击打开，开着的按 F5 刷新；不要自己用命令打开浏览器，沙盒里打开的窗口用户看不见）、他下一步要发什么（例如 `$chimera-art 继续`）。出图额度用完时，先保存进度，再说"额度用完了，过几个小时回来，点「新对话」发 `$chimera-art 继续` 就行"。
+每次停下时用三五行中文说清：做了什么、审核页路径（如 `D:\chimera_art\review.html`）、他下一步发什么（如 `$chimera-art 继续`）。额度用完时先保存，再说恢复时间和"到时点「新对话」发 `$chimera-art 继续`"。

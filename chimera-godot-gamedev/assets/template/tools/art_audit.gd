@@ -48,7 +48,9 @@ func _initialize() -> void:
 	_write("docs/ART_TODO.md", ArtManifest.to_markdown(missing, "缺失的美术资产（%d 项）" % missing.size(), intro))
 	_write("docs/ART_PROMPTS.md", ArtManifest.to_markdown(entries, "美术资产提示词（全部 %d 项）" % entries.size(), intro))
 	_write("docs/ART_PROMPTS.txt", ArtManifest.to_text(entries, db.art))
-	_write("docs/ART_ASSETS.json", ArtManifest.to_json(entries, db.art))
+	# UTF-8 BOM: the user copies this file into their Codex folder, and Windows PowerShell 5.1 reads
+	# BOM-less files as the ANSI code page (Chinese names would come out garbled)
+	_write("docs/ART_ASSETS.json", "\uFEFF" + ArtManifest.to_json(entries, db.art))
 	if restyle:
 		var reasons := {}
 		for e: Dictionary in entries:
