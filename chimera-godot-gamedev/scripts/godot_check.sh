@@ -36,9 +36,11 @@ step "unit tests"
 grep -E "^FAIL" "$LOG" | head -40
 tail -1 "$LOG"
 
-step "smoke run main scene + art gallery (headless)"
+step "smoke run main scene + art QA pages (headless)"
 "$GODOT" --headless --path . --quit-after 120 >"$LOG" 2>&1
-[ -f scenes/art_gallery.tscn ] && "$GODOT" --headless --path . --scene res://scenes/art_gallery.tscn --quit-after 30 >>"$LOG" 2>&1
+for page in art_gallery art_parts art_images art_enemies; do  # all four art QA pages
+  [ -f "scenes/$page.tscn" ] && "$GODOT" --headless --path . --scene "res://scenes/$page.tscn" --quit-after 30 >>"$LOG" 2>&1
+done
 if grep -qE "SCRIPT ERROR|^ERROR" "$LOG"; then
   fail=1; grep -E "SCRIPT ERROR|^ERROR" -A2 "$LOG" | head -30
 else echo "clean"; fi

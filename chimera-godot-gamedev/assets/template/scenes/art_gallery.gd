@@ -188,7 +188,8 @@ func _page_enemies() -> void:
 		var bare := {"template": _template_for(race, ""), "genes": [], "enemy": true}
 		_creature(bare, Vector2(130 + i * col_w, 380), true, 1.0, -1)
 		var ok := not ArtLibrary.lookup("res://art/bodies/%s_enemy" % plan).is_empty()
-		_label(Vector2(40 + i * col_w, 400), 14, "body_%s_enemy %s" % [plan, "✓" if ok else "（占位）"])
+		var state := "✓" if ok else ("（暂用我方立绘）" if not ArtLibrary.body(plan).is_empty() else "（占位）")
+		_label(Vector2(40 + i * col_w, 400), 14, "body_%s_enemy %s" % [plan, state])
 		var armed := _showcase(race)
 		armed["enemy"] = true
 		_creature(armed, Vector2(130 + i * col_w, 780), false, 1.0, -1)
