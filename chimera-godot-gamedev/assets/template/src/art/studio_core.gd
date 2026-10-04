@@ -250,11 +250,13 @@ static func api_size(ratio: String) -> String:
 	return "1024x1024"
 
 
-## Cut-out style assets are requested with real transparency (cleaner edges than flood-filling
-## a white backdrop); hollow frames keep the white fill their importer expects.
+## Cut-out style assets (parts, bodies, bosses) are requested with real transparency: cleaner
+## edges than flood-filling a white backdrop. Icons keep their black backdrop because the mono
+## importer keys on luminance there, which preserves holes inside a symbol; hollow frames keep
+## the white fill their importer expects.
 static func api_background(entry: Dictionary) -> String:
 	var mode: String = entry.get("mode", "palette")
-	if ["palette", "cutout", "mono"].has(mode) and not bool(entry.get("hollow", false)):
+	if ["palette", "cutout"].has(mode) and not bool(entry.get("hollow", false)):
 		return "transparent"
 	return "opaque"
 
