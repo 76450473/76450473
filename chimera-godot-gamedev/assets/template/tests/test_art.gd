@@ -170,6 +170,14 @@ func test_enemy_specs_use_villain_art() -> void:
 	check(bool(vg.enemy), "visual genome carries the flag")
 	var hero := VisualGenome.build({"template": team[0].template, "genes": []}, db)
 	check(not bool(hero.get("enemy", false)), "player units are not enemies")
+	# independent of what art the project has: fake the library cache
+	var plan: String = vg.body_plan
 	ArtLibrary.clear()
-	check(ArtLibrary.body_for(vg).is_empty(), "no villain art and no body art -> procedural fallback")
+	ArtLibrary._cache["res://art/bodies/" + plan] = {"tag": "hero"}
+	ArtLibrary._cache["res://art/bodies/%s_enemy" % plan] = {"tag": "villain"}
+	check_eq(ArtLibrary.body_for(vg).get("tag", ""), "villain", "enemies use the villain art")
+	check_eq(ArtLibrary.body_for(hero).get("tag", ""), "hero", "player units use the hero art")
+	ArtLibrary._cache["res://art/bodies/%s_enemy" % plan] = {}
+	check_eq(ArtLibrary.body_for(vg).get("tag", ""), "hero", "no villain art -> enemies fall back to the hero art")
+	ArtLibrary.clear()
 
