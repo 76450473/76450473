@@ -532,7 +532,8 @@ const REVIEW = /*__REVIEW_DATA__*/null;
   }
 
   var batch = str(data.batch !== undefined && data.batch !== null ? data.batch : '0');
-  var STORE_KEY = 'chimera-review-' + batch;
+  // token = this workspace's id: two workspaces (or a reset studio) at the same batch number never share decisions
+  var STORE_KEY = 'chimera-review-' + str(data.token || '') + '-' + batch;
   var screens = (data.screens && typeof data.screens === 'object') ? data.screens : {};
   document.title = '美术复审 · 第 ' + batch + ' 批 · 奇美拉纪元';
 
@@ -558,6 +559,7 @@ const REVIEW = /*__REVIEW_DATA__*/null;
       items.forEach(function (it) {
         var id = str(it.id), s = src[id];
         if (!s || typeof s !== 'object') return;
+        if (typeof s.pick === 'string' && s.pick !== str(it.pick)) return;  // decided on an older candidate
         var d = dec[id];
         if (s.decision === 'approve' || s.decision === 'reject') { d.decision = s.decision; n++; }
         d.choice = (s.choice === 'alt' && hasAlt(it)) ? 'alt' : 'pick';
@@ -571,7 +573,7 @@ const REVIEW = /*__REVIEW_DATA__*/null;
       var out = {};
       Object.keys(dec).forEach(function (id) {
         var d = dec[id];
-        if (d.decision || d.comment) out[id] = { decision: d.decision, choice: d.choice, comment: d.comment };
+        if (d.decision || d.comment) out[id] = { decision: d.decision, choice: d.choice, comment: d.comment, pick: cards[id] ? str(cards[id].it.pick) : '' };
       });
       window.localStorage.setItem(STORE_KEY, JSON.stringify({ v: 1, saved: new Date().toISOString(), submitted: S.submitted || undefined, items: out }));
     } catch (e) { /* storage unavailable: page still works */ }
@@ -1077,8 +1079,12 @@ const REVIEW = /*__REVIEW_DATA__*/null;
     var out = {};
     order.forEach(function (id) {
       var d = dec[id];
-      if (d.decision === 'approve') out[id] = { decision: 'approve', choice: d.choice === 'alt' ? 'alt' : 'pick', comment: d.comment.trim() };
-      else if (d.decision === 'reject') out[id] = { decision: 'reject', comment: d.comment.trim() };
+      // "pick" = the file this decision was made on (REVIEW.items[i].pick, verbatim), so a stale result
+      // can never approve or reject a newer candidate
+      var pick = cards[id] ? cards[id].it.pick : '';
+      if (typeof pick !== 'string') pick = str(pick);
+      if (d.decision === 'approve') out[id] = { decision: 'approve', choice: d.choice === 'alt' ? 'alt' : 'pick', comment: d.comment.trim(), pick: pick };
+      else if (d.decision === 'reject') out[id] = { decision: 'reject', comment: d.comment.trim(), pick: pick };
     });
     var b = data.batch;
     return { batch: (typeof b === 'number' || typeof b === 'string') ? b : batch, submitted: new Date().toISOString(), items: out };

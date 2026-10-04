@@ -6,15 +6,16 @@ extends SceneTree
 ##   ... -- p1   -> ART_TODO.md limited to priority 1   (legacy "-- full" / "-- txt" are accepted and ignored)
 ## The list is derived from game data, so new genes/biomes/cards show up here automatically.
 
-const INTRO := """怎么用：
+const INTRO := """怎么用（工作区里有 GPTapi.txt 时，这些都由 Claude 自动完成，你只需要在审核页面复审）：
 1. 用任意 AI 生图工具（Midjourney / Stable Diffusion / 即梦 / 通义万相 / GPT 图像 …）复制下面的提示词生成。
-   Midjourney：末尾加 `--ar 比例 --style raw --no 反向提示词`；出了满意的第一张后，后续都加 `--sref 它的链接`，保持风格统一。
+   Midjourney：建议用二次元模型（--niji 6），末尾加 `--ar 比例 --no 反向提示词`；出了满意的第一张后，后续都加 `--sref 它的链接`，保持风格统一。
    没有反向提示词栏的工具（GPT 图像等）：在提示词末尾加 `Avoid: 反向提示词`。
    即梦、通义万相、可灵：可以直接粘贴英文提示词；请关闭"智能扩写/提示词优化"，否则会自动加背景。
-   能直接输出透明背景 PNG 的工具也可以用，导入时会自动识别。
-2. 每张图按「保存为」的文件名放进项目的 `art_inbox/` 文件夹（png/jpg/webp 都行，名字对了最省事）。
-3. 背景要求：灰度/去背景类用**纯白平底**，图标用**纯黑平底**；主体要有**粗深色描边**，这样才能自动抠图。
-4. 在 `art_inbox/credits.txt` 写一行：用的工具/模型 + 授权（例如：Midjourney v7，付费订阅可商用）。
+   能直接输出透明背景 PNG 的工具最好，导入时会自动识别。
+2. 每张图按「保存为」的文件名保存（png/jpg/webp 都行，名字对了最省事），放进工作区的 `美术资产/已通过/`，或者打包成 zip 放在工作区。
+3. 背景要求：角色立绘、部件、Boss 用**纯白平底**（或透明），图标用**纯黑平底**；主体边缘要清楚，这样才能自动抠图。
+   所有角色都是成年人，服装性感但不裸露。
+4. 写一行 credits（用的工具/模型 + 授权，例如：Midjourney v7，付费订阅可商用），放进资产包的 credits.txt。
 5. 对 Claude 说「导入美术」。它会处理、截图检查，并告诉你哪些要重做、还缺什么。
 缺的资产不影响游戏运行——会自动用程序化占位美术代替。"""
 

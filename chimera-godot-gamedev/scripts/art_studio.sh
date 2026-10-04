@@ -7,7 +7,7 @@
 #   plan <sel>                  list + cost estimate (sends nothing)    <sel>: anchor|p1|p2|p3|all|redo|ids
 #   gen <sel> [--max-usd X] [--n N] [--quality low|medium|high] [--again] [--no-ref]
 #   apply                       apply Claude's verdicts in 美术资产/初审.json
-#   trial                       import the picks into a throwaway copy of the game, take the 4 QA
+#   trial                       import the picks into a throwaway copy of the game, take the QA
 #                               screenshots, copy processed previews, build 美术资产/审核页面.html
 #   page                        rebuild 审核页面.html only
 #   serve [--no-open] [--port P] [--minutes M]   local review server; opens the user's browser;
@@ -41,7 +41,17 @@ studio() {  # run tools/art_studio.gd; drop the engine banner
 
 case "$CMD" in
   status|ping|plan|gen|apply|page|user-apply)
-    studio "$CMD" "$@"; exit $? ;;
+    # --file <path>: relative to the folder the user ran this from (Godot runs elsewhere), Windows-style for Godot
+    args=()
+    while [ $# -gt 0 ]; do
+      if [ "$1" = "--file" ] && [ $# -ge 2 ]; then
+        case "$2" in /*|[A-Za-z]:*) f="$2" ;; *) f="$CALLER/$2" ;; esac
+        args+=("--file" "$(winpath "$f")"); shift 2
+      else
+        args+=("$1"); shift
+      fi
+    done
+    studio "$CMD" ${args[@]+"${args[@]}"}; exit $? ;;
 
   trial)
     list="$(studio trial-list | tr -d '\r')"   # Windows consoles may end lines with CRLF
@@ -51,8 +61,13 @@ case "$CMD" in
     T="$ART/.trial_project"
     [ -n "$ART" ] && [ -d "$T" ] && rm -rf -- "$T"
     mkdir -p "$T" "$ART/待复审/试装"
-    cp -R "$G/." "$T/"
-    rm -rf -- "$T/.git"
+    # entry by entry: an old single-folder project holds 美术资产/ itself (and .trial_project inside it),
+    # and the key file / .env must never land in the throwaway copy
+    for e in "$G"/* "$G"/.[!.]* "$G"/..?*; do
+      [ -e "$e" ] || [ -L "$e" ] || continue
+      case "$(basename "$e")" in 美术资产|.git|[Gg][Pp][Tt][Aa][Pp][Ii]*|.env|.env.*|chimera-godot-gamedev*) continue ;; esac
+      cp -R "$e" "$T/"
+    done
     find "$T/art_inbox" -mindepth 1 -maxdepth 1 ! -name README.txt ! -name .gdignore -exec rm -rf {} + 2>/dev/null
     n=0
     while IFS=$'\t' read -r tag id path; do
@@ -63,9 +78,9 @@ case "$CMD" in
     "$GODOT" --headless --path "$(winpath "$T")" --script res://tools/import_art.gd 2>&1 | grep -E '^(ok|  x|  \?|    !)'
     "$GODOT" --headless --path "$(winpath "$T")" --import >/dev/null 2>&1
     echo "== trial screenshots"
-    for s in art_gallery art_parts art_images main; do
+    for s in art_gallery art_parts art_images art_enemies main; do  # = SCREENS in tools/art_studio.gd
       rm -f "$T/screenshots/$s.png"
-      bash "$HERE/screenshot.sh" "$T" "res://scenes/$s.tscn" "screenshots/$s.png" >/dev/null
+      [ -f "$T/scenes/$s.tscn" ] && bash "$HERE/screenshot.sh" "$T" "res://scenes/$s.tscn" "screenshots/$s.png" >/dev/null
       if [ -f "$T/screenshots/$s.png" ]; then cp "$T/screenshots/$s.png" "$ART/待复审/试装/$s.png"
       else rm -f "$ART/待复审/试装/$s.png"; fi
     done
@@ -86,10 +101,18 @@ case "$CMD" in
       case "$(basename "$z")" in chimera-godot-gamedev*) continue ;; esac
       packs+=("$z")
     done < <(find "$W" "$ART" -maxdepth 1 -type f -iname '*.zip' -print0 2>/dev/null)
+    # In an old single-folder layout the workspace IS the game: its own folders (art/ above all) are
+    # never a pack, or the import would move the game's art away. Anything Godot has touched (*.import,
+    # scripts, scenes, resources) or the skill itself is never a pack either.
+    proj_dirs=" art art_inbox screenshots data docs scenes src tests tools ui addons "
+    [ -f "$W/project.godot" ] && w_is_game=1 || w_is_game=0
     while IFS= read -r -d '' d; do
-      case "$(basename "$d")" in 美术资产|游戏|.claude|chimera-godot-gamedev*) continue ;; esac
+      b="$(basename "$d")"
+      case "$b" in 美术资产|游戏|.*|chimera-godot-gamedev*) continue ;; esac
+      lb="$(printf '%s' "$b" | tr 'A-Z' 'a-z')"
+      [ $w_is_game = 1 ] && case "$proj_dirs" in *" $lb "*) continue ;; esac
       [ -f "$d/.gdignore" ] && continue
-      find "$d" -maxdepth 4 -type f \( -name '*.gd' -o -name '*.tscn' -o -name 'SKILL.md' \) 2>/dev/null | grep -q . && continue
+      find "$d" -maxdepth 4 -type f \( -name '*.import' -o -name '*.gd' -o -name '*.tscn' -o -name '*.tres' -o -name '*.gdshader' -o -name 'project.godot' -o -name 'SKILL.md' \) 2>/dev/null | grep -q . && continue
       if find "$d" -maxdepth 4 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.jfif' \) 2>/dev/null | grep -q .; then
         packs+=("$d")
       fi

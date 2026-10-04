@@ -13,10 +13,10 @@ extends RefCounted
 const DEFAULTS := {
 	"base_url": "https://api.openai.com/v1", "model": "gpt-image-1", "quality": "medium", "n": 3,
 	"budget": 3.0, "style_ref": "auto", "moderation": "auto", "proxy": "", "concurrency": 2,
-	"max_rounds": 3, "timeout": 300,
+	"max_rounds": 3, "timeout": 300, "budget_total": 0.0,
 }
-const SETTING_KEYS := ["base_url", "model", "quality", "n", "budget", "style_ref", "moderation", "proxy",
-	"concurrency", "max_rounds", "timeout"]
+const SETTING_KEYS := ["base_url", "model", "quality", "n", "budget", "budget_total", "style_ref", "moderation",
+	"proxy", "concurrency", "max_rounds", "timeout"]
 const KEY_NAMES := ["key", "api_key", "apikey", "openai_api_key", "token"]
 ## Output image tokens per image: [square, non-square] (OpenAI gpt-image-1 docs, 2025).
 const OUT_TOKENS := {"low": [272, 408], "medium": [1056, 1584], "high": [4160, 6240]}
@@ -62,31 +62,33 @@ static func parse_key_file(text: String) -> Dictionary:
 	var settings := {}
 	var errors: PackedStringArray = []
 	var warnings: PackedStringArray = []
+	var line_no := 0
 	text = text.replace("﻿", "").replace("\r", "\n").replace("　", " ")
 	for raw: String in text.split("\n"):
 		var line := raw.strip_edges()
 		if line == "" or line.begins_with("#") or line.begins_with("//"):
 			continue
+		line_no += 1
 		var eq := -1
 		for sep: String in ["=", "：", ":"]:  # "key=sk-..", "key：sk-.." (Chinese IME), "model: x"
 			var i := line.find(sep)
 			if i <= 0:
 				continue
 			var nm := line.substr(0, i).strip_edges().to_lower()
-			if sep == "=" or KEY_NAMES.has(nm) or SETTING_KEYS.has(nm):
+			if KEY_NAMES.has(nm) or SETTING_KEYS.has(nm):  # only known names: a token like "abc==" stays a key
 				eq = i
 				break
-		if eq > 0 and not line.substr(0, eq).strip_edges().contains(" "):
+		if eq > 0:
 			var name := line.substr(0, eq).strip_edges().to_lower()
 			var value := _unquote(line.substr(eq + 1).strip_edges())
 			if KEY_NAMES.has(name):
 				key = value
-			elif SETTING_KEYS.has(name):
-				settings[name] = value
 			else:
-				warnings.append("GPTapi.txt 里不认识的设置：%s（已忽略）" % name)
+				settings[name] = value
 		elif key == "":
 			key = _unquote(line)
+		else:  # never echo the line: it may be a second key
+			warnings.append("GPTapi.txt 第 %d 个非空行看不懂，已忽略（设置要写成 名字=值，例如 proxy=http://127.0.0.1:7890）" % line_no)
 	if key.begins_with("Bearer "):
 		key = key.substr(7).strip_edges()
 	var key_err := check_key(key)
@@ -102,6 +104,17 @@ static func parse_key_file(text: String) -> Dictionary:
 		else:
 			clean[k] = res.value
 	return {"key": key, "settings": clean, "errors": errors, "warnings": warnings}
+
+
+## Removes the key (and anything that looks like an OpenAI-style key) from text that came from the
+## network, so relay error pages that echo the Authorization header never reach logs or 记录.json.
+static func redact(text: String, key: String) -> String:
+	var out := text
+	if key.length() >= 8:
+		out = out.replace(key, "sk-…" + key.right(4)).replace(key.to_lower(), "sk-…" + key.right(4))
+	var re := RegEx.new()
+	re.compile("(sk-|Bearer\\s+)[A-Za-z0-9_\\-]{12,}")
+	return re.sub(out, "$1…(已隐藏)", true)
 
 
 ## "" when the key looks usable, otherwise a Chinese explanation (never echoes the key).
@@ -126,9 +139,9 @@ static func _unquote(s: String) -> String:
 static func _check_setting(k: String, v: String) -> Dictionary:
 	match k:
 		"quality":
-			if ["low", "medium", "high", "auto"].has(v.to_lower()):
+			if ["low", "medium", "high"].has(v.to_lower()):
 				return {"value": v.to_lower()}
-			return {"error": "quality 只能是 low / medium / high"}
+			return {"error": "quality 只能是 low / medium / high（auto 会让费用无法预估，不支持）"}
 		"n":
 			if v.is_valid_int() and int(v) >= 1 and int(v) <= 8:
 				return {"value": int(v)}
@@ -145,11 +158,11 @@ static func _check_setting(k: String, v: String) -> Dictionary:
 			if v.is_valid_int() and int(v) >= 30:
 				return {"value": int(v)}
 			return {"error": "timeout 至少 30（秒）"}
-		"budget":
-			var b := v.trim_prefix("$").trim_suffix("美元").trim_suffix("刀").strip_edges()
-			if b.is_valid_float() and float(b) > 0.0:
+		"budget", "budget_total":
+			var b := v.trim_prefix("$").trim_suffix("$").trim_suffix("美元").trim_suffix("刀").strip_edges()
+			if b.is_valid_float() and float(b) > 0.0 and float(b) < 10000.0:
 				return {"value": float(b)}
-			return {"error": "budget 要写成数字，单位美元，例如 budget=5"}
+			return {"error": "%s 要写成数字，单位美元，例如 %s=5" % [k, k]}
 		"style_ref":
 			if ["auto", "off", "on"].has(v.to_lower()):
 				return {"value": "off" if v.to_lower() == "off" else "auto"}
@@ -263,9 +276,9 @@ static func api_background(entry: Dictionary) -> String:
 
 ## The manifest prompt adapted for GPT: transparent backdrop, crop hint, style-reference
 ## preamble, negatives folded into an "Avoid:" sentence (the API has no negative prompt).
-static func gpt_prompt(entry: Dictionary, override: String, with_refs: bool) -> String:
+static func gpt_prompt(entry: Dictionary, override: String, with_refs: bool, alpha_ok: bool = true) -> String:
 	var p := override.strip_edges() if override.strip_edges() != "" else str(entry.get("prompt", ""))
-	if api_background(entry) == "transparent":
+	if alpha_ok and api_background(entry) == "transparent":
 		for phrase: String in BG_PHRASES:
 			p = p.replace(phrase, TRANSPARENT_BG)
 	if str(entry.get("fit", "fit")) == "cover":
@@ -288,6 +301,8 @@ static func gpt_prompt(entry: Dictionary, override: String, with_refs: bool) -> 
 
 ## Style-reference group of an asset: refs are only taken from the same group.
 static func ref_group(entry: Dictionary) -> String:
+	if bool(entry.get("enemy", false)):
+		return "villain"  # villains only learn from villains, so heroine references never make them cute
 	match str(entry.get("category", "")):
 		"part", "body":
 			return "creature"
@@ -324,6 +339,10 @@ static func pick_refs(entry: Dictionary, approved: Dictionary, entries_by_id: Di
 
 # ------------------------------------------------------------------ money
 
+static func _num(v: Variant) -> float:
+	return float(v) if (v is int or v is float) else 0.0
+
+
 static func price_known(model: String) -> bool:
 	return PRICES.has(model)
 
@@ -345,12 +364,16 @@ static func estimate_usd(model: String, quality: String, size: String, n: int, r
 
 ## Actual USD from the API's usage block; falls back to `fallback` when the relay sends none.
 static func usage_usd(model: String, usage: Dictionary, fallback: float) -> float:
-	if usage.is_empty() or not usage.has("output_tokens"):
-		return fallback
+	var out_v: Variant = usage.get("output_tokens", null)
+	if not (out_v is int or out_v is float) or float(out_v) <= 0.0:
+		return fallback  # relays often send zeros, nulls or strings
+	for k: String in ["input_tokens"]:
+		if not (usage.get(k, 0) is int or usage.get(k, 0) is float):
+			return fallback
 	var pr := _prices(model)
-	var details: Dictionary = usage.get("input_tokens_details", {})
-	var text_in := float(details.get("text_tokens", usage.get("input_tokens", 0)))
-	var image_in := float(details.get("image_tokens", 0))
+	var details: Dictionary = usage.get("input_tokens_details", {}) if usage.get("input_tokens_details", null) is Dictionary else {}
+	var text_in := _num(details.get("text_tokens", usage.get("input_tokens", 0)))
+	var image_in := _num(details.get("image_tokens", 0))
 	return (text_in * float(pr.text_in) + image_in * float(pr.image_in) + float(usage.output_tokens) * float(pr.out)) / 1e6
 
 
@@ -415,6 +438,9 @@ static func select(entries: Array, sel: String, assets: Dictionary, anchors: Arr
 			"claude_redo":
 				if int(a.get("round", 0)) >= max_rounds and not forced:
 					why = "已经生成 %d 轮：请从现有图里挑最好的交给用户复审" % int(a.get("round", 0))
+			"user_rejected":
+				if not bool(a.get("prompt_after_reject", false)) and not forced:
+					why = "用户退回了，但还没按意见改提示词：先在 初审.json 写 {\"prompt\": ...} 再重画"
 			"":
 				if present.has(e.id) and not forced:
 					why = "游戏里已经有这张图（之前导入的）；要重画请点名这个 id"
@@ -471,7 +497,7 @@ static func record_gen(state: Dictionary, id: String, files: Array, prompt: Stri
 
 static func record_failed(state: Dictionary, id: String, reason: String, now: String) -> void:
 	var a := asset(state, id)
-	if str(a.status) != "candidates" and str(a.status) != "user_review":
+	if str(a.status) == "":  # approved / rejected / redo / pending reviews keep their meaning
 		a["status"] = "failed"
 	a["last_error"] = reason
 	_log(a, now, {"event": "gen_failed", "reason": reason})
@@ -593,8 +619,12 @@ static func _resolve_candidate(v: Variant, candidates: Array) -> String:
 
 
 ## The user's decision on one asset (an entry of 复审结果.json "items").
+## available: file names currently in 待复审/. same_batch: the result file belongs to the current page
+## (only needed for old results whose items carry no "pick").
+## Nothing changes unless the decision was made on the image that is pending NOW and the file exists.
 ## Returns {"ok", "msg", "approve": name or "", "reject": [names]} (names inside 待复审/).
-static func apply_user(state: Dictionary, id: String, item: Dictionary, now: String) -> Dictionary:
+static func apply_user(state: Dictionary, id: String, item: Dictionary, now: String, available: Array = [],
+		same_batch: bool = true) -> Dictionary:
 	var a := asset(state, id)
 	var res := {"ok": false, "msg": "", "approve": "", "reject": []}
 	if str(a.status) != "user_review":
@@ -604,8 +634,18 @@ static func apply_user(state: Dictionary, id: String, item: Dictionary, now: Str
 	var comment := str(item.get("comment", "")).strip_edges()
 	var pick: String = str(a.get("pick", ""))
 	var alt: String = str(a.get("alt", ""))
+	var seen := str(item.get("pick", "")).replace("\\", "/").get_file()
+	if seen != "" and seen != pick:
+		res.msg = "你复审的是另一张图（%s），现在待复审的是 %s：已忽略，请在新的审核页面上再看一次" % [seen, pick]
+		return res
+	if seen == "" and not same_batch:
+		res.msg = "这份复审结果属于旧的审核页面，已忽略"
+		return res
 	if decision == "approve":
 		var chosen := alt if str(item.get("choice", "pick")) == "alt" and alt != "" else pick
+		if not available.is_empty() and not available.has(chosen):
+			res.msg = "找不到 待复审/%s（被挪走或删掉了？）：这项保持待复审，请重新生成或把文件放回去" % chosen
+			return res
 		res.approve = chosen
 		for f: String in [pick, alt]:
 			if f != "" and f != chosen:
@@ -677,12 +717,32 @@ static func page_data(entries: Array, state: Dictionary, present: Dictionary, pr
 			"pick": "待复审/" + str(a.get("pick", "")),
 			"alt": ("待复审/" + str(a.alt)) if str(a.get("alt", "")) != "" else "",
 			"processed": processed.get(e.id, ""),
-			"screen": SCREEN_OF.get(cat, "art_gallery") if screens.has(SCREEN_OF.get(cat, "")) else "",
+			"screen": screen_of(e) if screens.has(screen_of(e)) else "",
 			"note": str(a.get("claude_note", "")), "round": int(a.get("round", 1)), "prompt": last_prompt,
 		})
-	return {"batch": int(state.get("batch", 0)), "generated": now, "spent_usd": snappedf(float(state.get("spent_usd", 0.0)), 0.01),
+	return {"batch": int(state.get("batch", 0)), "token": str(state.get("workspace_id", "")), "generated": now, "spent_usd": snappedf(float(state.get("spent_usd", 0.0)), 0.01),
 		"model": model, "screens": screens, "items": items,
 		"progress": {"approved": approved, "total": entries.size(), "p1_approved": p1_ok, "p1_total": p1_total}}
+
+
+## Identity of the review set; the page's batch number only changes when this changes, so the
+## user's half-finished decisions (kept in the browser per batch) survive a page rebuild.
+static func review_signature(state: Dictionary) -> String:
+	var rows: Array = []
+	var assets: Dictionary = state.get("assets", {})
+	for id: String in assets:
+		var a: Dictionary = assets[id]
+		if str(a.get("status", "")) == "user_review":
+			rows.append("%s|%s|%s" % [id, str(a.get("pick", "")), str(a.get("alt", ""))])
+	rows.sort()
+	return ",".join(PackedStringArray(rows)).md5_text()
+
+
+## Which QA screenshot shows this asset in the game (review page thumbnail).
+static func screen_of(entry: Dictionary) -> String:
+	if bool(entry.get("enemy", false)):
+		return "art_enemies"
+	return str(SCREEN_OF.get(str(entry.get("category", "")), "art_gallery"))
 
 
 # ------------------------------------------------------------------ files
@@ -709,18 +769,30 @@ static func image_ext(bytes: PackedByteArray) -> String:
 
 # ------------------------------------------------------------------ API errors
 
-## HTTP outcome -> {"msg": Chinese explanation, "fatal": stop the whole run, "retry": try again,
-## "drop_param": optional parameter the endpoint rejected}. Never contains the key.
-static func explain_error(result: int, code: int, body: Dictionary, host: String, model: String) -> Dictionary:
+## HTTP outcome -> {"msg": Chinese explanation, "fatal": stop the whole run, "retry": safe to try again,
+## "maybe_billed": the provider may already have charged for this request (never retried automatically),
+## "drop_param": optional parameter the endpoint rejected}. The caller redacts msg (see redact()).
+## proxy_on: a proxy is configured; had_success: an earlier request of this run already worked.
+static func explain_error(result: int, code: int, body: Dictionary, host: String, model: String,
+		proxy_on: bool = false, had_success: bool = false) -> Dictionary:
 	var err: Dictionary = body.get("error", {}) if body.get("error", null) is Dictionary else {}
 	var message := str(err.get("message", "")).left(300)
 	var ecode := str(err.get("code", ""))
 	var etype := str(err.get("type", ""))
 	if result != HTTPRequest.RESULT_SUCCESS:
 		if result == HTTPRequest.RESULT_TIMEOUT:
-			return {"msg": "等了太久没有返回（超时）", "fatal": false, "retry": true}
+			return {"msg": "等了太久没有返回（超时）。这张可能已经生成并计费，所以不自动重试；需要的话稍后 gen redo", "fatal": false, "retry": false, "maybe_billed": true}
+		if result in [HTTPRequest.RESULT_CONNECTION_ERROR, HTTPRequest.RESULT_NO_RESPONSE,
+				HTTPRequest.RESULT_CHUNKED_BODY_SIZE_MISMATCH, HTTPRequest.RESULT_BODY_DECOMPRESS_FAILED]:
+			return {"msg": "连接在请求中途断开（网络或代理不稳定）。这张可能已经计费，所以不自动重试；稍后 gen redo", "fatal": false, "retry": false, "maybe_billed": true}
+		if proxy_on:
+			return {"msg": "通过代理连不上 %s：检查代理软件是否开着、GPTapi.txt 里 proxy= 的端口是否正确" % host, "fatal": true, "retry": false}
+		if had_success:
+			return {"msg": "突然连不上 %s 了（网络断开？）：恢复后重跑同一条 gen 会接着做" % host, "fatal": true, "retry": false}
 		return {"msg": "连不上 %s。如果你在中国大陆，需要代理或中转：在 GPTapi.txt 加一行 proxy=http://127.0.0.1:端口（代理软件里能看到端口，常见 7890），或者 base_url=中转服务地址" % host,
 			"fatal": true, "retry": false}
+	if code >= 300 and code < 400:
+		return {"msg": "接口地址被重定向（HTTP %d）。为了不把 Key 发到别的网站，已停止：请把 GPTapi.txt 里的 base_url 改成服务商给的最新地址" % code, "fatal": true, "retry": false}
 	match code:
 		401:
 			return {"msg": "Key 无效（401）：检查 GPTapi.txt 是否完整复制、没有多余字符，Key 是否已被删除", "fatal": true, "retry": false}
@@ -738,11 +810,13 @@ static func explain_error(result: int, code: int, body: Dictionary, host: String
 			return {"msg": "请求太快被限流（429），稍等后自动重试", "fatal": false, "retry": true}
 		400:
 			if ecode == "moderation_blocked" or ecode == "content_policy_violation" or message.to_lower().contains("safety"):
-				return {"msg": "提示词被安全系统拦截：需要改写提示词（避开 gore、blood、corpse、weapon 这类容易误判的词）", "fatal": false, "retry": false}
+				return {"msg": "提示词被安全系统拦截：需要改写提示词（避开 gore、blood、corpse、weapon，以及过于暴露的服装描述）", "fatal": false, "retry": false}
 			for p: String in ["moderation", "background", "output_format", "quality"]:
 				if message.contains("'" + p + "'") or message.contains("\"" + p + "\"") or message.contains(" " + p + " ") or ecode == "unknown_parameter" and message.contains(p):
 					return {"msg": "接口不支持参数 %s，去掉后重试" % p, "fatal": false, "retry": true, "drop_param": p}
 			return {"msg": "请求被拒绝（400）：%s" % message, "fatal": false, "retry": false}
+		502, 504, 520, 522, 524:  # gateway timeouts: the upstream may have finished (and billed) anyway
+			return {"msg": "网关超时（%d）：这张可能已经生成并计费，所以不自动重试；稍后 gen redo" % code, "fatal": false, "retry": false, "maybe_billed": true}
 	if code >= 500:
-		return {"msg": "OpenAI 服务器出错（%d），稍后自动重试" % code, "fatal": false, "retry": true}
+		return {"msg": "OpenAI 服务器出错（%d），稍后自动重试一次" % code, "fatal": false, "retry": true, "server_error": true}
 	return {"msg": "意外的返回（HTTP %d）：%s" % [code, message], "fatal": false, "retry": false}

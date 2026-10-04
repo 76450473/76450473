@@ -3,6 +3,7 @@ extends Node2D
 ##   page 1 (art_gallery.tscn): bare body per body plan with socket markers + race showcases + all icons
 ##   page 2 (art_parts.tscn):   every one of the part kinds, each worn alone by a fitting creature
 ##   page 3 (art_images.tscn):  backgrounds, title, UI, card frame/back, boss and card illustrations
+##   page 4 (art_enemies.tscn): villain bodies (enemies) bare + wearing genes, facing left like on the board
 ## Imported asset = drawn from art/; missing = procedural fallback or a dashed placeholder box.
 ## Fix misplaced parts via art/bodies/<plan>.json "sockets" or art/parts/<kind>.json "offset"/"scale_mult".
 
@@ -20,14 +21,17 @@ func _ready() -> void:
 	for e: Dictionary in entries:
 		if ArtManifest.is_present(e):
 			done += 1
-	var titles := {1: "骨架 · 种族展示 · 图标", 2: "全部部件（每个部件单独装在一只生物身上）", 3: "背景 · 界面 · Boss · 卡图"}
-	_label(Vector2(24, 12), 22, "美术检查台 %d/3：%s　｜　已导入 %d / %d" % [page, titles.get(page, ""), done, entries.size()])
+	var titles := {1: "骨架 · 种族展示 · 图标", 2: "全部部件（每个部件单独装在一只生物身上）", 3: "背景 · 界面 · Boss · 卡图",
+		4: "敌方反派（骨架 · 装上基因，朝左）"}
+	_label(Vector2(24, 12), 22, "美术检查台 %d/4：%s　｜　已导入 %d / %d" % [page, titles.get(page, ""), done, entries.size()])
 	_label(Vector2(24, 44), 13, "✓ = 用的是导入的图；（占位）= 程序画的占位。粉色十字 = 部件挂点。错位：调 art/bodies/<骨架>.json 的 sockets 或 art/parts/<部件>.json 的 offset / scale_mult / rotation")
 	match page:
 		2:
 			_page_parts()
 		3:
 			_page_images(entries)
+		4:
+			_page_enemies()
 		_:
 			_page_bodies_icons(entries)
 	queue_redraw()
@@ -174,13 +178,31 @@ func _page_images(entries: Array) -> void:
 		row_h = maxf(row_h, size.y)
 
 
+# ---------------------------------------------------------------- page 4
+
+func _page_enemies() -> void:
+	var col_w := 260.0
+	var i := 0
+	for plan: String in Defs.BODY_PLANS:
+		var race := _race_for_plan(plan)
+		var bare := {"template": _template_for(race, ""), "genes": [], "enemy": true}
+		_creature(bare, Vector2(130 + i * col_w, 380), true, 1.0, -1)
+		var ok := not ArtLibrary.lookup("res://art/bodies/%s_enemy" % plan).is_empty()
+		_label(Vector2(40 + i * col_w, 400), 14, "body_%s_enemy %s" % [plan, "✓" if ok else "（占位）"])
+		var armed := _showcase(race)
+		armed["enemy"] = true
+		_creature(armed, Vector2(130 + i * col_w, 780), false, 1.0, -1)
+		_label(Vector2(40 + i * col_w, 800), 14, "敌方%s · 装上基因" % db.races[race].name)
+		i += 1
+
+
 # ---------------------------------------------------------------- helpers
 
-func _creature(spec: Dictionary, pos: Vector2, sockets_on: bool, s: float) -> CreatureView:
+func _creature(spec: Dictionary, pos: Vector2, sockets_on: bool, s: float, facing: int = 1) -> CreatureView:
 	var view := CreatureView.new()
 	view.position = pos
 	add_child(view)
-	view.setup(VisualGenome.build(spec, db), db.races, 1, s)
+	view.setup(VisualGenome.build(spec, db), db.races, facing, s)
 	view.show_sockets = sockets_on
 	return view
 

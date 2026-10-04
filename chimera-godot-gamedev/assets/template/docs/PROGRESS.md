@@ -10,9 +10,10 @@ M0 地基（模板自带，已验证）→ 下一步：M1 可玩的一场战斗
 - [x] M0 敌人生成 EnemyFactory（普通/精英协同/Boss 核心）
 - [x] M0 VisualGenome + 程序化占位生物 + 材质层 shader
 - [x] M0 测试、平衡模拟、截图工具、CI
-- [x] M0 美术协作管线：data/art_manifest.json（82 项资产规格+提示词）、tools/art_audit.gd（缺失清单 docs/ART_TODO.md）、
-      tools/import_art.gd（art_inbox/ → 抠图/裁边/灰度/缩放/挂点 → art/）、ArtLibrary（有图用图，无图回退程序化）、
-      part_palette shader（灰度图按种族上色+发光强调色）、scenes/art_gallery.tscn（美术检查台）
+- [x] M0 美术协作管线：data/art_manifest.json（88 项资产规格+提示词，二次元×仙侠立绘×哥特未来，我方 6 名主角+6 个敌方反派）、
+      tools/art_audit.gd（缺失清单 docs/ART_TODO.md）、tools/import_art.gd（art_inbox/ → 抠图/裁边/缩放/挂点 → art/）、
+      ArtLibrary（有图用图，无图回退程序化；敌人优先用反派立绘）、GPT 美术工作室 tools/art_studio.gd + 审核页面、
+      美术检查台四页（art_gallery / art_parts / art_images / art_enemies）
 
 ## 进行中
 （空）

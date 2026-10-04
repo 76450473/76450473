@@ -7,7 +7,7 @@
 模板自带：数据校验、确定性战斗、融合、敌人生成、程序化生物、材质 shader、美术管线（清单、解压、导入、上色、检查台）、全套测试、平衡模拟、截图工具、CI。
 **验收**：
 - `godot_check.sh` 全绿
-- 截图 `screenshots/main.png`（基因实验室）、`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`（美术检查台三页）都已亲眼看过，血统一眼可辨
+- 截图 `screenshots/main.png`（基因实验室）、`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`art_enemies.png`（美术检查台四页）都已亲眼看过，血统一眼可辨，敌方反派明显更强
 - 用户有资产包时：已按 art-pipeline §4 质检，并汇报了需要重做和缺失的资产
 
 ## M1 一场可玩的战斗
@@ -50,7 +50,7 @@
 
 ## M5 正式美术落地（管线在 M0 就已就绪，用户随时可以上传）
 - 和用户一起把 P1、P2 美术补齐（art-pipeline §4）。每次导入都要截图质检，错位只改 sidecar 不改代码。
-- 每个种族的部件和骨架都有正式美术；三个生态区各有背景；卡框、UI 主题（ui_panel、ui_button 做成九宫格 StyleBox）、全部图标就位。
+- 每个种族的我方立绘、敌方反派立绘和部件都有正式美术；三个生态区各有背景；卡框、UI 主题（ui_panel、ui_button 做成九宫格 StyleBox）、全部图标就位。
 - 每种骨架做一套 AnimationPlayer：idle、attack、hit、death。
 - 所有素材都登记在 CREDITS.md（作者、授权、AI 工具）。
 

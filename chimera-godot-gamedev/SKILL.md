@@ -66,28 +66,28 @@ bash SKILL_DIR/scripts/godot_check.sh 游戏 --balance
 
 `setup_workspace.sh` 内部调用 `new_project.sh 游戏` 和 `art_studio.sh . sync`。工作区里有资产包时，后者会调用 `import_assets.sh`，依次完成：
 1. 用 Godot 自带的 ZIPReader 解压（Windows 不需要装 unzip）
-2. 抠图、裁边、转灰度
+2. 抠图、裁边、缩放
 3. 注册到 Godot
 4. 统计缺失情况
 5. 运行全量检查
-6. 截 4 张图：美术检查台三页（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`）和基因实验室（`screenshots/main.png`）。没有资产包时也会截图，只是显示占位美术。
+6. 截 5 张图：美术检查台四页（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`art_enemies.png`）和基因实验室（`screenshots/main.png`）。没有资产包时也会截图，只是显示占位美术。
 
 导入过的包会被移进 `美术资产/_已导入的包/`，不会重复导入。新项目会设置仓库级的 git 身份（只在用户没有配置时），所以后续的 commit 不会失败。
 
 模板已经包含：
 - 内容：6 个种族、13 个单位模板、28 个基因、8 张战术卡、3 个生态区、6 个精英协同、1 个 Boss、3 个隐藏配方
 - 系统：确定性战斗、语义融合、敌人生成、程序化生物外观加材质 shader
-- **美术协作管线**：82 项资产清单和提示词、资产包解压、自动导入、灰度图按种族上色、缺失审计、美术检查台
+- **美术协作管线**：88 项资产清单和提示词（二次元 × 仙侠立绘 × 哥特未来，含 6 个敌方反派立绘）、GPT 美术工作室、资产包解压、自动导入、缺失审计、美术检查台
 - 工具：完整的单元测试、平衡模拟、截图工具、GitHub Actions CI
 
 **M0 完成时必须做的事**：
-1. 用 Read 打开 4 张截图（`游戏/screenshots/` 里的检查台三页加基因实验室）。
+1. 用 Read 打开 5 张截图（`游戏/screenshots/` 里的检查台四页加基因实验室）。
 2. 用户带了自己的美术：按 art-pipeline §4、§5 逐项质检。文件名不认识的图，看图后在 `游戏/art_inbox/` 里改名，再重跑 `import_assets.sh 游戏`；错位的部件改 sidecar json，改完重新截图。
 3. **有 GPTapi.txt（GPT 模式）**：`setup_workspace.sh` 的输出里有 Key 检查结果。接着跑 `art_studio.sh . plan anchor`，把定调批（6 张）的费用告诉用户，用户同意后按 art-studio §2 生成 → 初审 → 试装 → `serve`。用户复审期间不要等，直接开始 M1。
 4. 向用户汇报：
    - 美术模式（GPT / 手动），已有资产的覆盖率（P1、P2、P3）
    - 手动模式下：**需要重做的图**（附改好的完整提示词）、还缺的 P1 资产（列前 10 项）
-   - 4 张截图的路径
+   - 5 张截图的路径
 5. 然后直接开始 M1，不要等美术，缺的图会用占位美术代替。
 
 ## 4. 架构速览（细节见 `references/systems-spec.md`）
@@ -132,8 +132,8 @@ autoload：Data（Data.db）、Rng（运行期随机流）
 - **美术**（`visual-system.md` 和 `art-pipeline.md`）：
   - GPT 模式下由你生成并初审，用户只做复审；手动模式下用户出图。导入、适配和质检都是你的事。
   - 耗时的命令要用 run_in_background：`art_studio.sh . serve` 必须如此，超过 5 项的 `gen` 也要这样跑。
-  - 部件和骨架用灰度图，由 `part_palette` shader 上色：骨架用宿主的种族配色；部件保留来源种族的颜色，再混入 25% 的宿主底色，所以既认得出来源又协调。这是设计如此。
-  - 每次导入后，美术检查台三页都要截图并亲眼看；对齐问题只改 sidecar json，不改代码。
+  - 美术方向：**二次元 × 仙侠立绘 × 哥特未来**（visual-system §1）。每族一名成年角色立绘，我方以女性为主；敌人用同族的反派立绘，更大更凶；基因部件是可装配的配饰，保留来源种族的配色。**所有角色都是成年人**，性感但不裸露。
+  - 每次导入后，美术检查台四页都要截图并亲眼看；对齐问题只改 sidecar json，不改代码。
   - 用户说"导入美术"、"我上传了图"、"缺什么图"时，严格按 art-pipeline §4 执行；说"生成美术"、"复审好了"、"继续出图"时，按 art-studio §2 执行。
   - 汇报时必须列出：需要重做的图（附改好的完整提示词）、还缺的 P1 资产。
   - 新增部件、骨架、生态区、卡牌、Boss 时，同步在 `data/art_manifest.json` 里加条目（test_data 会检查）。

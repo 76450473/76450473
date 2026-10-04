@@ -7,7 +7,8 @@ extends RefCounted
 ##          prompt, negative, used_by, socket?, anchor?, height?, size?, hollow?}
 
 const CATEGORY_ORDER := ["body", "part", "background", "icon", "ui", "boss", "card_art"]
-const GEN_SIZE := {"1:1": "1024×1024", "16:9": "1920×1080", "5:7": "1024×1434", "4:3": "1024×768", "3:1": "1536×512"}
+const GEN_SIZE := {"1:1": "1024×1024", "16:9": "1920×1080", "5:7": "1024×1434", "4:3": "1024×768", "3:1": "1536×512",
+	"2:3": "1024×1536"}
 
 
 static func build(db: GameData) -> Array:
@@ -45,28 +46,46 @@ static func build(db: GameData) -> Array:
 		out.append({
 			"id": "part_" + kind, "category": "part", "kind": kind,
 			"cn": "%s（%s部件）" % [spec.get("cn", kind), db.races.get(race, {}).get("name", "通用")],
-			"path": "res://art/parts/%s.png" % kind, "mode": spec.get("mode", "palette"), "canvas": [256, 256], "fit": "fit",
+			"path": "res://art/parts/%s.png" % kind, "mode": spec.get("mode", m.get("part_mode", "palette")), "canvas": [256, 256], "fit": "fit",
 			"ratio": "1:1", "bg": "纯白", "priority": 3 if u.genes.is_empty() else (1 if early.has(race) else 2),
-			"prompt": "%s. Subject: %s. Surface materials: %s. %s" % [style.get("part", ""),
-				spec.get("subject", kind), race_art.get(race, "creature"), clause],
+			"prompt": ("%s. Subject: %s. %s. %s" % [style.get("part", ""),
+				spec.get("subject", kind), race_art.get(race, "creature"), clause]).strip_edges(),
 			"negative": style.get("negative", ""), "used_by": u.genes,
 			"socket": spec.get("socket", "core"), "anchor": spec.get("anchor", "center"),
 			"height": float(spec.get("height", 20)), "accent": accent, "hollow": bool(spec.get("hollow", false)),
 		})
 
-	# --- bodies (palette mode) ----------------------------------------------
+	# --- bodies: one hero standee per body plan + a villain version for enemies ----
+	var first_enemies: Array = [] if db.biomes.is_empty() else (db.biomes.values()[0] as Dictionary).get("enemy_races", [])
 	for plan: String in Defs.BODY_PLANS:
 		var b: Dictionary = (m.get("bodies", {}) as Dictionary).get(plan, {})
 		var race: String = b.get("race", "")
+		var ratio: String = b.get("ratio", m.get("body_ratio", "1:1"))
 		out.append({
 			"id": "body_" + plan, "category": "body", "kind": plan, "cn": b.get("cn", plan),
-			"path": "res://art/bodies/%s.png" % plan, "mode": b.get("mode", "palette"), "canvas": [512, 512], "fit": "fit",
-			"ratio": "1:1", "bg": "纯白", "priority": 1 if early.has(race) else 2,
-			"prompt": "%s. Subject: %s. Surface materials: %s. %s" % [style.get("body", ""), b.get("subject", plan),
-				race_art.get(race, ""), style.get("no_accent_clause", "")],
+			"path": "res://art/bodies/%s.png" % plan, "mode": b.get("mode", m.get("body_mode", "palette")),
+			"canvas": b.get("canvas", m.get("body_canvas", [512, 512])), "fit": "fit",
+			"ratio": ratio, "bg": "纯白", "priority": 1 if early.has(race) else 2,
+			"prompt": ("%s. Character: %s. %s. %s" % [style.get("body", ""), b.get("subject", plan),
+				race_art.get(race, ""), style.get("no_accent_clause", "")]).strip_edges(),
 			"negative": style.get("negative_body", style.get("negative", "")), "used_by": [db.races.get(race, {}).get("name", race)],
 			"anchor": "bottom_center", "body_fit": b.get("fit", "height"), "size": float(b.get("size", 130)),
 			"sockets": b.get("sockets", m.get("default_body_sockets", {})),
+		})
+		if str(b.get("enemy_subject", "")) == "":
+			continue
+		out.append({
+			"id": "body_%s_enemy" % plan, "category": "body", "kind": plan, "enemy": true,
+			"cn": str(b.get("enemy_cn", "%s·敌方反派" % b.get("cn", plan))),
+			"path": "res://art/bodies/%s_enemy.png" % plan, "mode": b.get("mode", m.get("body_mode", "palette")),
+			"canvas": m.get("enemy_body_canvas", m.get("body_canvas", [512, 512])), "fit": "fit",
+			"ratio": ratio, "bg": "纯白", "priority": 1 if first_enemies.has(race) else 2,
+			"prompt": ("%s. Character: %s. %s." % [style.get("enemy_body", style.get("body", "")),
+				b.get("enemy_subject", ""), race_art.get(race, "")]).strip_edges(),
+			"negative": style.get("negative_enemy", style.get("negative_body", "")),
+			"used_by": ["敌方%s" % db.races.get(race, {}).get("name", race)],
+			"anchor": "bottom_center", "body_fit": "height", "size": float(b.get("enemy_size", m.get("enemy_body_size", 170))),
+			"sockets": b.get("enemy_sockets", m.get("enemy_body_sockets", {})),
 		})
 
 	# --- biome backgrounds (color) -------------------------------------------

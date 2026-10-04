@@ -1,60 +1,70 @@
 {
-  "_doc": "美术资产清单 = 唯一真相源。tools/art_audit.gd 据此列出缺失资产并生成提示词；tools/import_art.gd 据此把 art_inbox/ 里的图片处理成游戏资产。新增基因部件/骨架/生态区/状态/卡牌时必须在这里补规格，test_data 会检查。mode: palette=灰度绘制+运行时按种族上色（饱和色区域=发光强调色）；mono=白色剪影图标（运行时着色）；color=保留原色；cutout=保留原色但去背景。",
-  "anchor_batch": ["body_biped", "body_hexapod", "part_eye_compound", "part_sac", "icon_status_poison", "bg_swamp"],
+  "_doc": "美术资产清单 = 唯一真相源。tools/art_audit.gd 据此列出缺失资产并生成提示词；tools/import_art.gd 据此把 art_inbox/ 里的图片处理成游戏资产；tools/art_studio.gd（GPT 工作室）据此生成。美术方向：二次元 × 仙侠立绘 × 哥特未来（见 references/visual-system.md §1）。所有角色都是成年人。新增基因部件/骨架/生态区/状态/卡牌时必须在这里补规格，test_data 会检查。mode: cutout=保留原色并去背景（角色立绘和配饰部件用这个）；color=保留原色不去背景；mono=白色剪影图标（运行时着色）；palette=灰度绘制+运行时按种族上色（旧的怪物风格，保留兼容）。bodies.*.subject = 我方种族角色（多数是女性），bodies.*.enemy_subject = 敌方反派版本（更高大、更强、明显的反派画风）。",
+  "anchor_batch": [
+    "body_biped",
+    "body_hexapod",
+    "body_hexapod_enemy",
+    "part_eye_compound",
+    "part_sac",
+    "icon_status_poison",
+    "bg_swamp"
+  ],
   "style": {
-    "part": "2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, a single isolated creature part shown on its own, not attached to any body, side view facing right, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole shape, clean readable silhouette, centered and filling most of the frame with a small margin, plain flat pure white background, no ground, no cast shadow, no text, no labels",
-    "body": "2D game asset for a creature-assembly game, dark biological fantasy, dark naturalist illustration style, full body of a creature in its plain base form, side view facing right, neutral idle pose, monochrome grayscale value painting, flat cel shading with one soft highlight, thick closed uniform near-black outline around the whole silhouette, whole body visible and filling most of the frame with a small margin, the lowest point of the body near the bottom edge, no weapons, no accessories, no extra organs, plain flat pure white background, no ground, no cast shadow, no text, no labels",
-    "icon": "flat game UI icon, one bold simple solid white silhouette symbol, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text",
-    "background": "2D side-view game battle background, dark biological fantasy, painterly, muted desaturated colors, horizon in the upper third, wide calm flat empty ground band across the middle and lower half left open for gameplay, darker and low-contrast in the center, atmospheric depth, empty uninhabited landscape, no text, no UI, no border",
-    "illustration": "dark biological fantasy illustration, ink outlines with painterly color, muted earthy tones with bioluminescent accents, readable silhouette, no text, no handwriting, no page or paper border, no watermark",
-    "ui": "dark biological fantasy game UI element, aged parchment, bone and dark chitin, ink line details, flat front view, no text",
-    "negative": "photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, hands, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline",
-    "negative_color_ok": "photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry",
-    "accent_clause": "Only {accent} glow in a bright saturated green; everything else stays strictly grayscale.",
-    "no_accent_clause": "No glowing or colored areas at all; strictly grayscale.",
+    "part": "isolated 2D game asset in the same refined Japanese anime × Chinese xianxia gothic-futurist style: a single accessory or body feature for a character, shown on its own (not worn, no person, no hands, no face), 3/4 view facing right, crisp clean lineart, soft cel shading with painterly gradients, ornate gothic filigree mixed with sleek sci-fi panels and faint glowing circuit lines, rich colors, centered and filling most of the frame with a small margin, plain flat pure white background, no ground, no cast shadow, no text, no labels",
+    "body": "high-quality 2D game art in a refined Japanese anime style blended with Chinese xianxia game character illustration (elegant semi-realistic anime faces, delicate detailed eyes, glossy flowing hair strands), gothic-futurist fantasy: ornate lace, filigree and stained-glass motifs fused with sleek sci-fi elements and fine glowing circuit-like embroidery, crisp clean lineart, soft cel shading with painterly gradients and gentle rim light, rich jewel-tone palette, highly detailed costume, a full-body standing character portrait (game standee) of ONE adult character (clearly an adult in their twenties or older, mature proportions), 3/4 view facing right, relaxed elegant standing pose with both arms lowered and empty hands, the whole figure from head to feet visible and filling most of the frame height, the feet near the bottom edge, sweet and alluring but tasteful fashion like a commercial xianxia game standee (no nudity), no weapons, no props, no extra accessories beyond the described outfit, plain flat pure white background, no ground, no cast shadow, no text, no logo",
+    "icon": "flat game UI icon, one bold simple solid white silhouette symbol with a subtle elegant ornamental feel, centered, chunky shapes readable at 32 pixels, plain flat pure black background, no circle or rounded-square tile behind the symbol, no glow, no gradient, no border, no text",
+    "background": "anime game background art blended with Chinese xianxia landscape painting, gothic-futurist fantasy, highly detailed, atmospheric lighting and depth, horizon in the upper third, wide calm flat empty ground band across the middle and lower half left open for gameplay, darker and lower in contrast in the center, no characters, no creatures, no text, no UI, no border",
+    "illustration": "refined Japanese anime × Chinese xianxia game illustration, gothic-futurist fantasy, dramatic cinematic lighting, rich jewel tones, highly detailed, all characters are adults, no text, no handwriting, no page or paper border, no watermark",
+    "ui": "xianxia gothic-futurist game UI element: black lacquer, white jade and silver filigree with subtle gold cloud patterns and faint glowing azure circuit lines, flat front view, no text",
+    "negative": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, multiple objects, person, character, face, hands, scene, background details, ground, cast shadow, frame, border, cropped",
+    "negative_color_ok": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, nudity, nsfw, card frame, border",
+    "accent_clause": "Glowing details: {accent}.",
+    "no_accent_clause": "",
     "style_cn": "见《美术资产清单与提示词.txt》第四节：按类别选用的中文风格锁定",
-    "negative_body": "photo, photorealistic, 3d render, gore, blood splatter, text, letters, labels, handwriting, watermark, signature, logo, multiple objects, extra creature, scene, background details, ground, cast shadow, frame, border, cropped, blurry, low contrast outline",
+    "negative_body": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, shota, chibi, super deformed, nudity, nsfw, nipples, lingerie, see-through clothing, extra fingers, deformed hands, bad anatomy, multiple characters, weapon, props, scene, background details, ground, cast shadow, frame, cropped",
     "negative_icon": "photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry",
-    "negative_ui": "photo, photorealistic, 3d render, gore, text, letters, numbers, handwriting, watermark, signature, logo, characters, creatures, blurry",
-    "negative_background": "photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry, characters, creatures, animals, people, monsters, UI",
-    "negative_boss": "photo, photorealistic, 3d render, gore, text, letters, handwriting, watermark, signature, logo, card frame, border, blurry, ground, floor, cast shadow, drop shadow, scenery, background details, extra creatures, smoke, clouds, loose particles, floating specks"
+    "negative_ui": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, characters, creatures, numbers",
+    "negative_background": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, card frame, border, characters, people, creatures, animals, monsters, UI",
+    "negative_boss": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, chibi, cute, nudity, nsfw, card frame, border, ground, floor, cast shadow, drop shadow, scenery, background details, extra creatures, smoke, clouds, loose particles, floating specks",
+    "enemy_body": "high-quality 2D game art in a refined Japanese anime style blended with Chinese xianxia game character illustration (elegant semi-realistic anime faces, delicate detailed eyes, glossy flowing hair strands), gothic-futurist fantasy: ornate lace, filigree and stained-glass motifs fused with sleek sci-fi elements and fine glowing circuit-like embroidery, crisp clean lineart, soft cel shading with painterly gradients and gentle rim light, rich jewel-tone palette, highly detailed costume, a full-body standing villain character portrait (game standee) of ONE adult antagonist that clearly outclasses the heroes: larger, more imposing and more powerful-looking, a sharp aggressive silhouette, a dark sinister palette with ominous glows, an intimidating stance, 3/4 view facing right, both arms lowered with empty hands, the whole figure from head to feet visible and filling most of the frame height, the feet near the bottom edge, no weapons, no props, plain flat pure white background, no ground, no cast shadow, no text, no logo",
+    "negative_enemy": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, shota, chibi, cute, super deformed, nudity, nsfw, extra fingers, deformed hands, bad anatomy, multiple characters, weapon, props, scene, background details, ground, cast shadow, frame, cropped"
   },
   "race_art": {
-    "human": "symmetric rounded rectangular forms, stitched leather, rough cloth and riveted iron details",
-    "insect": "segmented glossy chitin plates with small sharp spikes",
-    "fungal": "swollen rounded fungal flesh, soft spongy texture, fine fibrous thread details",
-    "beast": "rough bone, horn and coarse fur textures",
-    "crystal": "faceted geometric crystal, sharp angles, glassy translucent planes",
-    "wraith": "pale misty ectoplasm with softly frayed edges, still enclosed by the dark outline"
+    "human": "Human Sect motifs: midnight-blue and silver silk, white jade, polished steel filigree, azure glowing circuit embroidery",
+    "insect": "Insect race motifs: glossy crimson-and-black chitin plates, wine-red silk, gothic black lace, iridescent translucent membranes, amber lens accents",
+    "fungal": "Fungal race motifs: ivory and moss-green fabrics, soft mushroom-cap textures with gently glowing spots, delicate mycelium lace, pastel bioluminescence",
+    "beast": "Beast race motifs: carved bone ornaments, silver-grey fur trim, dark leather, glowing amber tribal tattoos and runes",
+    "crystal": "Crystal race motifs: faceted ice-blue crystal, porcelain-white panels, prismatic glass, cyan glowing light lines",
+    "wraith": "Wraith race motifs: tattered black-violet veils, misty translucent ectoplasm, pale silver ornaments, eerie violet glow"
   },
   "parts": {
     "sash": {
-      "cn": "肩带",
-      "subject": "a single diagonal strip of cloth sash lying flat, running from upper left to lower right, with a small round rally badge pinned on it, the sash alone with no person or body",
+      "cn": "仪式肩带",
+      "subject": "a diagonal ceremonial silk sash with a white-jade rally badge pinned on it and short silver tassels, lying flat, running from upper left to lower right, the sash alone",
       "socket": "torso",
       "anchor": "center",
       "height": 40,
       "accent": ""
     },
     "plating": {
-      "cn": "镶甲片",
-      "subject": "three stacked riveted metal armor plates lying flat, the plates alone with no body or torso",
+      "cn": "镶甲束胸",
+      "subject": "an ornamental armored corset front made of three overlapping polished steel plates with silver filigree and azure light lines, lying flat, the armor piece alone",
       "socket": "torso",
       "anchor": "center",
       "height": 36,
       "accent": ""
     },
     "satchel": {
-      "cn": "急救挎包",
-      "subject": "a small leather field-medic satchel with a short strap stub and a cross mark, the bag alone",
+      "cn": "医者小包",
+      "subject": "a small elegant medic pouch of dark leather with silver clasps, a softly glowing azure cross emblem and a short strap stub, the pouch alone",
       "socket": "core",
       "anchor": "center",
       "height": 24,
       "accent": ""
     },
     "spear": {
-      "cn": "长矛",
-      "subject": "a long wooden spear lying diagonally from lower left to upper right, leaf-shaped metal spearhead at the upper right end, the weapon alone with no hand or arm",
+      "cn": "仙侠长枪",
+      "subject": "a long ornate xianxia spear lying diagonally from lower left to upper right: a slender dark lacquered shaft with silver rings and a red tassel, a leaf-shaped glowing steel blade at the upper right end, the weapon alone with no hand",
       "socket": "limb",
       "anchor": "center",
       "height": 80,
@@ -62,151 +72,151 @@
     },
     "banner": {
       "cn": "背负战旗",
-      "subject": "a tall vertical pole standing upright with a tattered cloth war flag hanging from its top on the left side, the pole's bottom end at the bottom of the image, no person",
+      "subject": "a tall back-mounted war banner: a slim pole standing upright with a long embroidered silk pennant hanging from its top on the left side, the pole's bottom end at the bottom of the image, no person",
       "socket": "back",
       "anchor": "bottom_center",
       "height": 80,
       "accent": ""
     },
     "eye_compound": {
-      "cn": "复眼",
-      "subject": "a cluster of bulging faceted compound insect eyes, seen from the side, no head",
+      "cn": "复眼面罩",
+      "subject": "a sleek visor of hexagonal amber compound lenses in a slim black chitin frame, seen from the side, like a futuristic insect eyepiece, the visor alone",
       "socket": "eye",
       "anchor": "center",
-      "height": 16,
+      "height": 12,
       "accent": "a small glint at the center of each facet"
     },
     "shell_plate": {
-      "cn": "背甲壳片",
-      "subject": "a short row of four overlapping curved chitin shell plates, about twice as wide as tall",
+      "cn": "甲壳鞘翅",
+      "subject": "a pair of folded glossy crimson chitin wing-cases with gothic lace edges and an iridescent sheen, about twice as wide as tall, the wings alone",
       "socket": "back",
       "anchor": "center",
-      "height": 26,
+      "height": 34,
       "accent": ""
     },
     "sac": {
-      "cn": "毒腺囊",
-      "subject": "a single translucent bulbous venom gland sac with veins, the organ alone",
+      "cn": "毒液吊坠",
+      "subject": "a venom vial pendant: one bulbous translucent glass-like sac with veins, held in black chitin filigree, the pendant alone",
       "socket": "core",
       "anchor": "center",
       "height": 20,
       "accent": "the small pool of liquid in the lower half of the sac"
     },
     "spray_nozzle": {
-      "cn": "喷射器官",
-      "subject": "a short chitinous tube-shaped spray nozzle organ lying horizontally, its wide base at the left edge and its opening pointing right, one drop of liquid at the opening",
+      "cn": "喷射护腕",
+      "subject": "a sleek chitin wrist-mounted sprayer gauntlet lying horizontally, its cuff at the left edge and a fine nozzle pointing right, one drop of liquid at the tip, the gauntlet alone",
       "socket": "limb",
       "anchor": "left_center",
       "height": 18,
       "accent": "the dripping liquid"
     },
     "egg_sac": {
-      "cn": "卵囊",
-      "subject": "a compact cluster of four glossy insect eggs held together in a membrane",
+      "cn": "卵囊背饰",
+      "subject": "a back-worn cluster of four glossy pearl-like insect eggs bound in a black lace-and-chitin harness, the bundle alone",
       "socket": "back",
       "anchor": "center",
       "height": 22,
       "accent": ""
     },
     "volatile_sac": {
-      "cn": "爆裂囊",
-      "subject": "a swollen unstable explosive gland sac with glowing cracks, the organ alone",
+      "cn": "爆裂晶囊",
+      "subject": "an unstable glowing explosive gland orb held in a cracked chitin cage, the orb alone",
       "socket": "core",
       "anchor": "center",
       "height": 20,
       "accent": "the cracks and the core"
     },
     "mandible": {
-      "cn": "巨颚",
-      "subject": "a pair of curved serrated insect mandibles seen from the side, their joint base at the left edge, the open pincers pointing to the right, no head",
+      "cn": "巨颚面甲",
+      "subject": "a sleek chitin face-guard mask with a pair of curved serrated mandible blades, seen from the side, its hinge at the left edge and the open mandibles pointing to the right, the mask alone",
       "socket": "mouth",
       "anchor": "left_center",
-      "height": 16,
+      "height": 14,
       "accent": ""
     },
     "spore_cap": {
-      "cn": "孢子冠",
-      "subject": "three small mushroom caps on short stalks growing upward from one shared base at the bottom",
+      "cn": "孢子菌冠",
+      "subject": "three small mushroom caps with glowing spots sprouting upward from one shared mossy base at the bottom, like a living shoulder ornament",
       "socket": "back",
       "anchor": "bottom_center",
       "height": 26,
       "accent": "the spots on the caps"
     },
     "tendril": {
-      "cn": "腐触须",
-      "subject": "a single thick fungal tentacle tendril growing horizontally to the right from a fleshy rounded base at the left edge, gently curling, tapering to a thin hooked tip at the right end, about twice as long as it is tall",
+      "cn": "菌须",
+      "subject": "a single elegant pale fungal tendril growing horizontally to the right from a soft rounded base at the left edge, gently curling, tapering to a fine hooked tip, about twice as long as it is tall",
       "socket": "limb",
       "anchor": "left_center",
       "height": 20,
       "accent": ""
     },
     "mycelium_web": {
-      "cn": "菌丝网",
-      "subject": "a solid, roughly round flat patch of dense felted mycelium mat, opaque like lichen, fibrous thread texture painted on its surface, a few short thread tufts along its edge, no holes or gaps",
+      "cn": "菌丝披肩",
+      "subject": "a delicate shawl-shaped piece of dense ivory mycelium lace: a roughly round, opaque felted lace mat with fine thread patterns and a few short tufts along its edge, no holes or gaps",
       "socket": "torso",
       "anchor": "center",
       "height": 40,
       "accent": ""
     },
     "bloom": {
-      "cn": "尸花",
-      "subject": "a single six-petal corpse flower head seen from the front, no stem, no leaves",
+      "cn": "尸花胸饰",
+      "subject": "a single large six-petal corpse-flower corsage seen from the front, deep crimson petals, no stem, no leaves",
       "socket": "core",
       "anchor": "center",
       "height": 24,
       "accent": "the flower center"
     },
     "fang": {
-      "cn": "尖牙",
-      "subject": "a pair of long curved animal fangs hanging downward side by side, roots at the top, sharp tips pointing down, no jaw or skull",
+      "cn": "獠牙面具",
+      "subject": "a fanged lower half-mask of carved white bone with two long curved fangs hanging downward, the mask's top edge at the top of the image, the fang tips pointing down, the mask alone",
       "socket": "mouth",
       "anchor": "top_center",
-      "height": 12,
+      "height": 10,
       "accent": ""
     },
     "fur_mane": {
-      "cn": "鬃毛",
-      "subject": "a ridge of spiky coarse fur tufts rising upward from a straight base line at the bottom, like a mane seen from the side",
+      "cn": "毛领披肩",
+      "subject": "a fluffy silver-grey fur collar-mantle rising upward from a straight base line at the bottom, with spiky tufts, seen from the side",
       "socket": "back",
-      "anchor": "bottom_center",
-      "height": 20,
-      "accent": ""
-    },
-    "claw": {
-      "cn": "利爪",
-      "subject": "three curved bone claws on a small paw stub, the paw at the left edge, the claws pointing to the right",
-      "socket": "limb",
-      "anchor": "left_center",
-      "height": 16,
-      "accent": ""
-    },
-    "crest": {
-      "cn": "头冠",
-      "subject": "a crest of three sharp horn-like spikes rising upward from one shared base at the bottom",
-      "socket": "head_top",
       "anchor": "bottom_center",
       "height": 22,
       "accent": ""
     },
+    "claw": {
+      "cn": "利爪手甲",
+      "subject": "a clawed gauntlet: an ornate bone-and-silver glove with three long curved claws, the cuff at the left edge and the claws pointing to the right, the gauntlet alone",
+      "socket": "limb",
+      "anchor": "left_center",
+      "height": 18,
+      "accent": ""
+    },
+    "crest": {
+      "cn": "角冠",
+      "subject": "a tiara-like crest of three sharp horn spikes rising upward from one shared ornate bone base at the bottom",
+      "socket": "head_top",
+      "anchor": "bottom_center",
+      "height": 18,
+      "accent": ""
+    },
     "crystal_cluster": {
-      "cn": "晶簇",
-      "subject": "a cluster of four sharp crystal shards of different heights growing upward from one shared base at the bottom",
+      "cn": "浮晶簇",
+      "subject": "four floating crystal shards of different heights rising upward from one shared base at the bottom, like a crystal wing ornament",
       "socket": "back",
       "anchor": "bottom_center",
       "height": 30,
       "accent": "a thin glowing line along the center of each shard"
     },
     "prism": {
-      "cn": "折射棱镜",
-      "subject": "a single upright triangular crystal prism standing on its flat base, point upward",
+      "cn": "棱镜发饰",
+      "subject": "a small floating triangular crystal prism hair ornament standing upright on its flat base, point upward",
       "socket": "eye_top",
       "anchor": "bottom_center",
-      "height": 18,
+      "height": 12,
       "accent": "the light at the prism center"
     },
     "core_gem": {
-      "cn": "共鸣晶核",
-      "subject": "a single hexagonal faceted resonance gem",
+      "cn": "共鸣晶核胸针",
+      "subject": "a single hexagonal faceted resonance gem brooch set in silver filigree",
       "socket": "core",
       "anchor": "center",
       "height": 18,
@@ -214,7 +224,7 @@
     },
     "halo": {
       "cn": "幽光冕",
-      "subject": "a single thick ring halo of ghostly light seen almost edge-on from the side, a flat wide elliptical ring about twice as wide as it is tall, broken by a clear gap at the bottom so the white background inside the ring connects to the outside",
+      "subject": "a single thick ring halo of ghostly light with fine silver filigree, seen almost edge-on from the side, a flat wide elliptical ring about twice as wide as it is tall, broken by a clear gap at the bottom so the white background inside the ring connects to the outside",
       "socket": "halo",
       "anchor": "center",
       "height": 14,
@@ -222,8 +232,8 @@
       "hollow": true
     },
     "ether_veil": {
-      "cn": "灵体纱",
-      "subject": "a long flowing frayed ghostly veil cloak hanging vertically, top edge straight, lower edge in ragged tatters, the cloth alone with no person",
+      "cn": "灵纱披风",
+      "subject": "a long flowing translucent ghostly veil-cape hanging vertically, its top edge straight with a thin silver clasp line, its lower edge in ragged tatters, the cloth alone with no person",
       "socket": "back",
       "anchor": "center",
       "height": 80,
@@ -231,7 +241,7 @@
     },
     "soul_claw": {
       "cn": "噬魂爪",
-      "subject": "three long ghostly spectral claw blades fanning out to the right from one shared root at the left edge",
+      "subject": "three long spectral claw blades of violet ghost light fanning out to the right from one shared ornate silver root at the left edge",
       "socket": "limb",
       "anchor": "left_center",
       "height": 26,
@@ -240,60 +250,72 @@
   },
   "bodies": {
     "biped": {
-      "cn": "人形骨架（人族本体）",
+      "cn": "人族本体·剑修少女（女）",
       "race": "human",
-      "subject": "a lean humanoid figure, bald head, simple wrapped cloth, both arms hanging",
+      "subject": "a young adult woman of the Human Sect, a graceful cultivator-knight: long black hair in a half-up bun with a white jade hairpin, calm confident gaze, a midnight-blue hanfu-inspired dress with a high side slit, an off-shoulder translucent outer robe with wide flowing sleeves and silver filigree, a fitted gothic corset bodice, thin azure glowing circuit embroidery along the hems, elegant heeled boots",
       "fit": "height",
-      "size": 132
+      "size": 140,
+      "enemy_cn": "人族反派·堕魔宗主（男）",
+      "enemy_subject": "a towering adult man, a fallen demonic sect master: long white hair, a cracked white-jade half mask, a cruel smile, a black-and-crimson layered robe with spiked gothic pauldrons and a tall collar, glowing red circuit veins across the fabric, a dark aura"
     },
     "hexapod": {
-      "cn": "六足骨架（虫族本体）",
+      "cn": "虫族本体·虫后之女（女）",
       "race": "insect",
-      "subject": "a six-legged beetle-like insect with abdomen, thorax, small head and two antennae",
-      "fit": "width",
-      "size": 110
+      "subject": "a young adult woman of the Insect race: long wavy wine-red hair with two slender antennae rising from her head, amber eyes, a glossy crimson-and-black chitin-plated gown with gothic black lace, a high-collared fitted bodice and a long skirt with a high slit, sheer black lace sleeves, chitin heels",
+      "fit": "height",
+      "size": 140,
+      "enemy_cn": "虫族反派·甲虫战王（男）",
+      "enemy_subject": "a hulking insect warlord: a massive armored man-insect with four muscular arms, a horned black chitin head carapace that hides his face except for glowing crimson eyes, jagged crimson chitin armor plates, a tattered dark war cape"
     },
     "cluster": {
-      "cn": "菌簇骨架（菌族本体）",
+      "cn": "菌族本体·蘑菇仙子（女）",
       "race": "fungal",
-      "subject": "a walking mushroom: thick pale stem body and a wide round cap, one small bulb at the base",
+      "subject": "a young adult woman of the Fungal race, a mushroom fairy: a wide soft pale mushroom-cap hat with gently glowing spots, pastel mint-green hair, a sleepy gentle smile, a layered ivory-and-moss-green frilled dress whose skirt layers look like mushroom gills, an off-shoulder neckline, sheer puffed sleeves, faint bioluminescent spores drifting around the hem",
       "fit": "height",
-      "size": 125
+      "size": 140,
+      "enemy_cn": "菌族反派·腐巫女（女）",
+      "enemy_subject": "a sinister adult rot witch: a cracked dark mushroom-cap crown, long dark-green hair, glowing sickly-green eyes and a wicked smile, a decayed black-and-olive gown overgrown with dark fungal frills and dripping spores, rot creeping up one arm, much taller than a normal woman"
     },
     "quadruped": {
-      "cn": "四足骨架（兽族本体）",
+      "cn": "兽族本体·狼族少主（男）",
       "race": "beast",
-      "subject": "a four-legged predator beast like a wolf, long tail, head facing right",
-      "fit": "width",
-      "size": 130
+      "subject": "a young adult man of the Beast race, a wild noble wolf-beastman: wolf ears and a bushy silver-grey wolf tail, messy silver-white hair, sharp amber eyes, a confident smirk, tall and athletic, a dark open-collared hanfu-cut combat coat with bone toggles over a fitted black shirt, leather belts, glowing amber tribal tattoos on his forearms, sturdy boots",
+      "fit": "height",
+      "size": 146,
+      "enemy_cn": "兽族反派·狼魔王（男）",
+      "enemy_subject": "a monstrous wolf-demon king: a towering half-beast man with a wolf-skull helm, a wild dark mane, glowing red eyes, huge clawed hands, crude bone armor over dark fur, broken chains around his wrists"
     },
     "construct": {
-      "cn": "晶构骨架（晶族本体）",
+      "cn": "晶族本体·晶灵机娘（女）",
       "race": "crystal",
-      "subject": "a floating crystal golem: faceted diamond torso, small gem head, shard arms, a single shard floating below instead of legs",
+      "subject": "a young adult woman of the Crystal race, a crystalline android maiden: porcelain skin with faint geometric facet seams, ice-blue crystal hair in a sleek bob, pale cyan eyes with ring-shaped pupils, a white-and-cyan futuristic gothic dress with prism-glass panels, lace trim and a high slit, thin cyan light lines running over the dress, she hovers slightly above the ground and her lower legs turn into faceted crystal",
       "fit": "height",
-      "size": 140
+      "size": 140,
+      "enemy_cn": "晶族反派·晶甲巨像（男）",
+      "enemy_subject": "a crystal juggernaut knight: a massive armored figure of dark corrupted crystal, a faceless prismatic helmet with a single glowing slit, jagged shard pauldrons, cracks leaking cold cyan light"
     },
     "floater": {
-      "cn": "漂浮骨架（幽体本体）",
+      "cn": "幽体本体·幽灵贵女（女）",
       "race": "wraith",
-      "subject": "a floating hooded ghost with a teardrop body and a long wispy tail curling below, two hollow dark eye holes",
+      "subject": "a young adult woman of the Wraith race, a melancholic ghost lady: long silver hair under a sheer black-violet hood, glowing violet eyes, pale skin, a tattered layered black-violet veil gown with a deep but tasteful neckline, her lower body fading into translucent misty wisps instead of feet so she floats, pale silver chains of light as jewelry",
       "fit": "height",
-      "size": 120
+      "size": 140,
+      "enemy_cn": "幽体反派·幽冥女帝（女）",
+      "enemy_subject": "a phantom empress: a towering ghostly queen with a crown of spectral spikes, a beautiful but skeletal pale face, glowing violet eyes, many layers of tattered black veils trailing into dark mist instead of feet, chains of spectral light floating around her"
     }
   },
   "biome_art": {
     "swamp": {
       "cn": "腐沼",
-      "subject": "a rotting toxic swamp: dead twisted trees, glowing green fungus, murky water pools, hanging moss, sickly green fog"
+      "subject": "a corrupted spirit marsh at dusk: ruined gothic pagodas half sunk in murky water, twisted dead trees hung with moss, giant glowing toxic-green fungi, floating talisman lanterns, sickly green mist"
     },
     "glacier": {
       "cn": "冰原",
-      "subject": "a frozen glacier plateau: blue ice cliffs, crystal formations jutting from snow, pale cold sky, frost mist"
+      "subject": "a frozen sky plateau: blue ice cliffs and crystal spires, a ruined white-jade sect gate encrusted with ice, an aurora in a pale cold sky, drifting frost mist"
     },
     "hive": {
       "cn": "巢穴深处",
-      "subject": "the depths of a giant insect hive: organic resin walls, honeycomb chambers, faint violet ghost lights, dripping secretions"
+      "subject": "the depths of a colossal insect-hive cathedral: organic resin pillars shaped like gothic arches, honeycomb stained-glass walls glowing amber, faint violet ghost lights, dripping secretions"
     }
   },
   "icons": {
@@ -478,7 +500,7 @@
       "ratio": "5:7",
       "priority": 1,
       "style": "ui",
-      "subject": "an ornate vertical trading card frame made of bone and dark chitin, a thick dark outline around its outer edge and around each window; one large empty art window in the middle of the card, from about 12% to 62% of the card height so that it covers the exact center of the image, filled with flat pure white; below it a smaller text box filled with light aged parchment (not white); plain flat pure white background outside the frame"
+      "subject": "an ornate vertical trading card frame of black lacquer, silver filigree and white-jade inlays, a thick dark outline around its outer edge and around each window; one large empty art window in the middle of the card, from about 12% to 62% of the card height so that it covers the exact center of the image, filled with flat pure white; below it a smaller text box filled with light silk-parchment (not white); plain flat pure white background outside the frame"
     },
     {
       "id": "card_back",
@@ -493,7 +515,7 @@
       "ratio": "5:7",
       "priority": 1,
       "style": "ui",
-      "subject": "full-bleed card back design filling the whole image edge to edge, symmetric emblem of a DNA helix entwined with a chitin spiral on dark parchment, no rounded corners, no table, no shadow"
+      "subject": "full-bleed card back design filling the whole image edge to edge, a symmetric emblem of a DNA double helix entwined with a xianxia cloud-and-sword sigil on deep midnight lacquer with silver filigree, no rounded corners, no table, no shadow"
     },
     {
       "id": "ui_panel",
@@ -508,7 +530,7 @@
       "ratio": "1:1",
       "priority": 2,
       "style": "ui",
-      "subject": "a square dark parchment panel filling the whole image edge to edge, an even bone-and-ink border of constant width on all four sides, plain empty center, square corners"
+      "subject": "a square dark lacquer panel filling the whole image edge to edge, an even silver-filigree and jade border of constant width on all four sides, plain empty center, square corners"
     },
     {
       "id": "ui_button",
@@ -523,7 +545,7 @@
       "ratio": "3:1",
       "priority": 2,
       "style": "ui",
-      "subject": "a rectangular game button plate made of dark chitin with a thin bone rim, filling the whole image edge to edge with square corners, empty center"
+      "subject": "a rectangular game button plate of black lacquer with a thin silver-and-jade rim, filling the whole image edge to edge with square corners, empty center"
     },
     {
       "id": "title_art",
@@ -538,47 +560,113 @@
       "ratio": "16:9",
       "priority": 2,
       "style": "illustration",
-      "subject": "key art: a hybrid chimera creature with human posture, insect chitin, fungal growths and crystal shards, standing on a cliff over a vast alien ecosystem, a giant withered tree of life in the sky, epic but dark, empty dark sky in the upper third"
+      "subject": "key visual: five race heroines and one wolf-beastman hero (a human cultivator-knight, an insect-race woman, a mushroom fairy, a crystal android maiden, a ghost lady and the wolf beastman) standing together on a cliff above a vast fantastical world, a giant withered tree of life glowing in a starry sky behind them, epic and beautiful, empty sky in the upper third"
     }
   ],
   "boss_art": {
     "rotbrood_matriarch": {
       "cn": "腐巢母皇（Boss 立绘）",
-      "subject": "a colossal fungal-insect matriarch: a bloated mushroom-capped body, insect legs, dark-shelled egg sacs on her back, small glowing spore dots speckling her cap, menacing but regal, no loose particles or floating specks"
+      "subject": "a colossal fungal-insect matriarch queen: an imposing adult queen with a black chitin crown and a rotting mushroom-cap headdress, a massive bloated egg-sac gown studded with dark-shelled eggs, insect legs emerging beneath her skirts, small glowing spore dots, menacing but regal, no loose particles or floating specks"
     }
   },
   "card_art": {
     "card_strike": {
       "cn": "撕咬号令",
-      "subject": "a predator lunging forward to bite, motion lines, close-up on jaws"
+      "subject": "a fierce wolf-beastman warrior lunging forward with a glowing claw strike, motion lines, dynamic low angle"
     },
     "card_harden": {
       "cn": "硬化",
-      "subject": "skin rapidly hardening into thick chitin plates"
+      "subject": "an insect-race heroine whose sleeves and gown rapidly sheathe into glossy crimson chitin armor plates with glowing seams"
     },
     "card_mend": {
       "cn": "组织修复",
-      "subject": "glowing tissue knitting a wound closed"
+      "subject": "a gentle mushroom-fairy healer closing a glowing wound with soft luminous mycelium threads"
     },
     "card_toxin": {
       "cn": "毒雾",
-      "subject": "a rolling cloud of green toxic fog over a battlefield"
+      "subject": "a rolling cloud of glowing green toxic fog drifting over a ruined battlefield of gothic pagodas"
     },
     "card_rally": {
       "cn": "集群信息素",
-      "subject": "a swarm of creatures surrounded by drifting pheromone trails, rallying"
+      "subject": "a human cultivator-knight heroine raising a silk war banner while glowing light trails rally her allies behind her"
     },
     "card_stun": {
       "cn": "震慑",
-      "subject": "a monstrous roar shockwave rippling through the air"
+      "subject": "a towering beast-king roaring, a visible shockwave ring rippling through the air and scattering paper talismans"
     },
     "card_analyze": {
       "cn": "解析标记",
-      "subject": "a creature bathed in a pale scanning beam that makes its body glow semi-transparent, revealing its hidden organs inside like an x-ray"
+      "subject": "a crystal android maiden casting a pale scanning beam from a floating prism; the target glows semi-transparent like an x-ray, revealing hidden organs and gene helices"
     },
     "card_brood": {
       "cn": "催化孵化",
-      "subject": "eggs bursting open as larvae hatch rapidly"
+      "subject": "glossy pearl-like insect eggs bursting open as glowing larvae hatch in a resin nest under stained-glass light"
     }
+  },
+  "part_mode": "cutout",
+  "body_mode": "cutout",
+  "body_ratio": "2:3",
+  "body_canvas": [
+    512,
+    768
+  ],
+  "enemy_body_canvas": [
+    576,
+    864
+  ],
+  "enemy_body_size": 172,
+  "default_body_sockets": {
+    "head": [
+      4,
+      -124
+    ],
+    "head_r": 11,
+    "eye": [
+      9,
+      -125
+    ],
+    "back": [
+      -10,
+      -98
+    ],
+    "core": [
+      4,
+      -92
+    ],
+    "torso": [
+      1,
+      -84
+    ],
+    "limb": [
+      13,
+      -66
+    ]
+  },
+  "enemy_body_sockets": {
+    "head": [
+      5,
+      -152
+    ],
+    "head_r": 13.5,
+    "eye": [
+      11,
+      -154
+    ],
+    "back": [
+      -12,
+      -120
+    ],
+    "core": [
+      5,
+      -113
+    ],
+    "torso": [
+      1,
+      -103
+    ],
+    "limb": [
+      16,
+      -81
+    ]
   }
 }

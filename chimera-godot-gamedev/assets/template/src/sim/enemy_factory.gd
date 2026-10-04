@@ -29,7 +29,7 @@ static func generate(db: GameData, rng: RandomNumberGenerator, race: String, tie
 	var specs: Array = []
 	for i in count:
 		var tpl: Dictionary = templates[rng.randi_range(0, templates.size() - 1)]
-		var spec := {"template": tpl.id, "genes": []}
+		var spec := {"template": tpl.id, "genes": [], "enemy": true}  # "enemy": villain art (visual only)
 		_fill_genes(db, rng, spec, race, per_unit, synergy, biome)
 		specs.append(spec)
 	_assign_positions(db, specs)
@@ -43,13 +43,13 @@ static func generate_boss(db: GameData, rng: RandomNumberGenerator, boss_id: Str
 	var boss: Dictionary = db.bosses.get(boss_id, {})
 	if boss.is_empty():
 		return []
-	var core := {"template": boss.unit, "genes": [], "boss": boss_id}
+	var core := {"template": boss.unit, "genes": [], "boss": boss_id, "enemy": true}
 	var races: Array = boss.get("support_races", [])
 	var race: String = races[rng.randi_range(0, races.size() - 1)] if not races.is_empty() else ""
 	_fill_genes(db, rng, core, race, float(boss.get("support_budget", 6)), {}, {})
 	var specs: Array = [core]
 	for escort_id: String in boss.get("escorts", []):
-		var e := {"template": escort_id, "genes": []}
+		var e := {"template": escort_id, "genes": [], "enemy": true}
 		_fill_genes(db, rng, e, db.get_unit(escort_id).get("race", ""), 2.5, {}, {})
 		specs.append(e)
 	_assign_positions(db, specs)

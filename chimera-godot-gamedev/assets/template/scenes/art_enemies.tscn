@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/art_gallery.gd" id="1_gallery"]
+
+[node name="ArtGallery4" type="Node2D"]
+script = ExtResource("1_gallery")
+page = 4

@@ -16,24 +16,28 @@ mkdir -p "美术资产/候选/_对比" "美术资产/待复审/试装" "美术�
 [ -f "美术资产/.gdignore" ] || : > "美术资产/.gdignore"
 [ -f "美术资产/使用说明.txt" ] || cp "$HERE/../assets/workspace/美术资产使用说明.txt" "美术资产/使用说明.txt"
 
-# Claude Code must never read the key file (project-level deny rule; only created if absent)
-if [ ! -f .claude/settings.json ]; then
-  mkdir -p .claude
-  cat > .claude/settings.json <<'JSON'
-{
-  "permissions": {
-    "deny": [
+# Claude Code must never read the key file (project-level deny rule; only created if absent).
+# Rules are gitignore patterns: the character classes cover every capitalisation (GPTAPI.TXT, GptApi.txt...);
+# the literal spellings stay as a fallback.
+DENY_RULES='      "Read(./[Gg][Pp][Tt][Aa][Pp][Ii]*)",
+      "Read(./游戏/[Gg][Pp][Tt][Aa][Pp][Ii]*)",
       "Read(./GPTapi*)",
       "Read(./gptapi*)",
       "Read(./Gptapi*)",
-      "Read(./游戏/GPTapi*)"
-    ]
-  }
-}
-JSON
-  echo "key protection: .claude/settings.json denies reading GPTapi.txt"
-elif ! grep -qi "gptapi" .claude/settings.json; then
-  echo "note: .claude/settings.json already exists without a GPTapi rule (left unchanged)"
+      "Read(./游戏/GPTapi*)"'
+if [ ! -f .claude/settings.json ]; then
+  mkdir -p .claude
+  printf '{\n  "permissions": {\n    "deny": [\n%s\n    ]\n  }\n}\n' "$DENY_RULES" > .claude/settings.json
+  echo "key protection: .claude/settings.json denies reading GPTapi.txt (any capitalisation)"
+elif ! grep -q -e '\[Gg\]\[Pp\]\[Tt\]\[Aa\]\[Pp\]\[Ii\]' .claude/settings.json; then
+  if grep -qi "gptapi" .claude/settings.json; then
+    echo "note: .claude/settings.json has a GPTapi rule but not for every capitalisation (left unchanged)."
+  else
+    echo "note: .claude/settings.json already exists without a GPTapi rule (left unchanged)."
+  fi
+  echo "      Add these lines to the \"deny\" list under \"permissions\" in .claude/settings.json"
+  echo "      (create \"permissions\": {\"deny\": [ ... ]} if it is missing; mind the commas between entries):"
+  printf '%s\n' "$DENY_RULES"
 fi
 for f in ./*; do  # a key file inside the game folder would be ignored by git, but say so
   case "$(basename "$f" | tr 'A-Z' 'a-z')" in gptapi*) echo "found $(basename "$f") (the key stays local: never read, printed or committed)" ;; esac

@@ -102,7 +102,7 @@ func test_cost_estimate_and_usage() -> void:
 func test_anchor_batch_ids_exist() -> void:
 	var by_id := ArtManifest.by_id(_entries())
 	var anchors: Array = db.art.get("anchor_batch", [])
-	check_eq(anchors.size(), 6, "6 style anchors")
+	check_eq(anchors.size(), 7, "7 style anchors (incl. one villain)")
 	for id: String in anchors:
 		check(by_id.has(id), "anchor %s is a real asset" % id)
 
@@ -114,7 +114,8 @@ func test_selection_rules() -> void:
 		"part_sac": {"status": "candidates", "round": 1},
 		"body_biped": {"status": "approved", "round": 1},
 		"icon_energy": {"status": "claude_redo", "round": 3},
-		"part_spear": {"status": "user_rejected", "round": 2},
+		"part_spear": {"status": "user_rejected", "round": 2, "prompt_after_reject": true},
+		"part_claw": {"status": "user_rejected", "round": 1},
 	}
 	var present := {"part_eye_compound": true}
 	var r := StudioCore.select(entries, "anchor", assets, anchors, present, false, 3)
@@ -131,7 +132,8 @@ func test_selection_rules() -> void:
 	ids.clear()
 	for e: Dictionary in r.entries:
 		ids.append(e.id)
-	check(ids.has("part_spear"), "user rejection is redone")
+	check(ids.has("part_spear"), "user rejection with a rewritten prompt is redone")
+	check(not ids.has("part_claw"), "user rejection without a new prompt is NOT regenerated")
 	check(not ids.has("icon_energy"), "Claude redo capped at max rounds")
 	r = StudioCore.select(entries, "p1 nonsense_id", assets, anchors, present, false, 3)
 	check_eq(r.unknown, ["nonsense_id"], "unknown token reported")
@@ -263,4 +265,70 @@ func test_proxy_bypass_for_local_and_no_proxy() -> void:
 	check(not StudioCore.should_proxy("api.openai.com", "localhost,.openai.com"), "NO_PROXY suffix")
 	check(not StudioCore.should_proxy("relay.example.com", "*"), "NO_PROXY *")
 	check(StudioCore.should_proxy("notopenai.com", "openai.com"), "suffix must match a label boundary")
+
+
+func test_audit_regressions_key_safety() -> void:
+	var k := "sk-proj-SECRETabcdefghij0123456789"
+	var red := StudioCore.redact("invalid token " + k + " / Authorization: Bearer " + k, k)
+	check(not red.contains("SECRET"), "key removed from relay error text")
+	check(not StudioCore.redact("Bearer abcdefghijklmnopqrstuv", "").contains("abcdefghijklmnop"), "bearer tokens masked generically")
+	var r := StudioCore.parse_key_file("abcdefghijklmnopqrstuvwx==")
+	check_eq(r.key, "abcdefghijklmnopqrstuvwx==", "a token with '=' padding is the key, not a setting")
+	for w: String in r.warnings:
+		check(not w.contains("abcdefgh"), "warnings never echo key text")
+	var r2 := StudioCore.parse_key_file(KEY + "\nsomething=else-secret-looking")
+	for w: String in r2.warnings:
+		check(not w.contains("secret"), "unknown lines are not echoed")
+	check(not (StudioCore.parse_key_file(KEY + "\nquality=auto").errors as PackedStringArray).is_empty(), "quality=auto rejected (unpredictable cost)")
+	check_eq(StudioCore.parse_key_file(KEY + "\nbudget_total=20").settings.budget_total, 20.0, "total budget setting")
+
+
+func test_audit_regressions_money() -> void:
+	check_eq(StudioCore.usage_usd("gpt-image-1", {"output_tokens": 0}, 0.4), 0.4, "zero usage -> estimate")
+	check_eq(StudioCore.usage_usd("gpt-image-1", {"output_tokens": null}, 0.4), 0.4, "null usage -> estimate")
+	check_eq(StudioCore.usage_usd("gpt-image-1", {"output_tokens": "1056"}, 0.4), 0.4, "string usage -> estimate")
+	var t := StudioCore.explain_error(HTTPRequest.RESULT_TIMEOUT, 0, {}, "h", "m")
+	check(not bool(t.retry) and bool(t.maybe_billed), "timeouts are not retried and count as maybe billed")
+	var g := StudioCore.explain_error(0, 524, {}, "h", "m")
+	check(not bool(g.retry) and bool(g.maybe_billed), "gateway timeout not retried")
+	var drop := StudioCore.explain_error(HTTPRequest.RESULT_CONNECTION_ERROR, 0, {}, "h", "m")
+	check(not bool(drop.fatal) and not bool(drop.retry), "a mid-request drop fails only that item")
+	var redirect := StudioCore.explain_error(0, 302, {}, "h", "m")
+	check(bool(redirect.fatal), "redirects stop the run (key must not follow)")
+	var px := StudioCore.explain_error(HTTPRequest.RESULT_CANT_CONNECT, 0, {}, "h", "m", true)
+	check(str(px.msg).contains("代理"), "proxy-aware connection message")
+	check(bool(StudioCore.explain_error(0, 500, {}, "h", "m").get("server_error", false)), "5xx flagged for a single retry")
+
+
+func test_audit_regressions_review() -> void:
+	var st := StudioCore.new_state()
+	StudioCore.record_gen(st, "part_sac", ["a.png", "b.png"], "p", 0.0, "m", [], "t")
+	StudioCore.apply_verdict(st, "part_sac", {"pick": 1, "alt": 2}, ["a.png", "b.png"], 3, "t")
+	var sig := StudioCore.review_signature(st)
+	check_eq(StudioCore.review_signature(st), sig, "signature stable while the set is unchanged")
+	var stale := StudioCore.apply_user(st, "part_sac", {"decision": "approve", "pick": "待复审/zzz.png"}, "t", ["a.png", "b.png"])
+	check(not bool(stale.ok), "decision made on another image is ignored")
+	check_eq(StudioCore.asset(st, "part_sac").status, "user_review", "state untouched")
+	var gone := StudioCore.apply_user(st, "part_sac", {"decision": "approve", "pick": "待复审/a.png"}, "t", ["b.png"])
+	check(not bool(gone.ok), "approving a file that no longer exists is refused")
+	check_eq(StudioCore.asset(st, "part_sac").status, "user_review", "still waiting")
+	var old := StudioCore.apply_user(st, "part_sac", {"decision": "approve"}, "t", ["a.png", "b.png"], false)
+	check(not bool(old.ok), "pick-less result from an older page is ignored")
+	var ok := StudioCore.apply_user(st, "part_sac", {"decision": "approve", "pick": "待复审/a.png"}, "t", ["a.png", "b.png"])
+	check(bool(ok.ok), "matching decision applies")
+	check(StudioCore.review_signature(st) != sig, "signature changes when the set changes")
+	StudioCore.record_failed(st, "part_sac", "network", "t")
+	check_eq(StudioCore.asset(st, "part_sac").status, "approved", "a failed re-generation keeps 'approved'")
+	StudioCore.record_failed(st, "icon_energy", "network", "t")
+	check_eq(StudioCore.asset(st, "icon_energy").status, "failed", "never-generated asset becomes failed")
+
+
+func test_villains_learn_only_from_villains() -> void:
+	var by_id := ArtManifest.by_id(_entries())
+	var approved := {"body_biped": "a/body_biped.png", "body_hexapod_enemy": "a/body_hexapod_enemy.png"}
+	var anchors: Array = db.art.anchor_batch
+	check_eq(StudioCore.pick_refs(by_id["body_cluster_enemy"], approved, by_id, anchors, 2), ["a/body_hexapod_enemy.png"], "villain refs")
+	check_eq(StudioCore.pick_refs(by_id["body_cluster"], approved, by_id, anchors, 2), ["a/body_biped.png"], "hero refs exclude villains")
+	check_eq(StudioCore.screen_of(by_id["body_cluster_enemy"]), "art_enemies", "villains shown on the enemy QA page")
+	check_eq(StudioCore.api_size(str(by_id["body_biped"].ratio)), "1024x1536", "standees generated in portrait")
 

@@ -98,6 +98,7 @@ static func build(spec: Dictionary, db: GameData) -> Dictionary:
 		"fx": element if element in ["poison", "infect", "regen", "stun", "vulnerable", "summon"] else "",
 		"scale": clampf(0.8 + (hp - 8) / 40.0, 0.75, 1.5),
 		"boss": bool(tpl.get("boss", false)),
+		"enemy": bool(spec.get("enemy", false)),  # enemies use the villain body art (body_<plan>_enemy) when it exists
 		"name": species_name(spec, db, element, parts),
 	}
 

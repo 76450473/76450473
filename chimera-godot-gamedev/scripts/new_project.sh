@@ -36,8 +36,9 @@ else
   bash "$HERE/godot_check.sh" . --shot screenshots/art_gallery.png --scene res://scenes/art_gallery.tscn || status=$?
   bash "$HERE/screenshot.sh" . res://scenes/art_parts.tscn screenshots/art_parts.png
   bash "$HERE/screenshot.sh" . res://scenes/art_images.tscn screenshots/art_images.png
+  bash "$HERE/screenshot.sh" . res://scenes/art_enemies.tscn screenshots/art_enemies.png
   bash "$HERE/screenshot.sh" . res://scenes/main.tscn screenshots/main.png
-  echo "next: Read screenshots/art_gallery.png, art_parts.png, art_images.png and main.png"
+  echo "next: Read screenshots/art_gallery.png, art_parts.png, art_images.png, art_enemies.png and main.png"
 fi
 if [ ! -d .git ]; then
   git init -q

@@ -24,7 +24,8 @@ func test_manifest_covers_all_content() -> void:
 func test_part_prompts_carry_race_style_and_accent() -> void:
 	var e: Dictionary = ArtManifest.by_id(ArtManifest.build(db))["part_eye_compound"]
 	check(str(e.prompt).contains("chitin"), "insect surface materials in prompt")
-	check(str(e.prompt).contains("bright saturated green"), "accent clause present")
+	check(str(e.prompt).contains("Glowing details:"), "accent clause present")
+	check_eq(e.mode, "cutout", "parts are full-colour illustrated accessories")
 	check_eq(int(e.priority), 1, "playable-race part is P1")
 
 
@@ -144,3 +145,31 @@ func test_part_word_covers_all_part_kinds() -> void:
 	var words: Dictionary = db.species_names.get("part_word", {})
 	for kind: String in Defs.PART_KINDS:
 		check(words.has(kind), "fusion.json part_word has %s" % kind)
+
+
+func test_hero_and_villain_bodies() -> void:
+	var by_id := ArtManifest.by_id(ArtManifest.build(db))
+	for plan: String in Defs.BODY_PLANS:
+		check(by_id.has("body_" + plan), "hero body_%s listed" % plan)
+		check(by_id.has("body_%s_enemy" % plan), "villain body_%s_enemy listed" % plan)
+		var hero: Dictionary = by_id["body_" + plan]
+		var villain: Dictionary = by_id["body_%s_enemy" % plan]
+		check_eq(hero.ratio, "2:3", "tall standee ratio")
+		check_eq(hero.mode, "cutout", "full-colour standee")
+		check(str(hero.prompt).contains("adult"), "%s hero prompt says adult" % plan)
+		check(str(villain.prompt).contains("villain"), "%s villain prompt uses the villain style" % plan)
+		check(float(villain.size) > float(hero.size), "%s villain is drawn bigger than the hero" % plan)
+		check(not (hero.sockets as Dictionary).is_empty() and not (villain.sockets as Dictionary).is_empty(), "%s default sockets" % plan)
+		check(str(hero.negative).contains("child"), "%s negatives guard against childlike results" % plan)
+
+
+func test_enemy_specs_use_villain_art() -> void:
+	var team := EnemyFactory.generate(db, rng(3), "insect", 1)
+	check(not team.is_empty() and bool(team[0].get("enemy", false)), "generated enemies are flagged")
+	var vg := VisualGenome.build(team[0], db)
+	check(bool(vg.enemy), "visual genome carries the flag")
+	var hero := VisualGenome.build({"template": team[0].template, "genes": []}, db)
+	check(not bool(hero.get("enemy", false)), "player units are not enemies")
+	ArtLibrary.clear()
+	check(ArtLibrary.body_for(vg).is_empty(), "no villain art and no body art -> procedural fallback")
+

@@ -111,6 +111,7 @@ bash "$HERE/godot_check.sh" . --shot screenshots/art_gallery.png --scene res://s
 echo "== screenshots"
 bash "$HERE/screenshot.sh" . res://scenes/art_parts.tscn screenshots/art_parts.png
 bash "$HERE/screenshot.sh" . res://scenes/art_images.tscn screenshots/art_images.png
+bash "$HERE/screenshot.sh" . res://scenes/art_enemies.tscn screenshots/art_enemies.png
 bash "$HERE/screenshot.sh" . res://scenes/main.tscn screenshots/main.png
-echo "next: Read screenshots/art_gallery.png, art_parts.png, art_images.png and main.png, then follow references/art-pipeline.md §4-§7"
+echo "next: Read screenshots/art_gallery.png, art_parts.png, art_images.png, art_enemies.png and main.png, then follow references/art-pipeline.md §4-§7"
 exit $status

@@ -44,7 +44,7 @@ func setup(p_vg: Dictionary, p_races: Dictionary, p_facing: int = 1, base_scale:
 		c.queue_free()
 	skip.clear()
 	sockets = CreaturePainter.sockets_for(vg)
-	var body_art := ArtLibrary.body(vg.get("body_plan", "biped"))
+	var body_art := ArtLibrary.body_for(vg)
 	body_textured = not body_art.is_empty()
 	var layers: Dictionary = vg.get("layers", {})
 	var seed_v := float(hash(vg.get("name", "")) % 97)

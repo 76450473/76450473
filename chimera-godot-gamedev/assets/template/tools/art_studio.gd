@@ -20,7 +20,7 @@ extends SceneTree
 
 const ART := "美术资产"
 const DIRS := ["候选", "候选/_对比", "待复审", "待复审/试装", "已通过", "淘汰", ".history"]
-const SCREENS := ["art_gallery", "art_parts", "art_images", "main"]
+const SCREENS := ["art_gallery", "art_parts", "art_images", "art_enemies", "main"]
 const IMG_EXTS := ["png", "jpg", "jpeg", "webp"]
 const RETRY_WAIT := [5.0, 15.0, 30.0, 60.0]
 
@@ -45,6 +45,16 @@ var _run_cap := 0.0
 var _stopped_by_cap := false
 var _gen_ok := 0
 var _gen_failed := 0
+var _reserved := 0.0
+var _total_cap := 0.0
+var _had_success := false
+var _gen_running := false
+var _dirty_assets := {}
+var _dirty_keys := {}
+var _dirty_imported := {}
+var _unsaved_spend := 0.0
+var _unsaved_maybe := 0.0
+const LOCK_STALE_SEC := 120
 
 
 func _initialize() -> void:
@@ -169,29 +179,108 @@ func _require_key() -> bool:
 
 # ================================================================== state
 
+## Raw 记录.json ({} when missing or unreadable). A leftover .tmp is a save that crashed before its rename.
+func _read_state_file() -> Dictionary:
+	var p := art.path_join("记录.json")
+	for path: String in [p, p + ".tmp"]:
+		if FileAccess.file_exists(path):
+			var v: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+			if v is Dictionary:
+				return v
+	return {}
+
+
 func _load_state() -> Dictionary:
 	var p := art.path_join("记录.json")
-	if FileAccess.file_exists(p):
-		var v: Variant = JSON.parse_string(FileAccess.get_file_as_string(p))
-		if v is Dictionary:
-			var d: Dictionary = v
-			for k: String in ["assets", "imported"]:
-				if not d.get(k, null) is Dictionary:
-					d[k] = {}
-			return d
-		print("  ! 记录.json 读不出来（可能被手动改坏了），已备份为 记录.坏.json 并重新开始记录")
-		DirAccess.rename_absolute(p, art.path_join("记录.坏.json"))
-	return StudioCore.new_state()
+	var d := _read_state_file()
+	if d.is_empty():
+		if FileAccess.file_exists(p):
+			print("  ! 记录.json 读不出来（可能被手动改坏了），已备份为 记录.坏.json 并重新开始记录")
+			DirAccess.rename_absolute(p, art.path_join("记录.坏.json"))
+		d = StudioCore.new_state()
+	for k: String in ["assets", "imported"]:
+		if not d.get(k, null) is Dictionary:
+			d[k] = {}
+	if str(d.get("workspace_id", "")) == "":  # keeps review pages of different workspaces apart
+		d["workspace_id"] = "%x%04x" % [int(Time.get_unix_time_from_system()), randi() % 65536]
+		_dirty_keys["workspace_id"] = true
+	return d
 
 
+## Money that may have been charged without a usable result (timeouts, dropped connections).
+func _add_spend(usd: float, maybe: bool) -> void:
+	_run_spent += usd
+	_unsaved_spend += usd
+	state["spent_usd"] = float(state.get("spent_usd", 0.0)) + usd
+	if maybe:
+		_unsaved_maybe += usd
+		state["maybe_billed_usd"] = float(state.get("maybe_billed_usd", 0.0)) + usd
+
+
+func _touch(id: String) -> void:
+	_dirty_assets[id] = true
+
+
+func _set_key(k: String, v: Variant) -> void:
+	state[k] = v
+	_dirty_keys[k] = true
+
+
+## Merge-save: another studio command may have saved since this one loaded (user-apply while a gen
+## runs in the background, for example). Only what THIS process changed is written over the file.
 func _save_state() -> void:
+	var disk := _read_state_file()
+	if not disk.is_empty():
+		for k: String in ["assets", "imported"]:
+			if not disk.get(k, null) is Dictionary:
+				disk[k] = {}
+		for id: String in _dirty_assets:
+			(disk.assets as Dictionary)[id] = (state.assets as Dictionary).get(id, {})
+		for f: String in _dirty_imported:
+			(disk.imported as Dictionary)[f] = (state.imported as Dictionary).get(f, "")
+		for k: String in _dirty_keys:
+			disk[k] = state.get(k)
+		disk["spent_usd"] = snappedf(float(disk.get("spent_usd", 0.0)) + _unsaved_spend, 0.0001)
+		disk["maybe_billed_usd"] = snappedf(float(disk.get("maybe_billed_usd", 0.0)) + _unsaved_maybe, 0.0001)
+		state = disk
+	_unsaved_spend = 0.0
+	_unsaved_maybe = 0.0
+	_dirty_assets.clear()
+	_dirty_imported.clear()
+	_dirty_keys.clear()
 	var p := art.path_join("记录.json")
 	var f := FileAccess.open(p + ".tmp", FileAccess.WRITE)
 	f.store_string(JSON.stringify(state, "  "))
 	f.close()
-	if FileAccess.file_exists(p):
+	if DirAccess.rename_absolute(p + ".tmp", p) != OK:  # Windows: rename does not replace
 		DirAccess.remove_absolute(p)
-	DirAccess.rename_absolute(p + ".tmp", p)
+		DirAccess.rename_absolute(p + ".tmp", p)
+
+
+## A gen that is still running holds 美术资产/.gen.lock and refreshes it every 30 s.
+func _live_gen_lock() -> Dictionary:
+	var p := art.path_join(".gen.lock")
+	if not FileAccess.file_exists(p):
+		return {}
+	var v: Variant = JSON.parse_string(FileAccess.get_file_as_string(p))
+	if not v is Dictionary:
+		return {}
+	if int(Time.get_unix_time_from_system()) - int((v as Dictionary).get("beat", 0)) > LOCK_STALE_SEC:
+		return {}  # its process died (killed session, crash): the lock is stale
+	return v
+
+
+func _write_gen_lock(started: String) -> void:
+	var f := FileAccess.open(art.path_join(".gen.lock"), FileAccess.WRITE)
+	f.store_string(JSON.stringify({"started": started, "beat": int(Time.get_unix_time_from_system()),
+		"sel": " ".join(PackedStringArray(pos))}))
+	f.close()
+
+
+func _heartbeat(started: String) -> void:
+	while _gen_running:
+		_write_gen_lock(started)
+		await create_timer(30.0).timeout
 
 
 func _now() -> String:
@@ -276,12 +365,23 @@ func _cmd_status() -> int:
 			ids.sort()
 			print("  %s %d：%s%s" % [lines[st], ids.size(), ", ".join(PackedStringArray(ids.slice(0, 12))), " …" if ids.size() > 12 else ""])
 	print("已花费：$%.2f（估算，以 OpenAI 账单为准）" % float(state.get("spent_usd", 0.0)))
+	var lock := _live_gen_lock()
+	if not lock.is_empty():
+		print("  后台 gen 正在运行（%s 开始：%s）——它结束前不要再开 gen" % [str(lock.get("started", "?")), str(lock.get("sel", ""))])
+	if float(state.get("maybe_billed_usd", 0.0)) > 0.0:
+		print("  其中约 $%.2f 是超时/断线、可能已计费但没拿到图的请求" % float(state.maybe_billed_usd))
 	var unsynced := _unsynced().size()
+	var rejected_no_prompt := 0
+	for id: String in state.assets:
+		var a: Dictionary = state.assets[id]
+		if str(a.get("status", "")) == "user_rejected" and not bool(a.get("prompt_after_reject", false)):
+			rejected_no_prompt += 1
 	var result_file := _find_result_file() != ""
 	var review_file := FileAccess.file_exists(art.path_join("初审.json"))
-	print("STATE candidates=%d claude_redo=%d failed=%d user_review=%d user_rejected=%d approved=%d unsynced=%d missing=%d key=%s result_file=%s first_pass_file=%s" % [
+	print("STATE candidates=%d claude_redo=%d failed=%d user_review=%d user_rejected=%d approved=%d unsynced=%d missing=%d key=%s result_file=%s first_pass_file=%s gen_running=%s" % [
 		c.candidates, c.claude_redo, c.failed, c.user_review, c.user_rejected, c.approved, unsynced, missing,
-		"ok" if key != "" else ("bad" if info.found else "none"), "yes" if result_file else "no", "yes" if review_file else "no"])
+		"ok" if key != "" else ("bad" if info.found else "none"), "yes" if result_file else "no", "yes" if review_file else "no",
+		"yes" if not lock.is_empty() else "no"])
 	var nxt := ""
 	if result_file:
 		nxt = "用户已提交复审 → art_studio.sh <W> user-apply"
@@ -289,14 +389,17 @@ func _cmd_status() -> int:
 		nxt = "初审.json 还没应用 → art_studio.sh <W> apply"
 	elif int(c.candidates) > 0:
 		nxt = "Claude 初审：逐个 Read 美术资产/候选/_对比/<id>.png（上排原图 1..n，下排处理后），写 美术资产/初审.json，再 apply"
-	elif int(c.claude_redo) + int(c.failed) > 0:
-		nxt = "重画：art_studio.sh <W> gen redo（先 plan redo 看费用）"
-	elif int(c.user_rejected) > 0:
-		nxt = "按用户意见改提示词（初审.json 里写 {\"<id>\": {\"prompt\": \"...\"}}）→ apply → gen redo"
+	elif rejected_no_prompt > 0:
+		nxt = "用户退回了 %d 项：先按意见改提示词（初审.json 里写 {\"<id>\": {\"prompt\": \"...\"}}）→ apply → plan redo → gen redo" % rejected_no_prompt
+	elif int(c.claude_redo) + int(c.failed) + int(c.user_rejected) > 0:
+		nxt = "重画：art_studio.sh <W> plan redo（把费用告诉用户）→ gen redo"
 	elif unsynced > 0:
 		nxt = "已通过的图还没进游戏 → art_studio.sh <W> sync"
 	elif int(c.user_review) > 0:
-		nxt = "等用户复审：art_studio.sh <W> trial（截图+页面）→ art_studio.sh <W> serve（后台运行）"
+		if StudioCore.review_signature(state) == str(state.get("page_sig", "")) and FileAccess.file_exists(art.path_join("审核页面.html")):
+			nxt = "等用户复审：页面已是最新，直接 art_studio.sh <W> serve（run_in_background；用户之前没提交的选择会保留）"
+		else:
+			nxt = "等用户复审：art_studio.sh <W> trial（试装截图 + 页面）→ art_studio.sh <W> serve（run_in_background）"
 	elif missing > 0:
 		nxt = ("下一批：art_studio.sh <W> plan %s（先给用户看费用）" % ("anchor" if _anchor_open() else "p1" if p1_missing > 0 else "p2")) if key != "" \
 			else "手动模式：把缺的资产提示词（docs/ART_TODO.md）发给用户"
@@ -322,10 +425,11 @@ func _anchor_open() -> bool:
 
 # ================================================================== HTTP
 
-func _http(method: int, url: String, headers: PackedStringArray, body: PackedByteArray) -> Dictionary:
+func _http(method: int, url: String, headers: PackedStringArray, body: PackedByteArray, follow: bool = false) -> Dictionary:
 	var req := HTTPRequest.new()
 	req.timeout = float(cfg.get("timeout", 300))
 	req.use_threads = true
+	req.max_redirects = 8 if follow else 0  # never re-send the Authorization header to another host
 	var px := StudioCore.parse_proxy(str(cfg.get("proxy", "")))
 	var no_proxy := OS.get_environment("NO_PROXY") + "," + OS.get_environment("no_proxy")
 	if not px.is_empty() and StudioCore.should_proxy(StudioCore.host_of(url), no_proxy):
@@ -345,14 +449,24 @@ func _auth() -> PackedStringArray:
 	return PackedStringArray(["Authorization: Bearer " + key, "User-Agent: chimera-epoch-art-studio"])
 
 
-static func _json_body(resp: Dictionary) -> Dictionary:
-	var text := (resp.body as PackedByteArray).get_string_from_utf8()
+## JSON body of a response; a relay's HTML/plain error page becomes {"error": {"message": <start>}}.
+## Everything that came from the network is redacted (relays sometimes echo the Authorization header).
+func _json_body(resp: Dictionary) -> Dictionary:
+	var text := StudioCore.redact((resp.body as PackedByteArray).get_string_from_utf8(), key)
 	var j := JSON.new()  # instance parse: no engine error spam on empty / HTML bodies
 	if j.parse(text) == OK and j.data is Dictionary:
 		return j.data
-	if text.strip_edges() != "":  # a proxy's or relay's HTML/plain error page: show its start
+	if text.strip_edges() != "":
 		return {"error": {"message": text.strip_edges().left(160)}}
 	return {}
+
+
+## explain_error with the key scrubbed from the message.
+func _explain(resp: Dictionary, body: Dictionary) -> Dictionary:
+	var ex := StudioCore.explain_error(int(resp.result), int(resp.code), body, StudioCore.host_of(str(cfg.base_url)),
+		str(cfg.model), _uses_proxy(), _had_success)
+	ex["msg"] = StudioCore.redact(str(ex.msg), key)
+	return ex
 
 
 static func _retry_after(resp: Dictionary) -> float:
@@ -384,7 +498,7 @@ func _cmd_ping() -> int:
 			print("模型列表里没看到 %s（中转服务常见；真正生成时才能确定能不能用）。" % cfg.model)
 		print("PING ok")
 		return 0
-	var ex := StudioCore.explain_error(int(resp.result), int(resp.code), body, host, str(cfg.model))
+	var ex := _explain(resp, body)
 	print("x " + str(ex.msg))
 	print("PING fail")
 	return 3
@@ -461,18 +575,36 @@ func _cmd_plan() -> int:
 func _cmd_gen() -> int:
 	if not _require_key():
 		return 3
+	var lock := _live_gen_lock()
+	if not lock.is_empty():
+		print("x 另一个 gen 正在运行（%s 开始，选择：%s）。等它结束再生成（它结束时会有通知），否则同一批图会被付两次钱。" % [str(lock.get("started", "?")), str(lock.get("sel", ""))])
+		return 5
 	var sel := _selection()
 	if sel.is_empty():
-		print("用法：gen <anchor|p1|p2|p3|all|redo|资产id,...> [--max-usd X]")
+		print("用法：gen <anchor|p1|p2|p3|all|redo|资产id,...> [--max-usd X] [--total-usd Y]")
 		return 2
 	var total := _print_plan(sel)
 	if (sel.entries as Array).is_empty():
 		print("没有需要生成的资产。")
 		return 0
-	_run_cap = float(opts.get("max-usd", cfg.budget))
+	_run_cap = float(str(opts.get("max-usd", cfg.budget)).trim_prefix("$").trim_suffix("$"))
+	if _run_cap <= 0.0 or _run_cap >= 10000.0:
+		print("x --max-usd 要写成正数，单位美元，例如 --max-usd 5")
+		return 2
+	_total_cap = float(str(opts.get("total-usd", cfg.budget_total)).trim_prefix("$").trim_suffix("$"))
+	var spent := float(state.get("spent_usd", 0.0))
+	if _total_cap > 0.0:
+		var left := _total_cap - spent
+		if total > left + 0.005:
+			print("x 用户给的总预算 $%.2f 已花 $%.2f，只剩 $%.2f，这批预计 $%.2f：先问用户要不要加预算（或者只生成一部分）。" % [_total_cap, spent, maxf(left, 0.0), total])
+			return 4
+		_run_cap = minf(_run_cap, left)
 	if total > _run_cap + 0.005:
 		print("x 预计 $%.2f 超过本次上限 $%.2f：先把费用告诉用户，用户同意后加 --max-usd %.2f 重跑（或者分批生成）。" % [total, _run_cap, ceilf(total * 1.1 * 100.0) / 100.0])
 		return 4
+	var started := _now()
+	_gen_running = true
+	_heartbeat(started)
 	print("== 开始生成（%s，%d 路并发）" % [StudioCore.host_of(str(cfg.base_url)), int(cfg.concurrency)])
 	_queue = (sel.entries as Array).duplicate()
 	_workers_left = mini(int(cfg.concurrency), _queue.size())
@@ -481,8 +613,12 @@ func _cmd_gen() -> int:
 	while _workers_left > 0:
 		await process_frame
 	_save_state()
+	_gen_running = false
+	DirAccess.remove_absolute(art.path_join(".gen.lock"))
 	print("")
 	print("生成完成：成功 %d 项，失败 %d 项；本次约 $%.2f，累计 $%.2f" % [_gen_ok, _gen_failed, _run_spent, float(state.spent_usd)])
+	if float(state.get("maybe_billed_usd", 0.0)) > 0.0:
+		print("! 其中约 $%.2f 是超时或断线的请求：可能已经计费，但没有拿到图（已计入花费，宁多勿少）" % float(state.maybe_billed_usd))
 	if _stopped_by_cap:
 		print("! 达到本次上限 $%.2f，剩下的没有生成（再跑一次 gen 会接着做）" % _run_cap)
 	if _fatal != "":
@@ -497,10 +633,12 @@ func _worker() -> void:
 	while not _queue.is_empty() and _fatal == "":
 		var e: Dictionary = _queue.pop_front()
 		var est := _estimate(e, int(cfg.n), _refs_for(e).size())
-		if _run_spent + est > _run_cap * 1.05 + 0.005:
+		if _run_spent + _reserved + est > _run_cap * 1.05 + 0.005:  # in-flight requests count too
 			_stopped_by_cap = true
 			continue
+		_reserved += est
 		await _gen_one(e)
+		_reserved -= est
 	_workers_left -= 1
 
 
@@ -508,18 +646,21 @@ func _gen_one(e: Dictionary) -> void:
 	var id: String = e.id
 	var a := StudioCore.asset(state, id)
 	var refs := _refs_for(e)
-	var prompt := StudioCore.gpt_prompt(e, str(a.get("prompt", "")), not refs.is_empty())
 	var n := int(cfg.n)
 	var size := StudioCore.api_size(str(e.ratio))
-	var params := {"model": str(cfg.model), "prompt": prompt, "n": n, "size": size, "quality": str(cfg.quality),
-		"background": StudioCore.api_background(e), "output_format": "png"}
-	if str(cfg.moderation) == "low":
-		params["moderation"] = "low"
 	var host := StudioCore.host_of(str(cfg.base_url))
+	var est := StudioCore.estimate_usd(str(cfg.model), str(cfg.quality), size, n, refs.size(), 400)
 	var resp := {}
 	var body := {}
+	var prompt := ""
 	var attempt := 0
+	var server_retries := 0
 	while true:
+		prompt = StudioCore.gpt_prompt(e, str(a.get("prompt", "")), not refs.is_empty(), not _dropped.has("background"))
+		var params := {"model": str(cfg.model), "prompt": prompt, "n": n, "size": size, "quality": str(cfg.quality),
+			"background": StudioCore.api_background(e), "output_format": "png"}
+		if str(cfg.moderation) == "low" and refs.is_empty():  # /images/edits has no moderation parameter
+			params["moderation"] = "low"
 		for p: String in _dropped:
 			params.erase(p)
 		if refs.is_empty():
@@ -532,22 +673,31 @@ func _gen_one(e: Dictionary) -> void:
 			h2.append("Content-Type: " + str(mp.type))
 			resp = await _http(HTTPClient.METHOD_POST, str(cfg.base_url) + "/images/edits", h2, mp.body)
 		body = _json_body(resp)
+		a = StudioCore.asset(state, id)  # the state may have been merge-reloaded while we waited
 		if int(resp.result) == HTTPRequest.RESULT_SUCCESS and int(resp.code) == 200 and body.get("data", null) is Array:
 			break
 		if _fatal != "":
 			return
-		var ex := StudioCore.explain_error(int(resp.result), int(resp.code), body, host, str(cfg.model))
+		var ex := _explain(resp, body)
 		attempt += 1
 		if ex.has("drop_param") and not _dropped.has(ex.drop_param):
 			_dropped[str(ex.drop_param)] = true
 			print("  ! %s" % ex.msg)
 			continue
+		if bool(ex.get("maybe_billed", false)):  # count it: better to over-report than to hide spend
+			_add_spend(est, true)
 		if bool(ex.fatal):
 			_fatal = str(ex.msg)
 			StudioCore.record_failed(state, id, str(ex.msg), _now())
+			_touch(id)
 			_gen_failed += 1
+			_save_state()
 			return
-		if bool(ex.retry) and attempt <= RETRY_WAIT.size():
+		var may_retry := bool(ex.retry) and attempt <= RETRY_WAIT.size()
+		if bool(ex.get("server_error", false)):
+			server_retries += 1
+			may_retry = may_retry and server_retries <= 1
+		if may_retry:
 			var wait := _retry_after(resp)
 			if wait < 0.0:
 				wait = RETRY_WAIT[attempt - 1]
@@ -555,10 +705,12 @@ func _gen_one(e: Dictionary) -> void:
 			await create_timer(wait).timeout
 			continue
 		StudioCore.record_failed(state, id, str(ex.msg), _now())
+		_touch(id)
 		_gen_failed += 1
 		print("x %-28s %s" % [id, ex.msg])
 		_save_state()
 		return
+	_had_success = true
 	var gen_no := int(a.get("gens", 0)) + 1
 	var files: Array = []
 	var k := 0
@@ -570,7 +722,7 @@ func _gen_one(e: Dictionary) -> void:
 		if dd.has("b64_json") and str(dd.b64_json) != "":
 			bytes = Marshalls.base64_to_raw(str(dd.b64_json))
 		elif dd.has("url") and str(dd.url) != "":
-			var dl := await _http(HTTPClient.METHOD_GET, str(dd.url), PackedStringArray(), PackedByteArray())
+			var dl := await _http(HTTPClient.METHOD_GET, str(dd.url), PackedStringArray(), PackedByteArray(), true)
 			if int(dl.result) == HTTPRequest.RESULT_SUCCESS and int(dl.code) == 200:
 				bytes = dl.body
 		var ext := StudioCore.image_ext(bytes)
@@ -585,20 +737,24 @@ func _gen_one(e: Dictionary) -> void:
 		f.store_buffer(bytes)
 		f.close()
 		files.append(name)
-	if files.is_empty():
+	est = StudioCore.estimate_usd(str(cfg.model), str(cfg.quality), size, maxi(files.size(), n), refs.size(), prompt.length())
+	var usage: Dictionary = body.get("usage", {}) if body.get("usage", null) is Dictionary else {}
+	var usd := StudioCore.usage_usd(str(cfg.model), usage, est)
+	if files.is_empty():  # billed, but nothing usable came back
+		_add_spend(usd, true)
 		StudioCore.record_failed(state, id, "接口返回了成功，但里面没有图片", _now())
+		_touch(id)
 		_gen_failed += 1
 		print("x %-28s 接口返回了成功，但里面没有图片" % id)
 		_save_state()
 		return
-	var est := StudioCore.estimate_usd(str(cfg.model), str(cfg.quality), size, files.size(), refs.size(), prompt.length())
-	var usage: Dictionary = body.get("usage", {}) if body.get("usage", null) is Dictionary else {}
-	var usd := StudioCore.usage_usd(str(cfg.model), usage, est)
 	_run_spent += usd
+	_unsaved_spend += usd  # record_gen adds it to state.spent_usd
 	var ref_names: Array = []
 	for r: String in refs:
 		ref_names.append(r.get_file())
 	StudioCore.record_gen(state, id, files, prompt, usd, str(cfg.model), ref_names, _now())
+	_touch(id)
 	_save_state()
 	var notes := _contact_sheet(e, files)
 	_gen_ok += 1
@@ -722,6 +878,7 @@ func _cmd_apply() -> int:
 			continue
 		var cands := _files_of("候选", id)
 		var res := StudioCore.apply_verdict(state, id, verdicts[raw_id], cands, int(_cfg_quiet().max_rounds), _now())
+		_touch(id)
 		if not bool(res.ok):
 			print("x %s：%s" % [id, res.msg])
 			bad += 1
@@ -793,7 +950,11 @@ func _cmd_trial_done() -> int:
 
 
 func _build_page() -> int:
-	state["batch"] = int(state.get("batch", 0)) + 1
+	var sig := StudioCore.review_signature(state)
+	if sig != str(state.get("page_sig", "")) or int(state.get("batch", 0)) == 0:
+		_set_key("batch", int(state.get("batch", 0)) + 1)  # same set of images -> same batch (keeps browser drafts)
+		_set_key("page_sig", sig)
+	_set_key("page_built_unix", int(Time.get_unix_time_from_system()))
 	var processed := {}
 	var screens := {}
 	for e: Dictionary in entries:
@@ -823,16 +984,22 @@ func _build_page() -> int:
 
 # ================================================================== user-apply
 
-## Newest review result: --file, 美术资产/复审结果.json, <W>/复审结果*.json, or the browser's
-## Downloads folder (only files newer than the last applied one).
+## Newest review result: --file, 美术资产/复审结果.json (written by the review server), or a
+## 复审结果*.json in the workspace / the browser's Downloads folder that is newer than the current
+## review page and than the last applied result (old downloads from other projects never count).
 func _find_result_file() -> String:
 	if opts.has("file"):
-		return str(opts.file).replace("\\", "/")
+		var fp := str(opts.file).replace("\\", "/")
+		if fp.is_relative_path() and not (fp.length() > 1 and fp[1] == ":"):
+			fp = ws.path_join(fp)
+		return fp
 	var p := art.path_join("复审结果.json")
 	if FileAccess.file_exists(p):
 		return p
+	if int(state.get("page_built_unix", 0)) == 0:
+		return ""  # no review page was ever built in this workspace
 	var best := ""
-	var best_t := int(state.get("last_result_mtime", 0))
+	var best_t := maxi(int(state.get("last_result_mtime", 0)), int(state.get("page_built_unix", 0)))
 	var dirs: Array = [art, ws]
 	var dl := OS.get_system_dir(OS.SYSTEM_DIR_DOWNLOADS)
 	if dl != "":
@@ -865,11 +1032,14 @@ func _cmd_user_apply() -> int:
 	var approved: Array = []
 	var rejected: Array = []
 	var ignored := 0
+	var available: Array = Array(DirAccess.get_files_at(art.path_join("待复审")))
+	var same_batch := int(result.get("batch", -1)) == int(state.get("batch", 0))
 	for id: String in items:
 		if not by_id.has(id) or not items[id] is Dictionary:
 			ignored += 1
 			continue
-		var res := StudioCore.apply_user(state, id, items[id], _now())
+		var res := StudioCore.apply_user(state, id, items[id], _now(), available, same_batch)
+		_touch(id)
 		if not bool(res.ok):
 			print("- %s：%s" % [id, res.msg])
 			ignored += 1
@@ -881,7 +1051,7 @@ func _cmd_user_apply() -> int:
 			approved.append(id)
 		else:
 			rejected.append(id)
-	state["last_result_mtime"] = FileAccess.get_modified_time(p)
+	_set_key("last_result_mtime", FileAccess.get_modified_time(p))
 	_save_state()
 	var dest := art.path_join(".history").path_join("复审结果_%d_%s.json" % [int(result.get("batch", 0)), _now().replace(":", "").replace(" ", "_")])
 	if p.begins_with(art) or p.begins_with(ws):
@@ -919,11 +1089,14 @@ func _approve_file(id: String, name: String) -> void:
 	var dst := dir.path_join("%s.%s" % [id, name.get_extension()])
 	DirAccess.rename_absolute(src, dst)
 	StudioCore.asset(state, id)["approved_md5"] = FileAccess.get_md5(dst)
+	_touch(id)
 
 
 # ================================================================== sync
 
-## 已通过/ files whose content was not imported into the game yet: {file: md5}.
+## 已通过/ files that are not (or no longer) in the game: {file: md5}. Checks the game itself (the
+## asset exists and its sidecar's source_md5 matches), so a recreated or git-reset game gets its
+## approved art back; unknown names fall back to the record of what was copied.
 func _unsynced() -> Dictionary:
 	var out := {}
 	var imported: Dictionary = state.get("imported", {})
@@ -931,7 +1104,20 @@ func _unsynced() -> Dictionary:
 		if not IMG_EXTS.has(f.get_extension().to_lower()):
 			continue
 		var md5 := FileAccess.get_md5(art.path_join("已通过").path_join(f))
-		if str(imported.get(f, "")) != md5:
+		var id := f.get_basename()
+		if by_id.has(id):
+			var entry: Dictionary = by_id[id]
+			var meta_path := ProjectSettings.globalize_path(str(entry.path).get_basename() + ".json")
+			var game_md5 := ""
+			if FileAccess.file_exists(meta_path):
+				var v: Variant = JSON.parse_string(FileAccess.get_file_as_string(meta_path))
+				if v is Dictionary:
+					game_md5 = str((v as Dictionary).get("source_md5", ""))
+			if not ArtManifest.is_present(entry):
+				out[f] = md5  # missing from the game (recreated, git reset): bring it back
+			elif game_md5 != md5 and str(imported.get(f, "")) != md5:
+				out[f] = md5  # new approved version; a later manual replacement of synced art is left alone
+		elif str(imported.get(f, "")) != md5:
 			out[f] = md5
 	return out
 
@@ -959,6 +1145,7 @@ func _cmd_sync_prepare() -> int:
 		else:
 			credits.erase(f)
 		(state.imported as Dictionary)[f] = todo[f]
+		_dirty_imported[f] = true
 		n += 1
 		print("  → art_inbox/%s" % f)
 	if n > 0:

@@ -4,7 +4,7 @@
 - **GPT 美术工作室**：工作区里有 `GPTapi.txt` 时，Claude 调用 OpenAI 生成，自己先初审，用户复审通过后再 `sync` 进来。生成和审核见 `art-studio.md`。
 - **用户手动出图**：按提示词用任意 AI 生图工具出图，打成 zip 资产包放进工作区（和 `游戏/` 同一层）；或者把图片直接放进 `美术资产/已通过/`（文件名用资产 id）、`游戏/art_inbox/`。
 
-Claude 负责抠图、裁边、灰度化、缩放、计算挂点、对齐插槽、截图检查，并告诉用户哪些图要重做、还缺什么，附上提示词。
+Claude 负责抠图、裁边、缩放、计算挂点、对齐插槽、截图检查，并告诉用户哪些图要重做、还缺什么，附上提示词。
 
 缺失的资产永远回退到程序化占位美术，所以**任何时候游戏都能运行**，美术可以一张一张地补。
 
@@ -26,34 +26,35 @@ Claude 负责抠图、裁边、灰度化、缩放、计算挂点、对齐插槽�
 | 文件 | 作用 |
 |---|---|
 | `data/art_manifest.json` | 唯一的真相源。定义风格锁定提示词、各族形状语言、每个部件、骨架、图标和背景的主体描述、挂点、锚点、显示高度 |
-| `src/art/art_manifest.gd` | 把 manifest 和游戏数据（基因部件、骨架、生态区、卡牌、Boss）**推导**成完整的资产列表，共 82 项；能输出 Markdown 格式的提示词书 |
+| `src/art/art_manifest.gd` | 把 manifest 和游戏数据（基因部件、骨架、生态区、卡牌、Boss）**推导**成完整的资产列表，共 88 项（含 6 个敌方反派骨架）；能输出 Markdown 格式的提示词书 |
 | `tools/art_audit.gd` | 每次运行都重新生成三份文件：`docs/ART_TODO.md`（缺失资产 + 提示词）、`docs/ART_PROMPTS.md`（全部资产）、`docs/ART_PROMPTS.txt`（纯文本版，可直接发给用户）。加 `-- p1` 只看 P1 缺口 |
 | `tools/unpack_assets.gd` | 用 Godot 的 ZIPReader 解压资产包（不依赖 unzip），也支持文件夹：把图片和 credits.txt 平铺放进 `art_inbox/`；会跳过 `__MACOSX` 目录、隐藏文件，以及内含 SKILL.md 的 zip |
 | `scripts/art_studio.sh` + `tools/art_studio.gd`（skill 自带） | GPT 工作室：生成、初审结果应用、试装、审核页面、复审结果应用；`sync` 把 `美术资产/已通过/` 和工作区里的资产包导入游戏（见 art-studio.md） |
-| `scripts/import_assets.sh`（skill 自带） | **一键导入**：自动发现资产包 → 解压 → 导入 → 注册 → 统计缺失 → 全量检查 → 截 4 张图（检查台三页加主场景）→ 把资产包移到 `art_inbox/_packs/`（重名时自动加编号） |
+| `scripts/import_assets.sh`（skill 自带） | **一键导入**：自动发现资产包 → 解压 → 导入 → 注册 → 统计缺失 → 全量检查 → 截 5 张图（检查台四页加主场景）→ 把资产包移到 `art_inbox/_packs/`（重名时自动加编号） |
 | `scripts/prepare_root.sh`（skill 自带） | 项目根目录里如果有解压后的 skill 文件夹（或其他含 project.godot 的文件夹），给它加 `.gdignore`，并写进 `.gitignore`，避免类名冲突、避免被提交 |
 | `tools/import_art.gd` | 把 `art_inbox/` 里的图片处理后放进 `art/`，写 sidecar json，在 CREDITS.md 登记，原图移到 `art_inbox/_done/`；用不了的原图（avif 等格式、损坏）移到 `art_inbox/_failed/` |
-| `src/art/art_importer.gd` | 纯图像处理（有测试）：泛洪去背景、羽化、裁边、灰度化（保留饱和的发光色）、单色图标、fit / cover 缩放、计算锚点 |
+| `src/art/art_importer.gd` | 纯图像处理（有测试）：泛洪去背景（透明图直接用 alpha）、羽化、裁边、灰度化（只用于 palette 模式）、单色图标、fit / cover 缩放、计算锚点 |
 | `src/art/art_library.gd` | 运行时查找资产。查不到返回 `{}`，调用方据此回退到程序化美术 |
-| `src/shaders/part_palette.gdshader` | 把灰度图映射成一套配色（dark→base→light 渐变）：骨架用宿主的种族配色，部件用来源种族的配色再混入 25% 宿主底色（见 visual-system §6）；饱和区域映射为元素强调色；最后叠加基因材质层 |
-| `scenes/art_gallery.tscn`、`art_parts.tscn`、`art_images.tscn` | 美术检查台共三页：①骨架加挂点十字、各族展示、全部图标；②全部部件，每个部件单独装在一只生物身上；③背景、标题、界面、卡框、卡背、Boss、卡图 |
+| `src/shaders/part_palette.gdshader` | 彩色立绘（cutout）原样显示，只叠加淡化的基因材质层；palette 模式下把灰度图映射成一套配色（dark→base→light 渐变）：骨架用宿主的种族配色，部件用来源种族的配色再混入 25% 宿主底色（见 visual-system §6）；饱和区域映射为元素强调色；最后叠加基因材质层 |
+| `scenes/art_gallery.tscn`、`art_parts.tscn`、`art_images.tscn`、`art_enemies.tscn` | 美术检查台共四页：①我方骨架加挂点十字、各族展示、全部图标；②全部部件，每个部件单独装在一个角色身上；③背景、标题、界面、卡框、卡背、Boss、卡图；④敌方反派骨架（光身和装上基因两排，朝左） |
 
 ## 2. 资产类型与模式
 
 | 类别 | id 例子 | 存放位置 | 模式 | 生成背景 | 画布 |
 |---|---|---|---|---|---|
-| 骨架 body | `body_biped` | art/bodies/ | palette | 纯白 | 512 |
-| 部件 part | `part_eye_compound` | art/parts/ | palette | 纯白 | 256 |
+| 我方角色立绘 body | `body_biped` | art/bodies/ | cutout | 纯白（GPT：透明） | 512×768（竖版 2:3） |
+| 敌方反派立绘 | `body_hexapod_enemy` | art/bodies/ | cutout | 纯白（GPT：透明） | 576×864 |
+| 部件（配饰）part | `part_eye_compound` | art/parts/ | cutout | 纯白（GPT：透明） | 256 |
 | 战斗背景 | `bg_swamp` | art/bg/ | color | 画面本身 | 1600×900（cover） |
 | 图标 | `icon_status_poison` | art/icons/ | mono | 纯黑 | 128 |
 | Boss 立绘 | `boss_rotbrood_matriarch` | art/boss/ | cutout | 纯白 | 768 |
 | 卡图 | `cardart_card_strike` | art/cards/ | color | 画面本身 | 512×384（cover） |
 | UI 与标题 | `card_frame`、`ui_panel`、`title_art` | art/ui/、art/bg/ | cutout 或 color | 见清单 | 见清单 |
 
-**palette（灰度上色）模式是"跨种族拼接仍然协调"的关键。** 部件只画明暗，运行时再上色：
-- **骨架**用宿主种族的配色。
-- **部件**用它来源种族的颜色，再混入 25% 的宿主底色。比如虫族的复眼长在人族身上，仍然认得出是虫族的东西，但颜色和身体协调。这是设计如此，不是 bug（见 visual-system §6）。
-- 图中鲜绿（或者任何高饱和）的区域会被当作发光处，映射为该基因的元素色（毒是绿、易伤是紫……）。
+**美术方向是二次元 × 仙侠立绘 × 哥特未来的彩色立绘**（visual-system §1）：
+- **骨架 = 每族一名成年角色的全身立绘**（我方 5 女 1 男）。敌人用同族的反派立绘（`body_<骨架>_enemy`），画得更大、更凶。没有反派图时，敌人用我方骨架顶上。
+- **部件 = 可装配的配饰和身体特征**，保留来源种族的配色。比如虫族的复眼面罩戴在人族剑修身上，一看就知道是虫族基因。这是设计如此。
+- 全部是保留原色的 cutout 模式。旧的 palette（灰度 + 运行时上色）模式还能用：把 manifest 里的 `part_mode` / `body_mode` 改成 `palette`。
 
 ## 3. 用户的流程（Claude 要用中文向用户解释成这样）
 
@@ -74,15 +75,15 @@ Claude 负责抠图、裁边、灰度化、缩放、计算挂点、对齐插槽�
 1. **一键导入**：标准工作区用 `bash SKILL_DIR/scripts/art_studio.sh . sync`。它会收集 `美术资产/已通过/` 里的新图，以及工作区里的 zip、图片文件夹和零散图片，然后调用 `import_assets.sh 游戏`。
    - 直接调用也可以：`bash SKILL_DIR/scripts/import_assets.sh <项目> [资产包.zip ...]`。资产包在项目外面时，把路径作为参数传进去。
    - 新建工作区时，`setup_workspace.sh` 会自动执行 sync。
-   - 这一步会完成解压、处理、注册、统计缺失、全量检查，截 4 张图，并把每张图的警告打印出来（警告的含义见 §7）。
-   - 4 张图是 `screenshots/art_gallery.png`、`art_parts.png`、`art_images.png` 和 `main.png`。
+   - 这一步会完成解压、处理、注册、统计缺失、全量检查，截 5 张图，并把每张图的警告打印出来（警告的含义见 §7）。
+   - 5 张图是 `screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`art_enemies.png` 和 `main.png`。
 2. **处理剩下的图片**，脚本最后会分两类提示：
    - 以 `?` 开头：文件名不认识。**用 Read 逐张打开看**，判断它是哪个资产，在 `art_inbox/` 里 `mv` 改成正确的 id，然后**不带资产包参数**重跑 `import_assets.sh <项目>`（带上参数会重新解压整个包，又把旧文件名带回来）。实在判断不了就问用户。
    - 以 `x` 开头：图片用不了（格式不支持，如 avif、heic、gif、psd；或者文件损坏）。原图已移到 `art_inbox/_failed/`，以后不会重复报。请用户重新导出为 PNG，放进 `art_inbox/` 或新的资产包。
 3. （可选）只想预演、不落盘时：`godot --headless --path . --script res://tools/import_art.gd -- --dry`。
 4. **逐张看处理结果**：用 Read 打开 `art/...png`，按 §5 的标准检查。
-5. **截图检查**：第 1 步已经截好 4 张图（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`main.png`）。用 Read 看截图。三页检查台都要看：第 1 页是骨架和图标，第 2 页是全部部件，第 3 页是背景、界面、Boss、卡图。最后再对比主场景。
-6. **对齐**：部件错位或者大小不对，就按 §6 修改 sidecar json，然后**重新截图**确认，直到通过为止。最简单的方法是重跑 `bash SKILL_DIR/scripts/import_assets.sh <项目>`（不带资产包参数）：没有新图时，它也会重新截 4 张图。只想重截某一页时，用 `bash SKILL_DIR/scripts/screenshot.sh <项目> res://scenes/art_parts.tscn screenshots/art_parts.png`（第 1、3 页对应 art_gallery.tscn、art_images.tscn）。
+5. **截图检查**：第 1 步已经截好 5 张图（`screenshots/art_gallery.png`、`art_parts.png`、`art_images.png`、`art_enemies.png`、`main.png`）。用 Read 看截图。四页检查台都要看：第 1 页是我方骨架和图标，第 2 页是全部部件，第 3 页是背景、界面、Boss、卡图，第 4 页是敌方反派。最后再对比主场景。
+6. **对齐**：部件错位或者大小不对，就按 §6 修改 sidecar json，然后**重新截图**确认，直到通过为止。最简单的方法是重跑 `bash SKILL_DIR/scripts/import_assets.sh <项目>`（不带资产包参数）：没有新图时，它也会重新截 5 张图。只想重截某一页时，用 `bash SKILL_DIR/scripts/screenshot.sh <项目> res://scenes/art_parts.tscn screenshots/art_parts.png`（第 1、3、4 页对应 art_gallery.tscn、art_images.tscn、art_enemies.tscn）。
 7. **跑全部检查**：`godot_check.sh`。截图是用来看画面效果的，测试是用来确认没有坏掉的，两者都要做。
 8. **重新生成缺失清单**：`godot --headless --path . --script res://tools/art_audit.gd`（同时刷新 ART_TODO.md、ART_PROMPTS.md、ART_PROMPTS.txt）。
 9. **汇报**（中文）：
@@ -96,16 +97,22 @@ Claude 负责抠图、裁边、灰度化、缩放、计算挂点、对齐插槽�
 
 导入前看原图，以下任何一条不满足就请用户重做：
 - 主体对不对，是不是**只有一个物件**。
-- 朝向：部件和骨架是侧视朝右，Boss 是朝左。图标、背景、卡图、界面不要求朝向。
+- 朝向：角色立绘（我方和反派）是 3/4 侧身朝右，部件也朝右，Boss 是朝左。图标、背景、卡图、界面不要求朝向。
+- **角色立绘**：
+  - 一眼是成年人（不能有低龄感），服装性感但不裸露；
+  - 脸和眼睛好看，手指和四肢没有画崩；
+  - 全身都在画面里，脚贴近底边；
+  - 种族特征一眼可辨（触角、菌盖帽、狼耳、晶体、幽魂下摆）。
+  - 反派要明显比我方更高大、更凶。
 - 部件的连接端在不在对的位置：比如肢体类部件的根部应该在左边、向右伸，冠、晶簇、孢子冠这类应该从底部往上长，尖牙应该从顶部往下垂（每项的提示词里都写明了）。
 - **背景是否纯色平底**；主体是否有**闭合的深色描边**。描边有缺口时，背景的泛洪会"漏进"主体里。
-- palette 类资产是否是**灰度**的，只有发光处是鲜艳颜色。
+- 配色是否符合该种族（race_art 里写的主色调）。palette 模式的资产才要求灰度。
 - 和已经入库的资产比，风格是否一致：线宽、明暗层次、细节密度。
 - 有没有文字、水印，有没有多余的肢体或碎片。
 
 导入后看截图：
 - 部件是否落在正确的挂点上，大小是否合理（显著部件比身体小，长矛、旗帜这类除外）。
-- 上色后是否还能认出种族来源；材质层（甲壳、菌丝）有没有把细节糊掉。
+- 配饰装在别的种族身上时，是否还能认出它来自哪个种族；材质层（甲壳、菌丝）有没有把脸和服装糊掉。
 - 抠图边缘有没有白边或者被啃掉的缺口。
 - 缩到棋盘大小（约 50%）时，轮廓还清楚吗？
 
@@ -134,7 +141,9 @@ Claude 负责抠图、裁边、灰度化、缩放、计算挂点、对齐插槽�
 | 几乎没有去掉背景 | 背景不是纯色，或者有渐变、纹理 | 在提示词里加 `plain flat pure white background, no gradient, no texture`；工具有"背景"选项就选纯色 |
 | 几乎整张图都被当成了背景 | 主体太小，或者和背景太接近 | 加 `filling most of the frame`；让主体颜色更深，描边更粗 |
 | 主体只有 N 像素，放大后会糊 | 主体在原图里占比太小 | 同上，或者用 1024 以上的分辨率生成 |
-| 彩色面积偏大 | 生成了彩色图 | 强调 `monochrome grayscale, strictly grayscale`。也可以把这一项改成保留原色（在 manifest 的 parts 或 bodies 对应条目里加 `"mode": "cutout"`，然后按 §6 的方法重新导入），但这样就失去了按种族自动上色的能力，必须先征得用户同意 |
+| 彩色面积偏大 | 只在 palette（灰度）模式下出现 | 强调 `strictly grayscale`；默认的 cutout 模式不会有这个警告 |
+| 角色看起来太年轻、像小孩 | 二次元模型的常见倾向 | 在 Character 里写明 `adult woman in her mid-twenties, mature face and proportions, tall`；反向提示词里已有 child、loli、chibi |
+| 被安全系统拦截 | 服装描述太暴露 | 换成有分寸的写法：`elegant high side slit`、`off-shoulder`、`fitted corset bodice`，去掉直接描写身体的词 |
 | 抠图后主体被啃掉一块 | 描边不闭合 | 加 `thick closed uniform near-black outline around the whole shape` |
 | 风格和其他资产差太远 | 工具或者种子不同 | Midjourney 用 `--sref <第一张满意图的链接>`；SD 固定模型并加 IP-Adapter；即梦等工具上传参考图 |
 

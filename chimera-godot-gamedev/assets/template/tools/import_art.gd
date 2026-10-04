@@ -23,6 +23,7 @@ func _initialize() -> void:
 	DirAccess.make_dir_recursive_absolute(inbox)
 	var credit := _read_credit(inbox)
 	var per_file := _per_file_credits(inbox)
+	var per_file_used := 0
 	var imported := 0
 	var unknown: PackedStringArray = []
 	var failed: PackedStringArray = []
@@ -65,10 +66,15 @@ func _initialize() -> void:
 			var done := inbox.path_join("_done")
 			DirAccess.make_dir_recursive_absolute(done)
 			DirAccess.rename_absolute(inbox.path_join(f), done.path_join(f))
+			if per_file.has(f):  # consumed: a later image with this name (another pack) gets its own credit
+				per_file.erase(f)
+				per_file_used += 1
 			print(line)
 			imported += 1
 		for w: String in res.warnings:
 			print("    ! " + w)
+	if per_file_used > 0:
+		_save_per_file_credits(inbox, per_file)
 	print("\nimported %d%s" % [imported, " (dry run)" if dry else ""])
 	for u in unknown:
 		print("  ? 不认识的文件名：%s —— 请改成 docs/ART_TODO.md 里的资产 id（例如 part_eye_compound.png）" % u)
@@ -135,13 +141,27 @@ func _load_image(path: String) -> Image:
 
 
 ## art_studio.gd writes art_inbox/credits.json {file name: credit} for the images it syncs from the
-## workspace (GPT-made vs. the user's own); those per-file entries beat credits.txt.
+## workspace (GPT-made vs. the user's own); those per-file entries beat credits.txt. Each entry is
+## used once: it is dropped when its file is imported (see _save_per_file_credits).
 func _per_file_credits(inbox: String) -> Dictionary:
 	var p := inbox.path_join("credits.json")
 	if not FileAccess.file_exists(p):
 		return {}
 	var v: Variant = JSON.parse_string(FileAccess.get_file_as_string(p))
 	return v if v is Dictionary else {}
+
+
+## Writes the not-yet-used per-file credits back once per run; an empty table deletes credits.json.
+func _save_per_file_credits(inbox: String, per_file: Dictionary) -> void:
+	var p := inbox.path_join("credits.json")
+	if per_file.is_empty():
+		DirAccess.remove_absolute(p)
+		return
+	var f := FileAccess.open(p, FileAccess.WRITE)
+	if f == null:
+		return
+	f.store_string(JSON.stringify(per_file, "  "))
+	f.close()
 
 
 ## The NEWEST credit line wins (unpack_assets.gd puts the latest pack's line last).

@@ -55,6 +55,17 @@ static func body(plan: String) -> Dictionary:
 	return lookup("res://art/bodies/" + plan)
 
 
+## Body art for a VisualGenome: enemies get the villain version (art/bodies/<plan>_enemy.png)
+## when it exists, otherwise the normal body of their body plan.
+static func body_for(vg: Dictionary) -> Dictionary:
+	var plan: String = vg.get("body_plan", "biped")
+	if bool(vg.get("enemy", false)):
+		var villain := lookup("res://art/bodies/" + plan + "_enemy")
+		if not villain.is_empty():
+			return villain
+	return body(plan)
+
+
 static func icon(id: String) -> Dictionary:
 	return lookup("res://art/icons/" + id)
 

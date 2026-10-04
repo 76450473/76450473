@@ -141,7 +141,7 @@ static func sockets(plan: String) -> Dictionary:
 ## sidecar "sockets" (art/bodies/<plan>.json). Adds "textured_body" when body art exists.
 static func sockets_for(vg: Dictionary) -> Dictionary:
 	var s := sockets(vg.get("body_plan", "biped"))
-	var body := ArtLibrary.body(vg.get("body_plan", "biped"))
+	var body := ArtLibrary.body_for(vg)
 	if not body.is_empty():
 		s["textured_body"] = true
 		var over: Dictionary = body.get("sockets", {})
