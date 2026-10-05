@@ -236,6 +236,8 @@ func test_assets_json_for_codex() -> void:
 	check_eq(str((items[0] as Dictionary).file), str((entries[0] as Dictionary).id) + ".png", "file name = id.png")
 	check_eq((d.get("anchor_batch", []) as Array).size(), 7, "anchors carried")
 	check(str(d.get("reference_sheet", "")).contains("lineup"), "style reference prompt carried")
+	check_eq(int(d.get("version", 0)), int(db.art.get("art_version", 1)), "list version carried (Codex upgrades old workspaces by it)")
+	check(int(d.get("version", 0)) >= 2, "version 2+ = gene-slot-clear standees")
 	var villains := 0
 	for raw: Variant in items:
 		if bool((raw as Dictionary).villain):

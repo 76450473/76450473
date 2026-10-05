@@ -5,7 +5,7 @@
 每一项的最终提示词 = 下面几段按顺序连起来：
 
 1. 该项 `prompt` 全文，原样使用，不缩写、不改写（`image_gen` 会自己整理格式，你不要删内容）。
-2. 风格方向：`progress.json` 里 `style.clause`，再加 `style.note_en`（用户选画风时的意见），定调后每张都加。选画风那一步用第 3 节的 A / B / C 方向。
+2. 风格方向：`progress.json` 里 `style.clause`，再加 `style.note_en`（用户选画风时的意见），定调后每张都加，**图标 `icon_` 除外**（图标是纯黑底上的纯白剪影，风格句里的发光、配色会把它画糊）。选画风那一步用第 3 节的 A / B / C 方向。
 3. 用户对这一项的修改意见（译成英文），重画时才有。
 4. 角色句：画面里有人物时（风格参考图、`body_`、`boss_`、`title_`、画了角色的 `cardart_`）加
    `All characters are clearly adults, fully and tastefully clothed.`
@@ -35,7 +35,7 @@
 在 `reference_sheet` 后面各加一句：
 
 - A 清透日系：`Lean towards clean Japanese anime cel shading: crisp lineart, clear luminous colors, soft glowing gene-vein highlights.`
-- B 国风仙侠：`Lean towards ornate Chinese xianxia game painting: semi-thick painterly rendering, flowing silk, rich gold and jade accents.`
+- B 国风仙侠：`Lean towards ornate Chinese xianxia game painting: semi-thick painterly rendering, silky sheen on close-fitting garments, rich gold and jade accents.`
 - C 哥特未来：`Lean towards dark gothic-futurist elegance: deeper contrast, black lace and filigree, stronger glowing gene-vein light and stained-glass light.`
 
 用户选中后，把那一句存成 `style.clause`；用户写的意见译成英文存成 `style.note_en`。用户说"A 和 C 混一下"之类，就把两句合成一句。

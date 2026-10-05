@@ -7,7 +7,7 @@
 | 工具列表里没有 `image_gen`（或者系统的 imagegen 技能提示要用 CLI / API key） | 不要用 CLI 或 API。告诉用户：①确认 Codex 是用 ChatGPT 账号登录的（不是 API key），订阅不是免费版；②把 Codex 更新到最新版；③点「新对话」再发 `$chimera-art 继续`。还不行就告诉用户：可以先对 Claude 说"Codex 出不了图，给我 ChatGPT 网页版的备用方案"。 |
 | 报错里有 `usage_limit_reached`、`429`、`Too Many Requests` | 出图额度用完了（出图有单独的额度，Codex 设置里的「用量」可能还显示有剩余）。马上停，保存进度。报错里有恢复时间（如 `resets_in_seconds`、`resets_at`）就换算成"大约几点"告诉用户，没有就说"过几个小时"；再说"到时点「新对话」发 `$chimera-art 继续`"。不要再试。 |
 | 报错里有 `moderation_blocked` | 按 prompting.md 第 6 节改写一次再出；还不行就跳过这一项，告诉用户。 |
-| `network error`、超时 | 重试一次，提示词可以精简（保留构图、主体、背景、风格方向）。带参考图的调用出错或很慢，按 prompting.md 第 4 节改成不带参考图。还不行就跳过，告诉用户稍后"继续"。 |
+| `network error`、超时 | 重试一次，提示词原样不变（不要精简，见 prompting.md 第 1 节）。带参考图的调用出错或很慢，按 prompting.md 第 4 节改成不带参考图。还不行就跳过，告诉用户稍后"继续"。 |
 | 一轮开始时发现 `pending_ref_call` 还在 | 上次带参考图的调用卡住了（用户点了停止）。按 prompting.md 第 4 节记 `refs_broken`，不带参考图重出这一项。 |
 | 出图了，但工具结果里没有文件路径 | 到 `%USERPROFILE%\.codex\generated_images\`（macOS：`~/.codex/generated_images/`）里找最新修改的 png，确认是刚出的那张再复制；找不到就重出这一张。 |
 | 聊天里图片显示不出来 / 破图 | 文件一般没问题，照常复制。告诉用户：图显示不出来不要紧，审核页里能看到；要在聊天里看，重启 Codex。 |

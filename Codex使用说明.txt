@@ -54,7 +54,14 @@ Codex 不能直接读压缩包，技能要解压到 Codex 的技能文件夹里�
 想自己装也行：按 Win+R，输入 %USERPROFILE%\.codex\skills 回车，打开这个文件夹；
 双击 chimera-art.zip，把里面的 chimera-art 文件夹拖进去；然后重启 ChatGPT 电脑版。
 只装一份就行，不要在别的地方再放一份（装两份 Codex 会分不清）。
-以后 Claude 或我给你新版本的 chimera-art.zip：用同样的方法装，覆盖旧的。
+以后 Claude 给你新版本的 chimera-art.zip（换掉旧版）：
+  1. 把新的 zip 放进 D:\chimera_art，在 Codex 里发送：
+
+    请先删掉 %USERPROFILE%\.codex\skills\chimera-art 文件夹，再把当前文件夹里的 chimera-art.zip 解压到 %USERPROFILE%\.codex\skills\ 里，解压后要能看到 %USERPROFILE%\.codex\skills\chimera-art\SKILL.md。装好后删掉这个 zip，告诉我装好了。
+
+  2. 批准、完全关掉再打开 ChatGPT 电脑版（同上面第 3、4 步）。
+  3. 已经开始做图的不用重来：发 $chimera-art 继续，Codex 会自动换上新清单。
+     要求变了的图会按新要求重画（旧图先留着，新图通过后才替换）；还在选画风的，会按新要求重出 3 张风格图。
 
 
 三、开始

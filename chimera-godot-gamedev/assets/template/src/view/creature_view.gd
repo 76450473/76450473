@@ -87,7 +87,9 @@ func setup(p_vg: Dictionary, p_races: Dictionary, p_facing: int = 1, base_scale:
 			var k := 1.0 if p.get("prominent", true) else 0.65
 			var spr := _make_sprite(art, pc.fill, pc.dark, pc.glow, layers, seed_v, k)
 			spr.position = CreaturePainter.anchor_point(sockets, p.get("socket", "core")) + (art.offset as Vector2)
-			(_back_sprites if slot == "back" else _front_sprites).add_child(spr)
+			# back-socket art (wing-cases, mane, crystal shards) sits behind the body even when its gene is a skin gene
+			var behind: bool = slot == "back" or str(p.get("socket", "")) == "back"
+			(_back_sprites if behind else _front_sprites).add_child(spr)
 
 	var sc: float = base_scale * float(vg.get("scale", 1.0)) * (1.55 if vg.get("boss", false) else 1.0)
 	scale = Vector2(sc * facing, sc)

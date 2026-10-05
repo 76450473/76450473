@@ -1,5 +1,6 @@
 {
-  "_doc": "美术资产清单 = 唯一真相源。tools/art_audit.gd 据此列出缺失资产并生成提示词；tools/import_art.gd 据此把 art_inbox/ 里的图片处理成游戏资产；docs/ART_PROMPTS.txt（=《美术资产清单与提示词.txt》第七节，开头带定调批和风格参考图提示词）也从这里生成；GPT项目指令.txt 是手写的，不从这里生成。美术方向：二次元 × 仙侠立绘 × 哥特未来 × 源壤血脉（生物幻想，见 references/visual-system.md §1）。所有角色都是成年人。新增基因部件/骨架/生态区/状态/卡牌时必须在这里补规格，test_data 会检查。mode: cutout=保留原色并去背景（角色立绘和配饰部件用这个）；color=保留原色不去背景；mono=白色剪影图标（运行时着色）；palette=灰度绘制+运行时按种族上色（旧的怪物风格，保留兼容）。bodies.*.subject = 我方种族角色（多数是女性），bodies.*.enemy_subject = 敌方反派版本（更高大、更强、明显的反派画风）。",
+  "_doc": "美术资产清单 = 唯一真相源。tools/art_audit.gd 据此列出缺失资产并生成提示词；tools/import_art.gd 据此把 art_inbox/ 里的图片处理成游戏资产；docs/ART_PROMPTS.txt（=《美术资产清单与提示词.txt》第七节，开头带定调批和风格参考图提示词）也从这里生成；GPT项目指令.txt 是手写的，不从这里生成。美术方向：二次元 × 仙侠立绘 × 哥特未来 × 源壤血脉（生物幻想，见 references/visual-system.md §1）。所有角色都是成年人。新增基因部件/骨架/生态区/状态/卡牌时必须在这里补规格，test_data 会检查。mode: cutout=保留原色并去背景（角色立绘和配饰部件用这个）；color=保留原色不去背景；mono=白色剪影图标（运行时着色）；palette=灰度绘制+运行时按种族上色（旧的怪物风格，保留兼容）。bodies.*.subject = 我方种族角色（多数是女性），bodies.*.enemy_subject = 敌方反派版本（更高大、更强、明显的反派画风）。art_version：改了会让已画好的图不再合格的要求（风格、立绘留挂点之类）时加 1；Codex 美术技能看到更高的版本，会把提示词变了的已通过图改成重画。",
+  "art_version": 2,
   "anchor_batch": [
     "body_biped",
     "body_hexapod",
@@ -21,13 +22,13 @@
     "accent_clause": "Glowing details: {accent}.",
     "no_accent_clause": "",
     "style_cn": "见《美术资产清单与提示词.txt》第四节：按类别选用的中文风格锁定",
-    "negative_body": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, shota, chibi, super deformed, nudity, nsfw, nipples, lingerie, see-through clothing, extra fingers, deformed hands, bad anatomy, multiple characters, weapon, props, hat, hood, helmet, crown, cape, cloak, wings, scene, background details, ground, cast shadow, frame, cropped",
+    "negative_body": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, shota, chibi, super deformed, nudity, nsfw, nipples, lingerie, see-through clothing, extra fingers, deformed hands, bad anatomy, multiple characters, weapon, props, hat, hood, helmet, crown, cape, cloak, wings, smoke, aura, loose particles, floating specks, scene, background details, ground, cast shadow, frame, cropped",
     "negative_icon": "photo, photorealistic, 3d render, text, letters, words, watermark, signature, logo, circle background, badge, rounded square tile, frame, border, gradient, glow, shading, thin lines, tiny details, blurry",
     "negative_ui": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, characters, creatures, numbers",
     "negative_background": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, card frame, border, characters, people, creatures, animals, monsters, UI",
     "negative_boss": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, chibi, cute, nudity, nsfw, card frame, border, ground, floor, cast shadow, drop shadow, scenery, background details, extra creatures, smoke, clouds, loose particles, floating specks",
     "enemy_body": "high-quality 2D game art in a refined Japanese anime style blended with Chinese xianxia game character illustration (elegant semi-realistic anime faces, delicate detailed eyes, glossy flowing hair strands), gothic-futurist bio-fantasy set in a primordial gene-world, crisp clean lineart, soft cel shading with painterly gradients and gentle rim light, a full-body standing villain character portrait (game standee) of ONE adult antagonist: the apex predator of their race twisted by the Great Withering (an age-ending extinction), clearly outclassing the heroes: larger, more imposing and more powerful-looking, overgrown traits of their race grown into the skin, hair and the lower half of the outfit (ridges, chitin plates, crystal growths, rot or mist at the hems), swollen glowing gene-vein lines, a sharp aggressive silhouette, a dark sinister palette with ominous glows, an intimidating stance, 3/4 view facing right, both arms lowered with empty hands, the whole figure from head to feet visible and filling most of the frame height, the feet near the bottom edge, a clean readable silhouette with a strong race color identity that still reads when small; the top of the head, the shoulders and back, the forearms and the chest are kept uncluttered (no hat, hood, helmet, crown or tall headpiece, no cape, cloak, wings or big collar, no wide sleeves, no large jewelry, no held items) because gene organs are attached there in the game, no weapons, no props, plain flat pure white background, no ground, no cast shadow, no text, no logo",
-    "negative_enemy": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, shota, chibi, cute, super deformed, nudity, nsfw, extra fingers, deformed hands, bad anatomy, multiple characters, weapon, props, hat, hood, helmet, crown, cape, cloak, wings, scene, background details, ground, cast shadow, frame, cropped",
+    "negative_enemy": "photo, photorealistic, 3d render, western cartoon, gore, blood, text, letters, watermark, signature, logo, blurry, low quality, jpeg artifacts, child, childlike, loli, shota, chibi, cute, super deformed, nudity, nsfw, extra fingers, deformed hands, bad anatomy, multiple characters, weapon, props, hat, hood, helmet, crown, cape, cloak, wings, smoke, aura, loose particles, floating specks, scene, background details, ground, cast shadow, frame, cropped",
     "reference_sheet": "character lineup sheet of six adult anime race characters for a 2D game set in a primordial gene-world, refined Japanese anime style blended with Chinese xianxia game standee art, gothic-futurist bio-fantasy, each one the living apex species of their race with an outfit grown from their own biology and faint glowing gene-vein lines: a human cultivator-knight woman in a fitted midnight-blue silk-steel hanfu dress, an insect-race woman in a crimson chitin gown with slender antennae swept back, a fungal-race woman in an ivory mycelium-lace dress with tiny glowing mushroom sprouts in her mint-green hair, a wolf-beastman young man with wolf ears and tail in a hide combat coat, a crystal-race woman with ice-blue crystal hair and porcelain crystal plates, a ghost lady of black-violet ectoplasm veils who floats; nothing on top of their heads, no capes, no wide sleeves, empty hands, all full body, 3/4 view facing right, evenly spaced, plain flat pure white background, no ground, no shadow, no text"
   },
   "race_art": {
@@ -161,7 +162,7 @@
     },
     "bloom": {
       "cn": "尸花胸饰",
-      "subject": "a single large six-petal corpse-flower corsage seen from the front, deep crimson petals, no stem, no leaves",
+      "subject": "a single large six-petal corpse-flower corsage seen from the front, pale ivory petals with moss-green veins and a sickly glowing center, no stem, no leaves",
       "socket": "core",
       "anchor": "center",
       "height": 24,
@@ -257,7 +258,7 @@
       "fit": "height",
       "size": 140,
       "enemy_cn": "人族反派·堕魔宗主（男）",
-      "enemy_subject": "a towering adult man, a fallen demonic sect master warped by the Great Withering: long white hair flowing down his back, a cracked white-jade half mask over one eye, a cruel smile, a black-and-crimson layered robe with close-fitting sleeves, angular dark armor that hugs his shoulders, bulging glowing red gene-veins across his skin and robe, a dark aura"
+      "enemy_subject": "a towering adult man, a fallen demonic sect master warped by the Great Withering: long white hair flowing down his back, a cracked white-jade half mask over one eye, a cruel smile, a black-and-midnight-blue layered robe with tarnished silver trim and close-fitting sleeves, angular dark armor that hugs his shoulders, bulging glowing azure gene-veins tinged with sickly violet across his skin and robe"
     },
     "hexapod": {
       "cn": "虫族本体·虫后之女（女）",
@@ -271,11 +272,11 @@
     "cluster": {
       "cn": "菌族本体·蘑菇仙子（女）",
       "race": "fungal",
-      "subject": "a young adult woman of the Fungal race: soft pastel mint-green hair with tiny glowing mushroom sprouts woven into the ends, nothing tall on top of her head, a sleepy gentle smile, a layered ivory-and-moss-green dress grown from mycelium lace whose skirt layers look like mushroom gills, an off-shoulder neckline, fitted sheer sleeves, faint bioluminescent spores drifting around the hem",
+      "subject": "a young adult woman of the Fungal race: soft pastel mint-green hair with tiny glowing mushroom sprouts woven into the ends, nothing tall on top of her head, a sleepy gentle smile, a layered ivory-and-moss-green dress grown from mycelium lace whose skirt layers look like mushroom gills, an off-shoulder neckline, fitted sheer sleeves, faint glowing spore dots on the hem",
       "fit": "height",
       "size": 140,
       "enemy_cn": "菌族反派·腐巫女（女）",
-      "enemy_subject": "a sinister adult rot witch: withered dark-green mycelium hair with small black fungal growths, no crown, glowing sickly-green eyes and a wicked smile, a decayed black-and-olive gown overgrown with dark fungal frills and dripping spores, rot creeping up one arm, much taller than a normal woman"
+      "enemy_subject": "a sinister adult rot witch: withered dark-green mycelium hair with small black fungal growths, no crown, glowing sickly-green eyes and a wicked smile, a decayed black-and-olive gown overgrown with dark spore-speckled fungal frills, rot creeping up one arm, much taller than a normal woman"
     },
     "quadruped": {
       "cn": "兽族本体·狼族少主（男）",

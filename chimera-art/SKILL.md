@@ -31,7 +31,7 @@ metadata:
 ## 文件
 
 - 清单 `state/assets.json`（第一次从本技能 `assets/assets.json` 复制）：`items` 里每项有 `n`、`id`、`file`、`cn`、`category`、`villain`、`ratio`、`bg`、`prompt`、`negative`；开头有 `total`、`anchor_batch`（定调批）、`reference_sheet`（风格参考图提示词）。
-- 每轮开始先看工作区根目录有没有新的 `ART_ASSETS.json`（Claude 给的）：有就按 references/flow.md「换清单」合并。
+- 每轮开始先看：工作区根目录有没有新的 `ART_ASSETS.json`（Claude 给的），本技能 `assets/assets.json` 的 `version` 是否比 `state/assets.json` 的大（技能升级了）。有一样就按 references/flow.md「换清单」合并。
 - 工作区结构和 `progress.json` 格式：references/workspace.md。审核页和各种文字格式：references/review.md。
 
 ## 用户会说的话

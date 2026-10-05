@@ -31,6 +31,7 @@ ART_ASSETS.json        （可能有）用户放进来的新清单，见 flow.md�
   "style": { "choice": "", "clause": "", "note_en": "", "ref": "style/style_ref.png" },
   "batch": 0,
   "review": { "id": "", "items": [] },
+  "review_void": [],
   "fix": 0,
   "fix_job": null,
   "refs_broken": false,
@@ -46,7 +47,7 @@ ART_ASSETS.json        （可能有）用户放进来的新清单，见 flow.md�
 
 - `phase`：`style`（选画风）→ `anchor`（定调批）→ `bulk`（批量）→ `done`。
 - `items.<id>.status`：`todo` 待做 · `review` 已出图等用户审 · `redo` 要重画 · `approved` 已通过（已复制进 art_pack）· `skipped` 跳过。
-- `review`：当前这一批的 `id` 和编号列表，**开始出图时就写好**。
+- `review`：当前这一批的 `id` 和编号列表，**开始出图时就写好**。`review_void`：清单升级时作废的批次名（flow.md「换清单」），没有就是空列表。
 - `candidates` 存候选图的相对路径，`pick` 是首选的下标；`notes` 是修改意见（英文），重画时都要用上。
 - `fix_job`：正在做的补图任务（flow.md「补图」），没有时为 null。
 - `pending_ref_call`：带参考图出图前写上这一项的 id，出完马上清空（见 prompting.md 第 4 节）。

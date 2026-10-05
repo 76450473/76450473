@@ -4,7 +4,7 @@
 
 按顺序检查 `state/progress.json`，做第一件适用的事：
 
-1. 根目录有新的 `ART_ASSETS.json` → 先「换清单」。
+1. 根目录有新的 `ART_ASSETS.json`，或者本技能 `assets/assets.json` 的 `version` 比 `state/assets.json` 的大（没有 `version` 算 1，说明技能升级了）→ 先「换清单」。
 2. `pending_ref_call` 不为空 → 上次带参考图的调用没回来（多半卡住、用户点了停止）：记 `refs_broken: true`（写上日期），清空 `pending_ref_call`，这一项改成不带参考图重出。
 3. 审核页已经出了、用户还没贴回审核结果（`review.items` 里的项都是 `review` 状态）→ 提醒他审完这一批再继续，停下。
 4. `review` 里有一批出图做到一半 → 把这批剩下的做完，出审核页。
@@ -49,7 +49,14 @@
 
 ## 换清单
 
-工作区根目录出现 `ART_ASSETS.json` 时：用它的 `items` 替换 `state/assets.json`；按 `id` 合并 progress.json（已有的项保留状态，`n` 更新成新编号；新增的项记 `todo`；清单里没有了的项从 items 里删掉）；把这个文件移到 `state/merged/ART_ASSETS_<日期>.json`（避免重复合并）；告诉用户新增了哪些、删掉了哪些。
+新清单 = 工作区根目录的 `ART_ASSETS.json`（Claude 给的），或者技能升级后自带的 `assets/assets.json`（`version` 更大时，不要移动它）。下面的 `version` 没有时都算 1。
+
+1. 新清单的 `version` 比 `state/assets.json` 的小：不用它，把它移到 `state/merged/`，告诉用户"这份清单是旧版，请让 Claude 重新生成"，然后照常往下做。
+2. 旧的 `state/assets.json` 复制到 `state/merged/assets_<日期>.json`，再用新清单**整个替换** `state/assets.json`（`version`、`total`、`anchor_batch`、`reference_sheet`、`items` 全部换新）。
+3. 按 `id` 合并 progress.json：已有的项保留状态，`n` 更新成新编号；新增的项记 `todo`；清单里没有了的项从 items 里删掉。
+4. `version` 变大时还要：状态是 `approved` 或 `review` 的项，新旧 `prompt` 不一样的改成 `redo`（旧图留在 art_pack，新图通过后才覆盖）；有待审的批次就把它的 `review.id` 加进 `review_void`、清空 `review`，把 `state/review_data.js` 改成没有图的一页（title 写"这一批已作废（清单升级了），等新的审核页"），告诉用户不用再审；`phase` 是 `style` 就把已出的风格图作废，用新的 `reference_sheet` 重新出；`phase` 是 `done` 而有项改成了 `redo` 就改回 `bulk`。
+5. 根目录的 `ART_ASSETS.json` 移到 `state/merged/ART_ASSETS_<日期>.json`（避免重复合并）。
+6. 告诉用户新增了哪些、删掉了哪些；版本变大时再说"清单升级到第 N 版，有 x 张图的要求变了，会按新要求重画（旧图先留着，新图通过后才替换）"。
 
 ## 换风格（用户自己要求）
 

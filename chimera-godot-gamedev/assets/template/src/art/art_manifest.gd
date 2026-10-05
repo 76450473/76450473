@@ -253,7 +253,7 @@ static func to_json(entries: Array, art: Dictionary) -> String:
 		if ids.has(raw):
 			anchors.append(raw)
 	return JSON.stringify({
-		"game": "奇美拉纪元 Chimera Epoch", "total": n, "anchor_batch": anchors,
+		"game": "奇美拉纪元 Chimera Epoch", "version": int(art.get("art_version", 1)), "total": n, "anchor_batch": anchors,
 		"reference_sheet": str((art.get("style", {}) as Dictionary).get("reference_sheet", "")),
 		"items": items}, "  ", false)
 
