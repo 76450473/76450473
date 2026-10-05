@@ -161,6 +161,8 @@ $chimera-art 【补图请求】来自 Claude（《奇美拉纪元》）
 - 重做原因要具体，能直接指导改图（"头太小，头部要占身高的七分之一"），并按上表把修改要点写进原因里；需要大改时，在原因后面附上改好的完整英文提示词（Codex 会用它代替清单里的提示词）。想让它参照某张已通过的图，就在原因里写"参照 xxx.png 的画风"（Codex 会把那张图当参考图）。
 - 让用户在 Codex 里（项目还是他的 D:\chimera_art）点「新对话」，把这一段整段粘贴进去，不要拆开、不要删第一行。用 ChatGPT 备用方案的用户粘贴到 ChatGPT 项目里。
 
+**ChatGPT 备用方案**（用户说 Codex 出不了图、或者要用网页版 ChatGPT 时）：在游戏文件夹里建 `ChatGPT备用方案/`，复制三个文件进去：`SKILL_DIR/assets/chatgpt_fallback/project_instructions.txt` → `GPT项目指令.txt`，`SKILL_DIR/assets/chatgpt_fallback/guide.txt` → `GPT使用说明.txt`，`docs/ART_PROMPTS.txt` → `ART_PROMPTS.txt`（先跑一次 art_audit 让它是最新的）。告诉用户打开《GPT使用说明.txt》照着做；这个文件夹已被 gitignore。网页版的用户要自己下载改名，补图后也要自己把图复制进他的 art_pack（§4 第 9 步）。
+
 ## 8. 新增内容时如何同步美术清单
 
 - 新基因用到**新的部件种类**：先在 `Defs.PART_KINDS` 登记，再在 `CreaturePainter._draw_part` 里画程序化占位，然后在 `art_manifest.json` 的 `parts` 里写 subject、socket、anchor、height、accent，最后在 fusion.json 的 `part_word` 里补上名词。test_data 会检查 PART_KINDS、manifest 条目和 part_word 是否齐全；`_draw_part` 里的占位画法要靠截图（检查台第 2 页）确认。

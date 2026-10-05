@@ -1,6 +1,6 @@
 ﻿# 工作区和进度文件
 
-工作区就是用户在 Codex 里打开的美术文件夹（例如 `D:\chimera_art`；技能装在它里面的 `.agents/skills/chimera-art/`，这个文件夹对你是只读的）。下面的路径都相对于工作区根目录，文件夹名只用英文。
+工作区就是用户在 Codex 里打开的美术文件夹（例如 `D:\chimera_art`，一开始是空的）。本技能装在 Codex 的技能文件夹里（通常是 `%USERPROFILE%\.codex\skills\chimera-art\`），只从那里读，不往那里写。下面的路径都相对于工作区根目录，文件夹名只用英文。
 
 ```
 review.html            审核页（从技能的 assets/review.html 复制，不要改）
@@ -13,7 +13,6 @@ state/progress.json    进度
 state/review_data.js   当前这一批的审核数据（每批重写）
 state/merged/          合并过的旧 ART_ASSETS.json
 ART_ASSETS.json        （可能有）用户放进来的新清单，见 flow.md「换清单」
-美术资产清单与提示词.txt、Codex使用说明.txt、备用_ChatGPT网页版/   给用户看的，不用管
 ```
 
 ## 第一次"开始"时准备

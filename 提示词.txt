@@ -1,12 +1,11 @@
 《奇美拉纪元 Chimera Epoch》Claude 端：提示词与使用说明
 =====================================================
 
-你一共有两份文件：
-  【给 Codex 的】给Codex的文件.zip，解压出 chimera_art 文件夹（美术技能已经装在里面），先看里面的《Codex使用说明.txt》
-               → 用 Codex 和你的 ChatGPT 订阅生产全部美术图片（不花 API 的钱）
-  【给 Claude 的】给Claude的文件.zip，里面是 chimera-godot-gamedev.zip（skill）、提示词.txt（本文件）
+你一共有四个文件，分两组：
+  【Codex 用】chimera-art.zip（美术技能）+《Codex使用说明.txt》
+               → 用 Codex 和你的 ChatGPT 订阅生产全部美术图片（不花 API 的钱），先看《Codex使用说明.txt》
+  【Claude 用】chimera-godot-gamedev.zip（游戏 skill）+《提示词.txt》（本文件）
                → 让 Claude 用 Godot 把游戏做出来
-  （解压后如果中文文件名变成乱码，用 7-Zip 或 Bandizip 解压就好。）
 
 总流程：
   ① 在 Codex 里按《Codex使用说明.txt》生产美术：你选一次画风，Codex 出图、自检、预选，你在审核页里审
@@ -61,8 +60,7 @@
 
 第四步：安装 skill
 ------------------
-先把 给Claude的文件.zip 解压（右键 →「全部解压缩」），得到 chimera-godot-gamedev.zip 和本文件。
-chimera-godot-gamedev.zip 就是 skill，下面装的就是它。
+chimera-godot-gamedev.zip 就是 Claude 的 skill，下面装的就是它（chimera-art.zip 是给 Codex 的，不要装到这里）。
 
 Windows（最不容易出错的做法）：
   1. 打开 PowerShell（按 Win 键，输入 PowerShell，回车），执行：

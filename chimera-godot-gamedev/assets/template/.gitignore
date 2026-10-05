@@ -20,6 +20,7 @@ export_credentials.cfg
 /给Codex的文件*/
 /chimera_art/
 /Codex使用说明.txt
+/ChatGPT备用方案/
 # OS junk and per-user Claude Code permissions
 .DS_Store
 Thumbs.db

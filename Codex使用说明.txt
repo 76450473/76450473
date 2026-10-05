@@ -5,12 +5,13 @@
 你先选一次整体画风，之后 Codex 每批先自己出图、自检、挑出首选，你在审核页里点一点就行。
 做好的图会自动按正确的文件名存好、打包成 zip，你直接交给 Claude。
 
-你一共有两份文件：
-  【给 Codex 的】给Codex的文件.zip（就是这一份）：解压出 chimera_art 文件夹，美术技能已经装在里面
-  【给 Claude 的】给Claude的文件.zip：skill + 提示词.txt，让 Claude 用 Godot 做游戏
+Codex 这边只有两个文件：
+  chimera-art.zip        美术技能（给 Codex 用的，里面全是它干活要用的东西，你不用打开）
+  Codex使用说明.txt      就是本文件（给你看的，不用给 Codex）
+（Claude 那边另有两个文件：chimera-godot-gamedev.zip 和《提示词.txt》。）
 
 总流程：
-  ① 解压出 chimera_art 文件夹 → ② 在 Codex 里打开它 → ③ 发「$chimera-art 开始」
+  ① 建一个空文件夹 D:\chimera_art → ② 让 Codex 把 chimera-art.zip 装好（只做一次）→ ③ 发「$chimera-art 开始」
   ④ 选画风（审核页里点一下）→ ⑤ 定调 7 张 → ⑥ 一批一批：Codex 出图、自检、预选 → 你审核
   ⑦ 打包出 outbox\art_pack.zip → 放进游戏文件夹交给 Claude
   ⑧ Claude 发现问题会给你一段「补图请求」→ 粘贴给 Codex → 出 outbox\fix_01.zip → 再交给 Claude
@@ -26,14 +27,11 @@
    打开后用你的 ChatGPT 账号登录（不要用 API key）。
    注意：如果你的 Windows 用户名是中文，Codex 有已知问题，可能经常出错；
    遇到这种情况，可以新建一个英文名的 Windows 账户来用。
-2. 把 给Codex的文件.zip 右键 →「全部解压缩」→ 目标文件夹改成 D:\ → 解压。
-   得到 D:\chimera_art 文件夹。没有 D 盘就改成 C:\，得到 C:\chimera_art。
+2. 新建一个空文件夹 D:\chimera_art（没有 D 盘就建 C:\chimera_art）。
    不要放在桌面或"文档"里（这些路径常常带中文，或者会被 OneDrive 同步）。
-   （解压后中文文件名如果是乱码，用 7-Zip 或 Bandizip 解压。）
    下面都按 D:\chimera_art 写，用 C 盘的换成 C:\chimera_art。
 3. 打开 ChatGPT 电脑版，左上角从「ChatGPT」切换到「Codex」。
-   新建对话 →「选择项目」→「+ 新项目」→ 添加文件夹，选 D:\chimera_art 这一层
-   （里面能看到 .agents 文件夹和这份说明）→ 创建。运行方式选「本地（Local）」。
+   新建对话 →「选择项目」→「+ 新项目」→ 添加文件夹，选 D:\chimera_art → 创建。运行方式选「本地（Local）」。
    第一次会问要不要信任这个文件夹，选信任；Windows 可能弹出管理员权限确认（安装沙盒用），选"是"。
    （不同版本的按钮名字可能略有不同，意思一样就行。）
 4. 权限用默认的「请求批准（Ask for approval）」就行：Codex 在这个文件夹里存图、打包都不用问你，
@@ -41,7 +39,25 @@
    不要选只读。
 
 
-二、开始
+二、安装美术技能（只做一次）
+----------------------------
+Codex 不能直接读压缩包，技能要解压到 Codex 的技能文件夹里。最省事的办法是让 Codex 自己装：
+1. 把 chimera-art.zip 放进 D:\chimera_art。
+2. 在 Codex 里（项目是 chimera_art）发送下面这一整段（这句不用带 $）：
+
+    请把当前文件夹里的 chimera-art.zip 解压到我的 Codex 技能文件夹 %USERPROFILE%\.codex\skills\ 里，解压后要能看到 %USERPROFILE%\.codex\skills\chimera-art\SKILL.md。装好后删掉这个 zip，告诉我装好了。
+
+3. Codex 要往这个文件夹外面写文件，会请你批准一次，点「批准」。
+4. 它说装好了以后，把 ChatGPT 电脑版完全关掉再打开（让它认出新技能）。
+5. 检查：在 Codex 输入框里打一个 $，列表里能看到「奇美拉美术」（chimera-art）就装好了。
+
+想自己装也行：按 Win+R，输入 %USERPROFILE%\.codex\skills 回车，打开这个文件夹；
+双击 chimera-art.zip，把里面的 chimera-art 文件夹拖进去；然后重启 ChatGPT 电脑版。
+只装一份就行，不要在别的地方再放一份（装两份 Codex 会分不清）。
+以后 Claude 或我给你新版本的 chimera-art.zip：用同样的方法装，覆盖旧的。
+
+
+三、开始
 --------
 在 Codex 的输入框里发送：
 
@@ -54,7 +70,7 @@ Codex 会先建好文件夹，然后出 3 张不同方向的画风图。
   审核页生成的结果已经自带这个开头，直接粘贴就行。
 
 
-三、选画风（只做一次）
+四、选画风（只做一次）
 ----------------------
 Codex 出好 3 张风格图（A 清透日系、B 国风仙侠、C 哥特未来，都是六个种族角色的合影）后，
 会请你打开审核页：在 D:\chimera_art 里双击 review（浏览器图标的那个，全名是 review.html）。
@@ -65,7 +81,7 @@ Codex 出好 3 张风格图（A 清透日系、B 国风仙侠、C 哥特未来�
 这句画风会加进以后每一张图里，保证整套风格统一。
 
 
-四、审核（最重要）
+五、审核（最重要）
 ------------------
 先是"定调批"7 张（人族女侠、虫族女主、虫族反派、复眼面罩、毒液吊坠、毒图标、腐沼背景），
 之后每批 8 张左右。每一批 Codex 都会：出图 → 自己检查（成年、没有裸露、全身、背景干净、风格统一……）
@@ -84,7 +100,7 @@ Codex 会把通过的图按正确的文件名存进 art_pack 文件夹，要重�
     $chimera-art 审核结果 都通过，只有 17 号的脸太幼，要更成熟
 
 
-五、常用的话（开头都带 $chimera-art）
+六、常用的话（开头都带 $chimera-art）
 ------------------------------------
     $chimera-art 继续                  接着做（换了新对话、或者隔天回来都用这句）
     $chimera-art 进度                  看做到哪了
@@ -93,21 +109,21 @@ Codex 会把通过的图按正确的文件名存进 art_pack 文件夹，要重�
     $chimera-art 换风格                重新选画风（已经做好的图都要重做，它会先问你）
 
 
-六、开新对话（重要）
+七、开新对话（重要）
 --------------------
 一个对话里图片太多，Codex 会变慢、占很多硬盘。一个对话里出了十几张图，Codex 就会提醒你：
 点「新对话」，发送 $chimera-art 继续。进度都存在文件夹里，不会丢。
 开新对话前看一眼：左上角是「Codex」（不是 ChatGPT），项目是 chimera_art。
 
 
-七、额度用完了怎么办
+八、额度用完了怎么办
 --------------------
 Plus 的 Codex 额度有限，出图比普通对话用得快很多。88 张加上重画大约要出 130 次图，一般要分 2–4 天做完。
 Codex 说"额度用完了"时就先停下，等到它告诉你的恢复时间之后，点「新对话」发 $chimera-art 继续。
 （出图有单独的额度，Codex「设置 → 用量（Usage）」里有时还显示有剩余，以 Codex 说的为准。）
 
 
-八、交给 Claude
+九、交给 Claude
 ---------------
 1. 发 $chimera-art 打包，Codex 会生成 D:\chimera_art\outbox\art_pack.zip（只含通过的图和一份 credits.txt）。
 2. 第一次：把这个 zip 放进新的游戏文件夹，按《提示词.txt》第七步对 Claude 说。
@@ -115,7 +131,7 @@ Codex 说"额度用完了"时就先停下，等到它告诉你的恢复时间之
 不用等全部做完，缺的图游戏会先用占位图。
 
 
-九、Claude 的补图请求
+十、Claude 的补图请求
 --------------------
 Claude 导入后发现有瑕疵或缺图，会给你一段以「$chimera-art 【补图请求】」开头的文字：
 0. 如果手上还有一批没审完：先把那一批审完，结果发给 Codex。
@@ -129,7 +145,7 @@ Claude 导入后发现有瑕疵或缺图，会给你一段以「$chimera-art 【
 再把补图请求发给 Codex，它会自动换上新清单（已经做好的图不会丢）。
 
 
-十、文件夹里都是什么
+十一、文件夹里都是什么
 --------------------
     art_pack\       通过的图（最终资产，文件名都是对的）
     outbox\         打好的 zip：art_pack.zip、fix_01.zip……（交给 Claude 的就是这些）
@@ -137,17 +153,16 @@ Claude 导入后发现有瑕疵或缺图，会给你一段以「$chimera-art 【
     candidates\     所有候选图
     style\          画风图（style_ref.png 是你选中的那张）
     state\          进度和清单（不要删）
-    .agents\        美术技能（不要动）
-    备用_ChatGPT网页版\   备用方案（见最后一节）
+（这些都是 Codex 开始干活后自己建的。美术技能本身装在 %USERPROFILE%\.codex\skills\chimera-art 里，不在这个文件夹。）
 
 
-十一、常见问题
+十二、常见问题
 --------------
 - 输入 $ 找不到「奇美拉美术」，或者 Codex 说没有这个技能：
-  确认项目文件夹是 D:\chimera_art 这一层（里面能看到 .agents 文件夹，不是外面多套的一层）。
-  直接打完整的 $chimera-art 也可以。还不行就重启 ChatGPT 电脑版再试。
+  打开 %USERPROFILE%\.codex\skills，看里面有没有 chimera-art 文件夹（里面有 SKILL.md）；
+  没有就按第二节重装一次，装好后把 ChatGPT 电脑版完全关掉再打开。直接打完整的 $chimera-art 也可以。
 - Codex 说没有出图工具，或者让你提供 API key：
-  不要给 key。确认是用 ChatGPT 账号登录的、应用是最新版，点「新对话」再发 $chimera-art 继续。还不行就用备用方案。
+  不要给 key。确认是用 ChatGPT 账号登录的、应用是最新版，点「新对话」再发 $chimera-art 继续。还不行就用最后一节的备用方案。
 - 审核页还是上一批：按 F5 刷新。打不开就在 D:\chimera_art 里双击 review。
 - 一张图转了 5 分钟以上还没出来（卡住了）：点停止，再点「新对话」发 $chimera-art 继续。
   Codex 会发现上次卡住了，改用不卡的方式接着做。
@@ -157,10 +172,11 @@ Claude 导入后发现有瑕疵或缺图，会给你一段以「$chimera-art 【
 - 背景不是透明的：没关系，纯白底就是要的，Claude 导入时会自动抠图。
 
 
-十二、备用方案：ChatGPT 网页版
+十三、备用方案：ChatGPT 网页版
 ------------------------------
-Codex 出图用不了的时候，可以改用网页版 ChatGPT 的"项目"来做：
-打开 备用_ChatGPT网页版 文件夹里的《GPT使用说明.txt》照着做（要用到 D:\chimera_art 里的《美术资产清单与提示词.txt》）。
+Codex 一直出不了图的时候，可以改用网页版 ChatGPT 的"项目"来做。对 Claude 说：
+    /chimera-godot-gamedev Codex 出不了图，给我 ChatGPT 网页版的备用方案。
+Claude 会在游戏文件夹里放一个 ChatGPT备用方案 文件夹，打开里面的《GPT使用说明.txt》照着做。
 网页版要你自己下载、改名，比 Codex 麻烦一些，但 Claude 那边的用法完全一样。
 中途换过去的话：Codex 已经通过的图在 D:\chimera_art\art_pack 里，直接复制到网页版用的 art_pack 文件夹；
 在 ChatGPT 里说"从第 N 项继续，另外补第 x、y 项"，并上传 D:\chimera_art\style\style_ref.png 对齐画风。

@@ -10,7 +10,7 @@ extends SceneTree
 
 const INTRO := """怎么用：
 1. 推荐用 Codex 的美术技能 chimera-art 批量生产：按《Codex使用说明.txt》装好，在美术文件夹里说"$chimera-art 开始"，Codex 会出图、自检预选，再请你在审核页里审。
-   备用：ChatGPT（网页版或桌面版）的"项目"，按《GPT使用说明.txt》设置一次。
+   备用：ChatGPT（网页版或桌面版）的"项目"（对 Claude 说要 ChatGPT 网页版的备用方案，它会把《GPT使用说明.txt》等文件给你）。
    也可以用任意 AI 生图工具（Midjourney / Stable Diffusion / 即梦 / 通义万相 …）复制下面的提示词生成：
    Midjourney 建议用二次元模型（--niji 6），末尾加 `--ar 比例 --no 反向提示词`；后续都加 `--sref 第一张满意图的链接`，保持风格统一。
    没有反向提示词栏的工具：在提示词末尾加 `Avoid: 反向提示词`。即梦、通义万相、可灵请关闭"智能扩写/提示词优化"。

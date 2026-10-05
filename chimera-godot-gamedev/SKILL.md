@@ -18,7 +18,7 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 5. **基因是行为，不是数值。** 新基因要用"触发器-动作-目标"DSL 表达**玩法**，纯加数值的基因只能是少数。
 6. **一次只做一个里程碑**（见 `references/roadmap.md`）。不要提前做后面里程碑的系统，范围蔓延是这个项目最大的风险。
 7. **对外动作先问用户。** 推送远程仓库、发布到 itch.io/Steam、使用付费或授权不明的素材、确定署名和许可证持有人，都要先征得同意。本地的 git commit 可以自主进行。
-8. **你不能生成图片，美术由用户提供。** 用户在自己的 Codex 里用美术技能 chimera-art 批量生产（Codex 出候选、自检预选，用户在审核页里审；备用方案是 ChatGPT 网页版项目），然后打包成**美术资产包**（zip 或图片文件夹）放进项目文件夹交给你。本项目不调用任何生图 API。缺图永远不阻塞开发，程序化占位美术会自动顶上。你的职责：
+8. **你不能生成图片，美术由用户提供。** 用户在自己的 Codex 里用美术技能 chimera-art 批量生产（Codex 出候选、自检预选，用户在审核页里审；Codex 出不了图时，按 art-pipeline §7 把 ChatGPT 网页版的备用方案文件交给用户），然后打包成**美术资产包**（zip 或图片文件夹）放进项目文件夹交给你。本项目不调用任何生图 API。缺图永远不阻塞开发，程序化占位美术会自动顶上。你的职责：
    - 导入资产包：`scripts/import_assets.sh`
    - 按 `references/art-pipeline.md` §4 逐张质检、对齐
    - **缺图或有瑕疵时主动向用户要**：给一段可以直接粘贴到 Codex 的补图请求（第一行 `$chimera-art 【补图请求】` 会调用美术技能；`docs/ART_REQUEST.txt` 是缺失部分；有瑕疵的按 art-pipeline §7 加上重做原因）
@@ -28,7 +28,7 @@ description: Build, continue, test, balance and ship the open-source Godot 4.7 g
 
 1. **定位项目**
    - 当前目录或用户给的路径里有 `project.godot`，且 `config/name` 含 "Chimera"：这是续作，进入第 2 步。
-   - 没有项目，并且当前目录基本是空的（只有美术资产包、图片、txt 说明、skill 压缩包、「给Claude的文件.zip / 给Codex的文件.zip」（或它们解压出的文件夹、Codex 美术文件夹 chimera_art）或解压后的 skill 文件夹）：**直接在当前目录新建**（`new_project.sh .`），见第 3 节。skill 文件夹会被自动排除（`prepare_root.sh`），skill 压缩包和这两个打包 zip 不会被当成美术导入，也都不会被提交。
+   - 没有项目，并且当前目录基本是空的（只有美术资产包、图片、txt 说明、skill 压缩包（chimera-godot-gamedev.zip、Codex 美术技能 chimera-art.zip）、Codex 美术文件夹 chimera_art 或解压后的 skill 文件夹）：**直接在当前目录新建**（`new_project.sh .`），见第 3 节。skill 文件夹会被自动排除（`prepare_root.sh`），这些 skill 压缩包不会被当成美术导入，也都不会被提交。
    - 没有项目，但当前目录里有别的东西：在 `./chimera-epoch` 新建，然后在当前目录执行 `import_assets.sh ./chimera-epoch ./资产包.zip`（资产包路径相对于当前目录，或者用绝对路径）。
 2. **读记忆**：读 `docs/PROGRESS.md`（进度、下一步、已知问题）和 `docs/DECISIONS.md`（已做的决定，不要推翻）。
 3. **找引擎**：运行 `GODOT=$(bash SKILL_DIR/scripts/find_godot.sh)`。
