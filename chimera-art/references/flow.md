@@ -13,10 +13,10 @@
 
 ## 选画风
 
-用 `reference_sheet` 出 3 张风格参考图（六个种族角色同框），提示词按 prompting.md 第 1、2 节拼，再各加一个方向：
+先读 game.md，再用 `reference_sheet` 出 3 张风格参考图（六个种族角色同框），提示词按 prompting.md 第 1、2 节拼，再各加一个方向：
 - 第一次选画风：用 prompting.md 第 3 节的 A / B / C。
 - 补图请求写着"风格已更换"之后：新的 `reference_sheet` 已经代表新风格，不要再用 A / B / C，改用中性的三个变化：A `Keep exactly this style.`、B `Same style, more delicate and detailed rendering.`、C `Same style, stronger contrast and richer colors.`
-存为 `style/style_A.png` 等，出审核页（style 模式），等用户选。选中后：方向句存 `style.clause`、意见译成英文存 `style.note_en`（换风格时先清空旧的），选中的图复制成 `style/style_ref.png`，`phase` 改成 `anchor`。
+存为 `style/style_A.png` 等，出审核页（style 模式），等用户选。汇报时用一句话告诉用户：这一步只选画风（线条、上色、整体气质），正式立绘会按清单画，头顶、肩背、前臂、胸口都留给游戏里的基因器官。选中后：方向句存 `style.clause`、意见译成英文存 `style.note_en`（换风格时先清空旧的），选中的图复制成 `style/style_ref.png`，`phase` 改成 `anchor`。
 
 ## 定调批
 

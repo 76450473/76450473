@@ -34,16 +34,16 @@
 
 在 `reference_sheet` 后面各加一句：
 
-- A 清透日系：`Lean towards clean Japanese anime cel shading: bright airy colors, crisp lineart, soft glowing highlights.`
+- A 清透日系：`Lean towards clean Japanese anime cel shading: crisp lineart, clear luminous colors, soft glowing gene-vein highlights.`
 - B 国风仙侠：`Lean towards ornate Chinese xianxia game painting: semi-thick painterly rendering, flowing silk, rich gold and jade accents.`
-- C 哥特未来：`Lean towards dark gothic-futurist elegance: deeper contrast, black lace and filigree, more glowing circuitry and stained-glass light.`
+- C 哥特未来：`Lean towards dark gothic-futurist elegance: deeper contrast, black lace and filigree, stronger glowing gene-vein light and stained-glass light.`
 
 用户选中后，把那一句存成 `style.clause`；用户写的意见译成英文存成 `style.note_en`。用户说"A 和 C 混一下"之类，就把两句合成一句。
 
 ## 4. 参考图（保持画风统一）
 
 带参考图出图 = 调用 `image_gen` 时传 `referenced_image_paths`（**完整的绝对路径**，Windows 要带盘符，例如 `D:\chimera_art\style\style_ref.png`，不能用相对路径），并在提示词开头写：
-`Image 1 is a STYLE REFERENCE only: match its art style, line quality, shading and coloring. Do not copy its characters, pose or composition. Create the new subject described below.`
+`Image 1 is a STYLE REFERENCE only: match its art style, line quality, shading and coloring. Do not copy its characters, outfits, headwear, pose or composition. Create the new subject described below.`
 （两张时再写 `Image 2 is also a style reference.`）
 
 带参考图的调用在 Windows 上有已知问题：**最多 2 张**（3 张以上常报网络错误）；有时会卡住十几分钟，你在调用期间没法自己停下。规则：

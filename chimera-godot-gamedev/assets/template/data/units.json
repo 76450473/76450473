@@ -9,7 +9,7 @@
      "slots": ["head", "core"], "capacity": 6, "innate": []},
     {"id": "insect_drone", "name": "螯兵", "race": "insect", "role": "螯兵", "hp": 17, "atk": 3, "spd": 5, "armor": 1,
      "slots": ["head", "limb", "back", "skin"], "capacity": 9, "innate": []},
-    {"id": "insect_broodling", "name": "幼体", "race": "insect", "role": "幼体", "hp": 5, "atk": 2, "spd": 5, "armor": 0,
+    {"id": "insect_broodling", "name": "虫仆", "race": "insect", "role": "虫仆", "hp": 5, "atk": 2, "spd": 5, "armor": 0,
      "slots": [], "capacity": 0, "innate": [], "summon_only": true},
     {"id": "fungal_sporeling", "name": "孢子体", "race": "fungal", "role": "孢", "hp": 13, "atk": 2, "spd": 3, "armor": 0,
      "slots": ["back", "core", "skin"], "capacity": 8, "innate": []},

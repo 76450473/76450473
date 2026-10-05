@@ -179,6 +179,11 @@ func test_enemy_specs_use_villain_art() -> void:
 	check_eq(ArtLibrary.body_for(hero).get("tag", ""), "hero", "player units use the hero art")
 	ArtLibrary._cache["res://art/bodies/%s_enemy" % plan] = {}
 	check_eq(ArtLibrary.body_for(vg).get("tag", ""), "hero", "no villain art -> enemies fall back to the hero art")
+	# summoned critters (larvae, spore pods) are not race characters: no standee, procedural art instead
+	var brood := VisualGenome.build({"template": "insect_broodling", "genes": []}, db)
+	check(bool(brood.get("summon", false)), "summon-only templates are flagged")
+	ArtLibrary._cache["res://art/bodies/" + str(brood.body_plan)] = {"tag": "hero"}
+	check(ArtLibrary.body_for(brood).is_empty(), "summons never borrow a character standee")
 	ArtLibrary.clear()
 
 
@@ -205,6 +210,18 @@ func test_prompt_text_header_for_chatgpt() -> void:
 	check(txt.contains("character lineup sheet"), "header carries the style-reference prompt")
 	check(txt.contains("【1】") and txt.contains("【%d】" % entries.size()), "items numbered 1..N")
 	check(not ArtManifest.to_text(entries).begins_with("《"), "no header without the manifest")
+
+
+func test_body_and_part_prompts_keep_gene_slots_clear() -> void:
+	# genes are grafted onto units at head / eye / back / core / torso / limb, so every standee (hero
+	# and villain) must leave those areas uncluttered, and every part must read as a gene organ
+	for e: Dictionary in ArtManifest.build(db):
+		var prompt := str(e.prompt)
+		if str(e.category) == "body":
+			check(prompt.contains("uncluttered") and prompt.contains("gene organs are attached there"),
+				"%s keeps the gene slots clear" % e.id)
+		elif str(e.category) == "part":
+			check(prompt.contains("gene organ"), "%s is drawn as a gene organ" % e.id)
 
 
 func test_assets_json_for_codex() -> void:

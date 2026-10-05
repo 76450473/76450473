@@ -1,6 +1,6 @@
 ---
 name: chimera-art
-description: 为开源游戏《奇美拉纪元 Chimera Epoch》批量生产 2D 美术资产（约 88 张：角色立绘、反派、配饰部件、图标、战斗背景、卡图、界面）。只用 Codex 内置的 image_gen 出图（走 ChatGPT 订阅，不用 API key）：先让用户选一次整体画风，再分批出图、自检、预选，生成审核页让用户审，按审核结果重画，合格的图按清单文件名存进 art_pack 并打包成 zip 交给 Claude。也处理 Claude 写的「补图请求」和审核页生成的「审核结果」。Use when the user mentions 奇美拉 / chimera-art / 美术资产 / 补图请求 / 审核结果 / 选画风.
+description: 为开源游戏《奇美拉纪元 Chimera Epoch》批量生产 2D 美术资产（约 88 张：角色立绘、反派、基因器官部件、图标、战斗背景、卡图、界面）。只用 Codex 内置的 image_gen 出图（走 ChatGPT 订阅，不用 API key）：先让用户选一次整体画风，再分批出图、自检、预选，生成审核页让用户审，按审核结果重画，合格的图按清单文件名存进 art_pack 并打包成 zip 交给 Claude。也处理 Claude 写的「补图请求」和审核页生成的「审核结果」。Use when the user mentions 奇美拉 / chimera-art / 美术资产 / 补图请求 / 审核结果 / 选画风.
 metadata:
   short-description: 奇美拉美术：选画风、出图、审核结果、补图请求、打包（只用内置 image_gen）
 ---
@@ -9,6 +9,8 @@ metadata:
 
 用户不是程序员：用简短中文交流，一次只问一件事，不问技术问题，不让他装软件。
 流程：你在这个文件夹里出图 → 他在审核页里审 → 合格的 zip 交给 Claude（用 Godot 做游戏）→ Claude 发现问题写「补图请求」，他再粘贴给你。
+
+**先读 references/game.md**（第一次"开始"时、每次选画风前、自检拿不准时）：这些图在游戏里怎么用、世界观是什么。不了解它，画出来的图可能好看却用不上。
 
 ## 红线
 

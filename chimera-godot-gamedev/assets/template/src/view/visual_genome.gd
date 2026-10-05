@@ -99,6 +99,7 @@ static func build(spec: Dictionary, db: GameData) -> Dictionary:
 		"scale": clampf(0.8 + (hp - 8) / 40.0, 0.75, 1.5),
 		"boss": bool(tpl.get("boss", false)),
 		"enemy": bool(spec.get("enemy", false)),  # enemies use the villain body art (body_<plan>_enemy) when it exists
+		"summon": bool(tpl.get("summon_only", false)),  # summoned critters keep the procedural creature art
 		"name": species_name(spec, db, element, parts),
 	}
 

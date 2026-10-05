@@ -57,7 +57,11 @@ static func body(plan: String) -> Dictionary:
 
 ## Body art for a VisualGenome: enemies get the villain version (art/bodies/<plan>_enemy.png)
 ## when it exists, otherwise the normal body of their body plan.
+## Standee art for a unit. Summoned critters (larvae, spore pods) are not race characters: they get
+## no standee and keep the procedural creature silhouette.
 static func body_for(vg: Dictionary) -> Dictionary:
+	if bool(vg.get("summon", false)):
+		return {}
 	var plan: String = vg.get("body_plan", "biped")
 	if bool(vg.get("enemy", false)):
 		var villain := lookup("res://art/bodies/" + plan + "_enemy")
